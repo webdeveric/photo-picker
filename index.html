@@ -19,9 +19,16 @@
 var picker          = new PhotoPicker,
     fbPicker        = new FacebookPicker,
     instagramPicker = new InstagramPicker(
+        "e63a8cb495e94cdebf6c7c16b1b55e20",
+        "http://photopicker.dev/callback.html"
+    );
+
+/*
+    instagramPicker = new InstagramPicker(
         "8f9ed714eaff481995467237175e5dfa",
         "https://photopicker.webdeveric.com/callback.html"
     );
+*/
 
 /*
 https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
@@ -40,6 +47,17 @@ window.receiveInstagramToken = function( token )
 $(function() {
     var button = document.getElementById("instagram-picker-button");
     button.addEventListener("click", instagramPicker.open.bind(instagramPicker) );
+    button.click();
+    instagramPicker.setContainer("#instragram-picker").init();
+
+    var preview = $("#preview");
+
+    $(document).on("photopicker.photo-selected", function( e, url, pickertype ) {
+        var img = new Image();
+            img.src = url;
+        preview.empty().append( img );
+    });
+
 });
 </script>
 <link type="text/css" rel="stylesheet" href="/css/main.css" />
@@ -47,16 +65,20 @@ $(function() {
 <body>
 
 <div id="content">
-    <a id="instagram-picker-button" class="button button-big">Get photos from Instagram</a>
+    <button id="instagram-picker-button" class="button button-big">Get photos from Instagram</button>
 
     <div id="instragram-picker" class="picker">
         <div class="row header">Instagram Images</div>
-        <div class="row photos"></div>
+        <div class="row photo-frame">
+            <div class="photo-container"></div>
+        </div>
         <div class="row actions">
-            <a class="button button-cancel">Cancel</a>
-            <a class="button button-submit">Pick this photo</a>
+            <button class="button button-cancel">Cancel</button><span class="divider">|</span><button class="button button-load-more" disabled>Load more</button><span class="divider">|</span><button class="button button-submit" disabled>Pick this photo</button>
         </div>
     </div>
+
+    <div id="preview"></div>
+
 </div>
 
 </body>
