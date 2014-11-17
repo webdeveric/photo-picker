@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html lang="en-US" class="no-js ie ie6 lte7 lte8 lte9"><![endif]-->
+<!--[if IE 7 ]><html lang="en-US" class="no-js ie ie7 lte7 lte8 lte9"><![endif]-->
+<!--[if IE 8 ]><html lang="en-US" class="no-js ie ie8 lte8 lte9"><![endif]-->
+<!--[if IE 9 ]><html lang="en-US" class="no-js ie ie9 lte9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html lang="en-US" class="no-js"><!--<![endif]-->
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<title>Photo Picker</title>
+<meta name="author" content="Eric King" />
+<meta name="viewport" content="width=device-width,user-scalable=no, initial-scale=1" />
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="/js/helpers.js"></script>
+<script src="/js/PhotoPicker.js"></script>
+<script src="/js/InstagramPicker.js"></script>
+<script src="/js/FacebookPicker.js"></script>
+<script>
+var picker          = new PhotoPicker,
+    fbPicker        = new FacebookPicker,
+    instagramPicker = new InstagramPicker(
+        "8f9ed714eaff481995467237175e5dfa",
+        "https://photopicker.webdeveric.com/callback.html"
+    );
+
+/*
+https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
+
+IE8/9 do NOT support postMessage between windows.
+They only supports it between frame and iframe.
+
+Here is a simple way of passing the token back to this page from a popup.
+See callback.html for details.
+*/
+window.receiveInstagramToken = function( token )
+{
+    instagramPicker.setAccessToken( token ).open();
+};
+
+$(function() {
+    var button = document.getElementById("instagram-picker-button");
+    button.addEventListener("click", instagramPicker.open.bind(instagramPicker) );
+});
+</script>
+<link type="text/css" rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+
+<div id="content">
+    <a id="instagram-picker-button" class="button button-big">Get photos from Instagram</a>
+
+    <div id="instragram-picker" class="picker">
+        <div class="row header">Instagram Images</div>
+        <div class="row photos"></div>
+        <div class="row actions">
+            <a class="button button-cancel">Cancel</a>
+            <a class="button button-submit">Pick this photo</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
