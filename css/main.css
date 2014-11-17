@@ -33,14 +33,25 @@ html, body{
     box-shadow: 0 0 4px 2px #DEDEDE;
 }
 
+#preview{
+    margin: 20px 0;
+    background: #EEE;
+}
+
+#preview img{
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
 .button{
     cursor: pointer;
     background: #F9F9F9;
     border: 1px solid #C4C4C4;
+    line-height: 1;
     color: #000;
     font-weight: 300;
-    font-size: .8em;
-    line-height: 30px;
     display: inline-block;
     vertical-align: middle;
     padding: 5px 15px;
@@ -53,6 +64,11 @@ html, body{
 .button:hover{
     background-color: #FFF;
     border-color: #9BA4B5;
+}
+
+.button[disabled]{
+    opacity: .5;
+    cursor: not-allowed;
 }
 
 .button-big{
@@ -70,7 +86,6 @@ html, body{
 }
 
 .button-cancel{
-
 }
 
 .button-cancel:hover{
@@ -78,12 +93,15 @@ html, body{
 }
 
 .button-submit{
-    color: #4D9050;
+    color: #FFF;
+    background-color: #418A41;
+    border-color: #2B602B;
     font-weight: bold;
 }
 
 .button-submit:hover{
-    color: #35A33A;
+    background-color: #3DAA3D;
+    border-color: #2B732B;
 }
 
 .picker{
@@ -105,18 +123,30 @@ html, body{
     color: #474747;
 }
 
-.picker .photos{
+.photo-frame{
     height: 400px;
+    display: block;
     background: #FFF;
     overflow: auto;
     transition: height ease-in-out 10s;
 }
 
-.picker .photos:empty{
+.photo-container{
+    display: block;
+    margin-bottom: 20px;
+}
+
+.photo-container:empty{
     height: auto;
 }
 
-.picker .photos:empty:before{
+.photo-container:after{
+    content: "";
+    clear: both;
+    display: block;
+}
+
+.photo-container:empty:before{
     content: "Loading photos";
     font-size: .75em;
     font-weight: 300;
@@ -132,7 +162,79 @@ html, body{
     background-color: #FEFEFE;
     background-image: linear-gradient(to bottom, #EEE, #FEFEFE);
     border-top: 1px solid #DDD;
-    font-size: 20px;
     color: #474747;
     text-align: right;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.picker .divider{
+    display: inline-block;
+    vertical-align: middle;
+    width: 1px;
+    line-height: 3em;
+    margin: 0 20px;
+    border-width: 0 1px 0 0;
+    border-style: solid;
+    border-color: rgba(0,0,0,.1);
+    box-shadow: 1px 0 0 #FFF;
+    text-indent: 200%;
+    white-space: nowrap;
+    hyphens: none;
+    overflow:hidden;
+}
+
+.picker .photo{
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    user-select: none;
+    display: block;
+    float:left;
+    width: 24%;
+    box-sizing: border-box;
+    margin: 0 1.333% 1.333% 0;
+    text-align: center;
+    border: 1px solid #CCC;
+    background: #DFDFDF;
+    visibility: visible;
+    opacity: 1;
+    transition: all ease-in-out 150ms;
+}
+
+.picker .photo:nth-child(4n){
+    margin-right: 0;
+}
+
+.picker .photo:nth-last-child(-n+4){
+    margin-bottom: 0;
+}
+
+.lte8 .picker .photo{
+    width: 23%;
+    margin: 0 2% 2% 0;
+}
+
+.picker .photo:hover{
+    background-color: #C9D7EC;
+    border-color: #B1C9EA;
+}
+
+.picker .photo.selected{
+    outline: 4px solid orangered;
+    z-index: 2;
+}
+
+.picker .photo img{
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+}
+
+.picker .photo.loading{
+    visibility: hidden;
+    opacity: 0;
 }
