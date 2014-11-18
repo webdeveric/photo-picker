@@ -116,7 +116,8 @@
   position: relative;
   height: 40px;
   line-height: 40px;
-  background: orangered linear-gradient( to top, #B00, orangered);
+  background: orangered;
+  background-image: linear-gradient( to top, #B00, orangered);
   color: #FFF;
 }
 
