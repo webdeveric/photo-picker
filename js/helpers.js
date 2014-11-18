@@ -33,7 +33,7 @@ function popup( url, prop )
 
 function createObject(proto)
 {
-    if ( Object.creates !== void 0 ) {
+    if ( Object.create !== void 0 ) {
         return Object.create( proto );
     }
 
