@@ -24,7 +24,7 @@ InstagramPicker.prototype.authorizePicker = function()
         return false;
     }
 
-    var url = "http://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + this.clientID + "&redirect_uri=" + this.redirectURI;
+    var url = "https://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + this.clientID + "&redirect_uri=" + this.redirectURI;
 
     var blocked = function( url, prop ) {
         var content = "<p>Unable to open Instagram in a new window.</p><p>You need to authorize this app to be able to select a photo.</p>";
