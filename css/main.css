@@ -47,6 +47,7 @@ html, body{
 
 .button{
     cursor: pointer;
+    text-decoration: none;
     background: #F9F9F9;
     border: 1px solid #C4C4C4;
     line-height: 1;
@@ -106,7 +107,6 @@ html, body{
 
 .picker{
     text-align: left;
-    margin: 1em 0 0 0;
     border: 1px solid #DDD;
 }
 
@@ -124,7 +124,8 @@ html, body{
 }
 
 .photo-frame{
-    height: 400px;
+    min-height: 150px;
+    max-height: 550px;
     display: block;
     background: #FFF;
     overflow: auto;
@@ -148,9 +149,15 @@ html, body{
 
 .photo-container:empty:before{
     content: "Loading photos";
-    font-size: .75em;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    font-size: .85em;
+    line-height: 1em;
+    margin-top: -.5em;
     font-weight: 300;
-    display: block;
     text-align: center;
     animation-duration: 1s;
     animation-name: fade;

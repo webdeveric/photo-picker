@@ -92,8 +92,8 @@
   margin: 0 auto;
   text-align: center;
   display: inline-block;
-  background-color: #1A2133;
-  color: #FFF;
+  background-color: #FFF;
+  color: #000;
   padding: 0;
   overflow: hidden;
   -webkit-box-ordinal-group: 1;
@@ -113,24 +113,20 @@
 
 .lightbox-titlebar{
   display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 35px;
+  position: relative;
+  height: 40px;
+  line-height: 40px;
+  background: orangered linear-gradient( to top, #B00, orangered);
+  color: #FFF;
 }
 
 .lightbox-title{
   position: relative;
-  background: rgba(0,0,0,.7);
-  width: calc(100% - 35px);
-  height: 35px;
-  padding: 5px 10px;
-  font-size: .8em;
-  line-height: 25px;
-  font-weight: bold;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+  font-size: 14px;
   text-align: left;
-  text-transform: capitalize;
   white-space: nowrap;
   hyphens: none;
   text-overflow: ellipsis;
@@ -149,19 +145,16 @@
   z-index: 10;
   top: 0;
   right: 0;
-  width: 35px;
-  height: 35px;
-  line-height: .75em;
-  background: #1A2133;
-  color: #FFF;
-  font-size: 35px;
+  width: 40px;
+  height: 40px;
+  line-height: 35px;
+  font-size: 20px;
   text-align: center;
-  font-weight: bold;
   transition: all ease-in-out 200ms;
 }
 
 .lightbox-close:hover{
-  box-shadow: 0 0 5px #1A2133;
+  background: #000;
 }
 
 .lightbox-content{
@@ -170,4 +163,51 @@
   line-height: 1.2;
   min-width: 300px;
   min-height: 200px;
+  padding: 20px;
+}
+
+
+.lightbox.notice .lightbox-wrapper{
+    max-width: 500px;
+    background: #EEE;
+    color: #345;
+    border-radius: 4px;
+    box-shadow: 0 0 10px 10px rgba(0,0,0,.075), inset 0 0 3px rgba(0,0,0,.5);
+}
+
+.lightbox.notice .lightbox-titlebar{
+    position: relative;
+    background: orangered linear-gradient( to top, red, orangered);
+    color: #FFF;
+}
+
+.lightbox.notice .lightbox-title{
+    background: transparent;
+}
+
+.lightbox.notice .lightbox-close{
+    background: transparent;
+    color: #FFF;
+    box-shadow: none;
+    line-height: 30px;
+}
+
+.lightbox.notice .lightbox-content{
+    padding: 20px;
+    min-height: 0;
+}
+
+.lightbox.notice .lightbox-content p{
+    margin: 0 0 10px 0;
+}
+
+.instagram-lightbox .lightbox-wrapper{
+  width: 800px;
+  border-radius: 3px;
+  box-shadow: 0 0 10px 10px rgba(0,0,0,.15);
+  color: #333;
+}
+
+.instagram-lightbox .lightbox-content{
+    padding: 0;
 }
