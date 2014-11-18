@@ -10,26 +10,17 @@
 <title>Photo Picker</title>
 <meta name="author" content="Eric King" />
 <meta name="viewport" content="width=device-width,user-scalable=no, initial-scale=1" />
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="/js/hogan-3.0.1.js"></script>
 <script src="/js/helpers.js"></script>
+<script src="/js/lightbox.js"></script>
 <script src="/js/PhotoPicker.js"></script>
 <script src="/js/InstagramPicker.js"></script>
 <script src="/js/FacebookPicker.js"></script>
-<script src="/js/lightbox.js"></script>
 <script>
-var picker          = new PhotoPicker,
-    fbPicker        = new FacebookPicker,
-    instagramPicker = new InstagramPicker(
-        "e63a8cb495e94cdebf6c7c16b1b55e20",
-        "http://photopicker.dev/callback.html"
-    );
-
-/*
-    instagramPicker = new InstagramPicker(
-        "8f9ed714eaff481995467237175e5dfa",
-        "https://photopicker.webdeveric.com/callback.html"
-    );
-*/
+var picker,
+    fbPicker,
+    instagramPicker;
 
 /*
 https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
@@ -46,10 +37,22 @@ window.receiveInstagramToken = function( token )
 };
 
 $(function() {
-    var button = document.getElementById("instagram-picker-button");
-    button.addEventListener("click", instagramPicker.open.bind(instagramPicker) );
-    button.click();
-    instagramPicker.setContainer("#instragram-picker").init();
+
+    picker          = new PhotoPicker;
+    fbPicker        = new FacebookPicker;
+    // instagramPicker = new InstagramPicker(
+    //     "e63a8cb495e94cdebf6c7c16b1b55e20",
+    //     "http://photopicker.dev/callback.html"
+    // );
+    instagramPicker = new InstagramPicker(
+        "#instragram-picker",
+        "8f9ed714eaff481995467237175e5dfa",
+        "https://photopicker.webdeveric.com/callback.html"
+    );
+
+    instagramPicker.init();
+
+    var button = $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
 
     var preview = $("#preview");
 
@@ -59,6 +62,21 @@ $(function() {
         preview.empty().append( img );
     });
 
+
+    // var facebookContent = new Content("Get photos from Facebook here.");
+    // var instagramContent = new AjaxContent("content.html");
+
+    // var InstagramLightbox = new Lightbox(
+    //     ".instagram-lightbox",
+    //     instagramContent,
+    //     {
+    //         title: "Choose Photo",
+    //         extraClass: "notice"
+    //     }
+    // );
+
+    // InstagramLightbox.open();
+
 });
 </script>
 <link type="text/css" rel="stylesheet" href="/css/main.css" />
@@ -67,10 +85,49 @@ $(function() {
 <body>
 
 <div id="content">
-    <button id="instagram-picker-button" class="button button-big">Get photos from Instagram</button>
 
-    <div id="instragram-picker" class="picker">
-        <div class="row header">Instagram Images</div>
+    <button id="instagram-picker-button" class="button button-big">Get photo from Instagram</button>
+
+    <div id="preview"></div>
+
+</div>
+
+
+
+<div class="lightbox default-lightbox">
+    <div class="lightbox-overlay lightbox-close-action"></div>
+    <div class="lightbox-frame lightbox-close-action">
+        <div class="lightbox-wrapper">
+            <div class="lightbox-titlebar">
+                <div class="lightbox-title"></div>
+                <div class="lightbox-close lightbox-close-action">&times;</div>
+            </div>
+            <div class="lightbox-content">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="lightbox instagram-lightbox" id="instagram-lightbox">
+    <div class="lightbox-overlay lightbox-close-action"></div>
+    <div class="lightbox-frame lightbox-close-action">
+        <div class="lightbox-wrapper">
+            <div class="lightbox-titlebar">
+                <div class="lightbox-title"></div>
+                <div class="lightbox-close lightbox-close-action">&times;</div>
+            </div>
+            <div class="lightbox-content">
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/template" id="instragram-picker">
+    <div class="picker instagram-picker">
         <div class="row photo-frame">
             <div class="photo-container"></div>
         </div>
@@ -78,23 +135,7 @@ $(function() {
             <button class="button button-cancel">Cancel</button><span class="divider">|</span><button class="button button-load-more" disabled>Load more</button><span class="divider">|</span><button class="button button-submit" disabled>Pick this photo</button>
         </div>
     </div>
-
-    <div id="preview"></div>
-
-</div>
-
-<div class="lightbox">
-    <div class="lightbox-overlay"></div>
-    <div class="lightbox-frame">
-        <div class="lightbox-wrapper">
-            <div class="lightbox-titlebar">
-                <div class="lightbox-title"></div>
-                <div class="lightbox-close">&times;</div>
-            </div>
-            <div class="lightbox-content"></div>
-        </div>
-    </div>
-</div>
+</script>
 
 </body>
 </html>

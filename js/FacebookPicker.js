@@ -1,9 +1,15 @@
-function FacebookPicker() {
+function FacebookPicker()
+{
     PhotoPicker.call(this);
+
+    this.type           = "facebookpicker";
+    this.batchSize      = 20;
+    // this.clientID       = clientID;
+    // this.redirectURI    = redirectURI;
+    // this.accessToken    = null;
 }
 
-FacebookPicker.prototype = createObject( PhotoPicker.prototype );
-FacebookPicker.prototype.constructor = FacebookPicker;
+extendClass( FacebookPicker, PhotoPicker );
 
 FacebookPicker.prototype.fetchData = function()
 {

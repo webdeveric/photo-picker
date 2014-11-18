@@ -1,4 +1,4 @@
-function popup( url, prop )
+function popup( url, prop, blocked_callback )
 {
     prop = prop || {};
 
@@ -28,6 +28,10 @@ function popup( url, prop )
         return true;
     }
 
+    if ( typeof blocked_callback === "function" ) {
+        blocked_callback.call(blocked_callback, url, prop);
+    }
+
     return false;
 }
 
@@ -41,3 +45,39 @@ function createObject(proto)
     obj.prototype = proto;
     return new obj();
 }
+
+function extendClass( Class, ParentClass )
+{
+    Class.prototype = createObject( ParentClass.prototype );
+    Class.prototype.constructor = Class;
+    return Class;
+}
+
+/*
+function makeClass( properties, parentClass )
+{
+    var Class = function()
+    {
+        if ( parentClass ) {
+            parentClass.call(this, arguments);
+        }
+
+        if( properties ) {
+            for( var prop in properties ) {
+                this[ prop ] = properties[ prop ];
+            }
+        }
+
+        if( "function" == typeof this.construct)
+            this.construct.apply(this, arguments);      
+    }
+
+    if( parentClass ) {
+        Class.prototype = createObject( parentClass.prototype );
+    }
+
+    Class.prototype.constructor = Class;
+
+    return Class;
+}
+*/

@@ -10,192 +10,225 @@
 }(function($) {
     "use strict";
 
-    $.fn.lightbox = function(options) {
+    function ContentProvider( content, options )
+    {
+        this.content = content || "";
+        this.options = $.extend({}, options );
+    };
 
-        var settings = $.extend({}, $.fn.lightbox.defaults, options),
-            data = $.fn.lightbox.data;
+    ContentProvider.prototype.bindEvents = function()
+    {
+    };
 
-        function checkESC(event)
-        {
-            if (event.keyCode == 27 && settings.closeOnESC) {
-                close();
-            }
+    ContentProvider.prototype.unbindEvents = function()
+    {
+    };
+
+    ContentProvider.prototype.getContent = function( callback )
+    {
+        if ( callback ) {
+            return callback.call(callback, this.content, this );
+        } else {
+            return this.content;
         }
+    };
 
-        function listenforESC()
-        {
-            $(document).on("keyup.lightbox", checkESC);
-        }
-
-        function dontlistenforESC()
-        {
-            $(document).unbind("keyup.lightbox");
-        }
-
-        function toggle(state)
-        {
-            state = state || false;
-
-            data.container = $(settings.container);
-
-            if ( !state ) {
-                clearContents();
-            } else {
-                // Reset scroll
-                data.container.scrollTop( 0 );
-            }
-
-            if (settings.className) {
-                data.container.toggleClass(settings.className, state);
-            }
-
-            data.container.toggleClass(settings.isOpenClass, state);
-            $(document).trigger("lightbox-state-change", [ state, settings ] );
-
-        }
-
-        function close(event)
-        {
-            if (event) {
-                if (event.target != event.currentTarget) {
-                    return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-            toggle(false);
-
-            if (data.currentTarget) {
-                data.currentTarget.removeClass(settings.activeClass).trigger("lightbox-closed");
-            }
-
-            if ( data.container && data.extraClassName !== "" ) {
-                data.container.removeClass( data.extraClassName );
-            }
-
-            dontlistenforESC();
-        }
-
-        function clearContents()
-        {
-            return $(settings.content).empty();
-        }
-
-        function load(content)
-        {
-            clearContents().append(content);
-        }
-
-        function fetch(url)
-        {
-            $.ajax(url, {}).done(function(data, textStatus, jqXHR) {
-                if (settings.processAjaxResponse) {
-                    data = settings.processAjaxResponse(data, textStatus, jqXHR);
-                }
-                load(data);
-                toggle(true);
-            });
-        }
-
-        function render(template) {
-            clearContents().append($(template).html());
-        }
-
-        function handleClick(event)
-        {
-            listenforESC();
-
-            var container = $(settings.container);
-
-            if (data.currentTarget) {
-                data.currentTarget.removeClass(settings.activeClass);
-            }
-
-            if (data.className && (settings.className && data.className != settings.className) || !settings.className) {
-                container.removeClass(data.className);
-            }
-
-            if (settings.className) {
-                container.addClass(data.className = settings.className);
-            }
-
-            data.currentTarget = $(event.currentTarget);
-
-            var dataContent = data.currentTarget.data("lightbox-content") || "",
-                href = data.currentTarget.attr("href") || "",
-                dataTemplate = data.currentTarget.data("lightbox-template") || "";
-
-            if ( data.extraClassName !== "" ) {
-                data.currentTarget.removeClass( data.extraClassName );
-            }
-
-            data.extraClassName = data.currentTarget.data("lightbox-class") || "";
-            data.title = data.currentTarget.data("lightbox-title") || "";
-
-            if ( data.title !== "" ) {
-                $(settings.title).text(data.title);
-            }
-
-            if (dataContent !== "") {
-                load(dataContent);
-                toggle(true);
-            } else if (href) {
-                fetch(href);
-            } else if (dataTemplate !== "") {
-                render(dataTemplate);
-                toggle(true);
-            }
-
-            data.container = container;
-
-            data.currentTarget.addClass(settings.activeClass);
-            data.container.addClass( data.extraClassName );
-
-            return false;
-        }
-
-        if (settings.closeOnClick) {
-            $(settings.closeOnClick).on("click.lightbox", close);
-            // $(settings.container).unbind("click.lightbox");
-        }
-
-        $(document).on("lightbox-state-change", function(event, state /*, settings */) {
-            $(document.documentElement).toggleClass("lightbox-open", state);
-        });
-        $(document).on("lightbox/close", function() {
-            close();
-        });
-
-        this.on("click", settings.descendantSelector, handleClick);
-        this.on("lightbox", function(e) {
-            handleClick(e);
-            toggle(true);
-        });
+    ContentProvider.prototype.setContent = function( content )
+    {
+        this.content = content;
         return this;
     };
 
-    $.fn.lightbox.data = {};
+    function AjaxContentProvider( url, options )
+    {
+        ContentProvider.call(this, null, options);
+        this.url = url;
+        this.options = $.extend(
+            this.options,
+            {
+                ajaxOptions: {},
+                processData: function( data, textStatus, jqXHR ) {
+                    return data;
+                }
+            },
+            options
+        );
+    };
 
-    $.fn.lightbox.defaults = {
-        container: ".lightbox",
-        content: ".lightbox-content",
-        title: ".lightbox-title",
-        isOpenClass: "open",
-        activeClass: "active",
-        closeOnClick: ".lightbox-overlay, .lightbox-close, .lightbox-frame",
-        closeOnESC: true,
-        descendantSelector: null,
-        processAjaxResponse: function(data, textStatus, jqXHR) {
+    extendClass( AjaxContentProvider, ContentProvider );
 
-            var ct = jqXHR.getResponseHeader("content-type") || "";
+    AjaxContentProvider.prototype.fetchContent = function( callback )
+    {
+        var self = this;
+        return $.ajax( this.url, this.options.ajaxOptions ).done( function(data, textStatus, jqXHR) {
+            if ( self.options.processData ) {
+                self.setContent( self.options.processData.call( self, data, textStatus, jqXHR ) );
+            }
+            if ( callback ) {
+                callback.call(callback, self.content);
+            }
+        });
+    };
 
-            if (ct.indexOf("json") > -1) {
-                return data.content;
+    AjaxContentProvider.prototype.getContent = function( callback )
+    {
+        if ( !this.content ) {
+            this.fetchContent( callback );
+            return;
+        }
+
+        if ( callback ) {
+            return callback.call(callback, this.content);
+        } else {
+            return this.content;    
+        }        
+    };
+
+    window.ContentProvider = ContentProvider;
+    window.AjaxContentProvider = AjaxContentProvider;
+
+    function Lightbox( template, contentProvider, options )
+    {
+        this.template = $(template);
+        this.setContentProvider( contentProvider );
+        this.options = $.extend({
+            closeOnESC: true,
+            htmlClass: "lightbox-open",
+            closeSelector: ".lightbox-close-action",
+            extraClass: ""
+        }, options );
+    }
+
+    Lightbox.open       = false;
+    Lightbox.current    = null;
+    Lightbox.queue      = [];
+    Lightbox.queueDelay = 250;
+
+    Lightbox.close = function() {
+        if ( Lightbox.current ) {
+            Lightbox.current.close();
+        }
+        return Lightbox;
+    }
+
+    Lightbox.prototype.setContentProvider = function( contentProvider )
+    {
+        this.contentProvider = contentProvider instanceof ContentProvider ? contentProvider : new ContentProvider;
+    };
+
+    Lightbox.prototype.renderContent = function()
+    {
+        this.template.addClass("loading");
+
+        this.contentProvider.unbindEvents();
+
+        var contentFrame = this.template.find(".lightbox-content").empty(),
+            self = this;
+
+        this.contentProvider.getContent( function( content, contentProvider ) {
+            contentFrame.append( content );
+            contentProvider.bindEvents();
+            self.template.removeClass("loading");            
+        });        
+    };
+
+    Lightbox.prototype.option = function( option_name, default_value )
+    {
+        return this.options[ option_name ] || default_value || "";
+    }
+
+    Lightbox.prototype.open = function()
+    {
+        if ( Lightbox.open ) {
+            Lightbox.queue.unshift( this );
+            return;
+        }
+
+        this.bindEvents();
+        Lightbox.current = this;
+        Lightbox.open = true;
+
+        this.addClasses();
+
+        this.setTitle();
+        this.renderContent();
+
+        console.log("Lightbox opened");
+        return this;
+    }
+
+    Lightbox.prototype.addClasses = function()
+    {
+        $(document.documentElement).addClass( this.option("htmlClass") );
+        this.template.addClass("open").addClass( this.option("extraClass") );
+    }
+
+    Lightbox.prototype.removeClasses = function()
+    {
+        $(document.documentElement).removeClass( this.option("htmlClass") );
+        this.template.removeClass("open").removeClass( this.option("extraClass") );
+    }
+
+    Lightbox.prototype.setTitle = function( title ) {
+        title = title || this.option("title", "");
+        this.template.find(".lightbox-title").text( title );
+    }
+
+    Lightbox.prototype.close = function( event )
+    {
+        if (event) {
+            if (event.target != event.currentTarget) {
+                return;
             }
 
-            return data;
+            if ( !$(event.currentTarget).data("allow-default") ) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
         }
-    };
+
+        this.unbindEvents();
+        Lightbox.current = null;
+        Lightbox.open = false;
+
+        this.removeClasses();
+
+        this.checkQueue();
+        console.log("Lightbox closed");
+        return this;
+    }
+
+    Lightbox.prototype.checkQueue = function()
+    {
+        if ( Lightbox.queue.length ) {
+            var next = Lightbox.queue.pop();
+            setTimeout( function() {
+                next.open();
+            }, Lightbox.queueDelay || 250 );
+        }
+    }
+
+    Lightbox.prototype.checkESC = function(event)
+    {
+        if (event.keyCode == 27 && this.option("closeOnESC", true) ) {
+            this.close();
+        }
+    }
+
+    Lightbox.prototype.bindEvents = function()
+    {
+        $(document).on("keyup.lightbox", $.proxy( this.checkESC, this ) );
+        this.template.on("click.lightbox", this.option("closeSelector"), $.proxy( this.close, this ) );
+    }
+
+    Lightbox.prototype.unbindEvents = function()
+    {
+        $(document).off("keyup.lightbox");
+        this.template.off("click.lightbox", this.option("closeSelector") );
+    }
+
+    window.Lightbox = Lightbox;
+
+    return Lightbox;
 
 }));

@@ -199,6 +199,7 @@ html, body{
     user-select: none;
     display: block;
     float:left;
+    overflow: hidden;
     width: 24%;
     box-sizing: border-box;
     margin: 0 1.333% 1.333% 0;

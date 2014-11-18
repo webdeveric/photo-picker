@@ -1,43 +1,78 @@
-function PhotoPicker()
+function PhotoPicker( templateSelector )
 {
-    this.type          = "photopicker";
-    this.photos        = [];
-    this.index         = 0;
-    this.nextURL       = null;
-    this.currentURL    = null;
-    this.batchSize     = 10;
-    this.selectedPhoto = null;
+    ContentProvider.call(this);
 
-    this.container      = null;
+    this.type           = "photopicker";
+    this.template       = templateSelector;
+    this.photos         = [];
+    this.index          = 0;
+    this.nextURL        = null;
+    this.currentURL     = null;
+    this.batchSize      = 10;
+    this.selectedPhoto  = null;
+    this.lightbox       = null;
     this.photoContainer = null;
     this.loadMoreButton = null;
     this.cancelButton   = null;
     this.submitButton   = null;
 }
 
+extendClass( PhotoPicker, ContentProvider );
+
 PhotoPicker.prototype.init = function()
+{
+    this.setupTemplate();
+};
+
+PhotoPicker.prototype.bindEvents = function()
 {
     var self = this;
 
-    this.photoContainer = this.container.find(".photo-container");
-    this.loadMoreButton = this.container.find(".button-load-more");
-    this.cancelButton   = this.container.find(".button-cancel");
-    this.submitButton   = this.container.find(".button-submit");
+    if ( this.photoContainer ) {
+        this.photoContainer.on("click.photopicker", ".photo", $.proxy( this.handlePhotoClick, this ) );
+    }
 
-    this.photoContainer.on("click", ".photo", $.proxy( this.handlePhotoClick, this ) );
+    if ( this.loadMoreButton ) {
+        this.loadMoreButton.on("click.photopicker", function() {
+            self.loadMore();
+        });
+    }
 
-    this.loadMoreButton.click( function() {
-        self.loadMore();
-    });
+    if ( this.cancelButton ) {
+        this.cancelButton.on("click.photopicker", function() {
+            self.clearSelected();
+            self.close();
+        });
+    }
 
-    this.cancelButton.click( function() {
-        self.clearSelected();
-        self.close();
-    });
+    if ( this.submitButton ) {
+        this.submitButton.on("click.photopicker", function() {
+            self.handleSubmit();
+        });
+    }
 
-    this.submitButton.click( function() {
-        self.handleSubmit();
-    });
+    return this;
+}
+
+PhotoPicker.prototype.unbindEvents = function()
+{
+    if ( this.photoContainer ) {
+        this.photoContainer.off("click.photopicker", ".photo");
+    }
+
+    if ( this.loadMoreButton ) {
+        this.loadMoreButton.off("click.photopicker");
+    }
+
+    if ( this.cancelButton ) {
+        this.cancelButton.off("click.photopicker");
+    }
+
+    if ( this.submitButton ) {
+        this.submitButton.off("click.photopicker");
+    }
+
+    return this;
 };
 
 PhotoPicker.prototype.open = function()
@@ -46,7 +81,10 @@ PhotoPicker.prototype.open = function()
 
 PhotoPicker.prototype.close = function()
 {
-    console.log("PhotoPicker close");
+    if ( this.lightbox ) {
+        this.lightbox.close();
+    }
+    console.log("PhotoPicker closed");
 };
 
 PhotoPicker.prototype.render = function()
@@ -88,7 +126,7 @@ PhotoPicker.prototype.fetch = function( url, data )
     this.currentURL = url;
     data = data || "";
 
-    console.log( url, data );
+    // console.log( url, data );
 
     var xhr = $.ajax({
         url: url,
@@ -99,8 +137,6 @@ PhotoPicker.prototype.fetch = function( url, data )
     ).fail(
         $.proxy( this.fetchFailed, this )
     );
-
-    console.log("Fetching data with XHR");
 
     return xhr;
 }
@@ -113,7 +149,7 @@ PhotoPicker.prototype.fetchFailed = function()
 PhotoPicker.prototype.clearSelected = function()
 {
     this.selectedPhoto = null;
-    this.container.find(".selected").removeClass("selected");
+    this.content.find(".selected").removeClass("selected");
     this.submitButton.prop("disabled", 1 );
 };
 
@@ -154,4 +190,15 @@ PhotoPicker.prototype.handleSubmit = function()
     console.log("PhotoPicker submitted");
     $(document).trigger("photopicker.photo-selected", [ this.getSelectedPhotoURL(), this.type ] );
     this.close();
+};
+
+PhotoPicker.prototype.setupTemplate = function()
+{
+    this.template       = Hogan.compile( $(this.template).html() );
+    this.content        = $( this.template.render() );
+    this.photoContainer = $(".photo-container", this.content );
+    this.loadMoreButton = $(".button-load-more", this.content );
+    this.cancelButton   = $(".button-cancel", this.content );
+    this.submitButton   = $(".button-submit", this.content );
+    return this;
 };

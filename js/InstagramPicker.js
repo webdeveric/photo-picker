@@ -1,36 +1,48 @@
-function InstagramPicker( clientID, redirectURI )
+function InstagramPicker( templateSelector, clientID, redirectURI )
 {
-    PhotoPicker.call(this);
-    this.type           = "instgrampicker";
-    this.batchSize      = 20;
-    this.clientID       = clientID;
-    this.redirectURI    = redirectURI;
-    this.accessToken    = null;
+    PhotoPicker.call(this, templateSelector);
+
+    this.type        = "instgrampicker";
+    this.batchSize   = 20;
+    this.clientID    = clientID;
+    this.redirectURI = redirectURI;
+    this.accessToken = null;
 }
 
-InstagramPicker.prototype = createObject( PhotoPicker.prototype );
-InstagramPicker.prototype.constructor = InstagramPicker;
+extendClass( InstagramPicker, PhotoPicker );
 
 InstagramPicker.prototype.init = function()
 {
     PhotoPicker.prototype.init.call(this);
-};
-
-InstagramPicker.prototype.setContainer = function( container ) {
-    this.container = $(container);
-    return this;
+    this.bindEvents();
 };
 
 InstagramPicker.prototype.authorizePicker = function()
 {
     if ( ! this.clientID || ! this.redirectURI ) {
-        // console.log("Please provide clientID and redirectURI");
+        console.log("Please provide clientID and redirectURI");
         return false;
     }
 
     var url = "http://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + this.clientID + "&redirect_uri=" + this.redirectURI;
 
-    popup( url, { name: "instagram", width: 650, height: 480 } );
+    var blocked = function( url, prop ) {
+        var content = "<p>Unable to open Instagram in a new window.</p><p>You need to authorize this app to be able to select a photo.</p>";
+            content+= "<p><a target='_blank' class='button lightbox-close-action' href='" + url + "' data-allow-default='true'>Authorize app</a></p>";
+
+        var blocked_lightbox = new Lightbox(
+            ".default-lightbox",
+            new ContentProvider( content ),
+            {
+                title: "Authorization required",
+                extraClass: "notice"
+            }
+        );
+
+        blocked_lightbox.open();
+    };
+
+    popup( url, { name: "instagram", width: 650, height: 480 }, blocked );
 };
 
 InstagramPicker.prototype.setAccessToken = function( token )
@@ -54,7 +66,9 @@ InstagramPicker.prototype.processData = function(data, status, jqXHR)
 {
     this.nextURL = data.pagination.next_url || false;
 
-    this.loadMoreButton.prop("disabled", this.nextURL === false );
+    if ( this.loadMoreButton ) {
+        this.loadMoreButton.prop("disabled", this.nextURL === false );
+    }
 
     var data = data.data,
         i = 0,
@@ -97,16 +111,27 @@ InstagramPicker.prototype.getSelectedPhotoURL = function()
 
 InstagramPicker.prototype.render = function()
 {
-    // console.log("Rendering instagram data");
-    // this should open the lightbox
+    if ( !this.lightbox ) {
+        this.lightbox = new Lightbox(
+            ".instagram-lightbox",
+            this,
+            {
+                title: "Choose Photo"
+            }
+        );
+    }
+
+    this.lightbox.open();
 };
 
 InstagramPicker.prototype.append = function( photo )
 {
     var photos_length = this.photos.push( photo );
 
-    var img = new Image(),
+    var img  = new Image(),
         item = document.createElement("div");
+
+    item.appendChild( img );
 
     img.onload = function() {
         this.parentNode.className = "photo";
@@ -117,7 +142,6 @@ InstagramPicker.prototype.append = function( photo )
 
     item.setAttribute("data-photo-index", photos_length - 1 );
     item.className = "photo loading";
-    item.appendChild( img );
 
     this.photoContainer.append( item );
 };
