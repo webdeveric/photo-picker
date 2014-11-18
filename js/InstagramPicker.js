@@ -138,7 +138,7 @@ InstagramPicker.prototype.append = function( photo )
         this.onload = null;
     };
     
-    img.src = photo.images.thumbnail.url;
+    img.src = photo.images.thumbnail.url.replace("http://", "//");
 
     item.setAttribute("data-photo-index", photos_length - 1 );
     item.className = "photo loading";
