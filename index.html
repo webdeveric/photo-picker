@@ -15,6 +15,7 @@
 <script src="/js/PhotoPicker.js"></script>
 <script src="/js/InstagramPicker.js"></script>
 <script src="/js/FacebookPicker.js"></script>
+<script src="/js/lightbox.js"></script>
 <script>
 var picker          = new PhotoPicker,
     fbPicker        = new FacebookPicker,
@@ -61,6 +62,7 @@ $(function() {
 });
 </script>
 <link type="text/css" rel="stylesheet" href="/css/main.css" />
+<link type="text/css" rel="stylesheet" href="/css/lightbox.css" />
 </head>
 <body>
 
@@ -79,6 +81,19 @@ $(function() {
 
     <div id="preview"></div>
 
+</div>
+
+<div class="lightbox">
+    <div class="lightbox-overlay"></div>
+    <div class="lightbox-frame">
+        <div class="lightbox-wrapper">
+            <div class="lightbox-titlebar">
+                <div class="lightbox-title"></div>
+                <div class="lightbox-close">&times;</div>
+            </div>
+            <div class="lightbox-content"></div>
+        </div>
+    </div>
 </div>
 
 </body>
