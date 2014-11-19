@@ -10,75 +10,6 @@
 <title>Photo Picker</title>
 <meta name="author" content="Eric King" />
 <meta name="viewport" content="width=device-width,user-scalable=no, initial-scale=1" />
-<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="/js/hogan-3.0.1.js"></script>
-<script src="/js/helpers.js"></script>
-<script src="/js/lightbox.js"></script>
-<script src="/js/PhotoPicker.js"></script>
-<script src="/js/InstagramPicker.js"></script>
-<script src="/js/FacebookPicker.js"></script>
-<script>
-var picker,
-    fbPicker,
-    instagramPicker;
-
-/*
-https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
-
-IE8/9 do NOT support postMessage between windows.
-They only supports it between frame and iframe.
-
-Here is a simple way of passing the token back to this page from a popup.
-See callback.html for details.
-*/
-window.receiveInstagramToken = function( token )
-{
-    instagramPicker.setAccessToken( token ).open();
-};
-
-$(function() {
-
-    picker          = new PhotoPicker;
-    fbPicker        = new FacebookPicker;
-    // instagramPicker = new InstagramPicker(
-    //     "e63a8cb495e94cdebf6c7c16b1b55e20",
-    //     "http://photopicker.dev/callback.html"
-    // );
-    instagramPicker = new InstagramPicker(
-        "#instragram-picker",
-        "8f9ed714eaff481995467237175e5dfa",
-        "https://photopicker.webdeveric.com/callback.html"
-    );
-
-    instagramPicker.init();
-
-    var button = $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
-
-    var preview = $("#preview");
-
-    $(document).on("photopicker.photo-selected", function( e, url, pickertype ) {
-        var img = new Image();
-            img.src = url;
-        preview.empty().append( img );
-    });
-
-
-    // var facebookContent = new Content("Get photos from Facebook here.");
-    // var instagramContent = new AjaxContent("content.html");
-
-    // var InstagramLightbox = new Lightbox(
-    //     ".instagram-lightbox",
-    //     instagramContent,
-    //     {
-    //         title: "Choose Photo",
-    //         extraClass: "notice"
-    //     }
-    // );
-
-    // InstagramLightbox.open();
-
-});
-</script>
 <link type="text/css" rel="stylesheet" href="/css/main.css" />
 <link type="text/css" rel="stylesheet" href="/css/lightbox.css" />
 </head>
@@ -88,11 +19,15 @@ $(function() {
 
     <button id="instagram-picker-button" class="button button-big">Get photo from Instagram</button>
 
+    <div id="lightbox-demo">
+        <a href="content.html" class="item button" data-lightbox-title="Ajax Content">Lipsum</a>
+        <a href="./" data-lightbox-href="content.html" data-lightbox-class="notice" class="item button" data-lightbox-title="Alternate HREF">Alternate HREF</a>
+        <span class="item button" data-lightbox-content="TEST" data-lightbox-title="Data Attribute Content">Content</span>
+    </div>
+
     <div id="preview"></div>
 
 </div>
-
-
 
 <div class="lightbox default-lightbox">
     <div class="lightbox-overlay lightbox-close-action"></div>
@@ -108,7 +43,6 @@ $(function() {
         </div>
     </div>
 </div>
-
 
 <div class="lightbox instagram-lightbox" id="instagram-lightbox">
     <div class="lightbox-overlay lightbox-close-action"></div>
@@ -136,6 +70,8 @@ $(function() {
         </div>
     </div>
 </script>
+
+<script data-main="js/app" src="js/require.js"></script>
 
 </body>
 </html>
