@@ -33,6 +33,10 @@ html, body{
     box-shadow: 0 0 4px 2px #DEDEDE;
 }
 
+#lightbox-demo{
+    margin: 1em auto;
+}
+
 #preview{
     margin: 20px 0;
     background: #EEE;
