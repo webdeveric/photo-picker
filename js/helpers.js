@@ -52,32 +52,3 @@ function extendClass( Class, ParentClass )
     Class.prototype.constructor = Class;
     return Class;
 }
-
-/*
-function makeClass( properties, parentClass )
-{
-    var Class = function()
-    {
-        if ( parentClass ) {
-            parentClass.call(this, arguments);
-        }
-
-        if( properties ) {
-            for( var prop in properties ) {
-                this[ prop ] = properties[ prop ];
-            }
-        }
-
-        if( "function" == typeof this.construct)
-            this.construct.apply(this, arguments);      
-    }
-
-    if( parentClass ) {
-        Class.prototype = createObject( parentClass.prototype );
-    }
-
-    Class.prototype.constructor = Class;
-
-    return Class;
-}
-*/

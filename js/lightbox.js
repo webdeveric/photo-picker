@@ -2,90 +2,13 @@
     "use strict";
 
     if (typeof define === "function" && define.amd) {
-        define([ "jquery" ], factory);
+        define([ "jquery", "ContentProvider", "AjaxContentProvider" ], factory);
     } else {
-        factory(jQuery);
+        factory(jQuery, ContentProvider);
     }
 
-}(function($) {
+}(function( $, ContentProvider, AjaxContentProvider ) {
     "use strict";
-
-    function ContentProvider( content, options )
-    {
-        this.content = content || "";
-        this.options = $.extend({}, options );
-    };
-
-    ContentProvider.prototype.bindEvents = function()
-    {
-    };
-
-    ContentProvider.prototype.unbindEvents = function()
-    {
-    };
-
-    ContentProvider.prototype.getContent = function( callback )
-    {
-        if ( callback ) {
-            return callback.call(callback, this.content, this );
-        } else {
-            return this.content;
-        }
-    };
-
-    ContentProvider.prototype.setContent = function( content )
-    {
-        this.content = content;
-        return this;
-    };
-
-    function AjaxContentProvider( url, options )
-    {
-        ContentProvider.call(this, null, options);
-        this.url = url;
-        this.options = $.extend(
-            this.options,
-            {
-                ajaxOptions: {},
-                processData: function( data, textStatus, jqXHR ) {
-                    return data;
-                }
-            },
-            options
-        );
-    };
-
-    extendClass( AjaxContentProvider, ContentProvider );
-
-    AjaxContentProvider.prototype.fetchContent = function( callback )
-    {
-        var self = this;
-        return $.ajax( this.url, this.options.ajaxOptions ).done( function(data, textStatus, jqXHR) {
-            if ( self.options.processData ) {
-                self.setContent( self.options.processData.call( self, data, textStatus, jqXHR ) );
-            }
-            if ( callback ) {
-                callback.call(callback, self.content);
-            }
-        });
-    };
-
-    AjaxContentProvider.prototype.getContent = function( callback )
-    {
-        if ( !this.content ) {
-            this.fetchContent( callback );
-            return;
-        }
-
-        if ( callback ) {
-            return callback.call(callback, this.content);
-        } else {
-            return this.content;    
-        }        
-    };
-
-    window.ContentProvider = ContentProvider;
-    window.AjaxContentProvider = AjaxContentProvider;
 
     function Lightbox( template, contentProvider, options )
     {
@@ -94,7 +17,9 @@
         this.options = $.extend({
             closeOnESC: true,
             htmlClass: "lightbox-open",
+            openClass: "open",
             closeSelector: ".lightbox-close-action",
+            titleSelector: ".lightbox-title",
             extraClass: ""
         }, options );
     }
@@ -110,6 +35,10 @@
         }
         return Lightbox;
     }
+
+    Lightbox.prototype.trigger = function( event_name, parameters ) {
+        $(document.documentElement).trigger( event_name, parameters );
+    };
 
     Lightbox.prototype.setContentProvider = function( contentProvider )
     {
@@ -153,25 +82,25 @@
         this.setTitle();
         this.renderContent();
 
-        console.log("Lightbox opened");
+        this.trigger("open.lightbox", [ this ] );
         return this;
     }
 
     Lightbox.prototype.addClasses = function()
     {
         $(document.documentElement).addClass( this.option("htmlClass") );
-        this.template.addClass("open").addClass( this.option("extraClass") );
+        this.template.addClass( this.option("openClass" ) ).addClass( this.option("extraClass") );
     }
 
     Lightbox.prototype.removeClasses = function()
     {
         $(document.documentElement).removeClass( this.option("htmlClass") );
-        this.template.removeClass("open").removeClass( this.option("extraClass") );
+        this.template.removeClass( this.option("openClass" ) ).removeClass( this.option("extraClass") );
     }
 
     Lightbox.prototype.setTitle = function( title ) {
         title = title || this.option("title", "");
-        this.template.find(".lightbox-title").text( title );
+        this.template.find( this.option("titleSelector") ).text( title );
     }
 
     Lightbox.prototype.close = function( event )
@@ -194,7 +123,7 @@
         this.removeClasses();
 
         this.checkQueue();
-        console.log("Lightbox closed");
+        this.trigger("close.lightbox", [ this ] );
         return this;
     }
 
@@ -217,18 +146,78 @@
 
     Lightbox.prototype.bindEvents = function()
     {
-        $(document).on("keyup.lightbox", $.proxy( this.checkESC, this ) );
+        $(document.documentElement).on("keyup.lightbox", $.proxy( this.checkESC, this ) );
         this.template.on("click.lightbox", this.option("closeSelector"), $.proxy( this.close, this ) );
     }
 
     Lightbox.prototype.unbindEvents = function()
     {
-        $(document).off("keyup.lightbox");
+        $(document.documentElement).off("keyup.lightbox");
         this.template.off("click.lightbox", this.option("closeSelector") );
     }
 
-    window.Lightbox = Lightbox;
+    $.fn.lightbox = function(template, options) {
+
+        var settings    = $.extend({}, $.fn.lightbox.defaults, options),
+            lbtpl       = template || ".default-lightbox",
+            handleClick = function( event ) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                var provider   = null,
+                    target     = $(event.currentTarget),
+                    href       = target.data("lightbox-href") || target.attr("href") || false,
+                    content    = target.data("lightbox-content") || false,                
+                    template   = target.data("lightbox-template") || false,
+                    title      = target.data("lightbox-title") || "",
+                    extraClass = target.data("lightbox-class") || "";
+
+                switch (true) {
+                    case href !== false:
+                        provider = new AjaxContentProvider( href, settings.provider );
+                        break;
+                    case content !== false:
+                        provider = new ContentProvider( content );
+                        break;
+                    case template !== false:
+                        // TODO: Make this class.
+                        // provider = new TemplateProvider( template );
+                        break;
+                }
+
+                var lightbox = new Lightbox(
+                    lbtpl,
+                    provider,
+                    {
+                        title: title,
+                        extraClass: extraClass
+                    }
+                );           
+
+                lightbox.open();
+
+            };
+
+        this.on("click", settings.descendantSelector, handleClick);
+
+        return this;
+    };
+
+    $.fn.lightbox.defaults = {
+        descendantSelector: null,
+        provider: {
+            ajaxOptions: {},
+            processData: function( data, textStatus, jqXHR ) {
+                var ct = jqXHR.getResponseHeader("content-type") || "";
+
+                if (ct.indexOf("json") > -1) {
+                    return data.content;
+                }
+
+                return data;
+            }
+        }
+    };
 
     return Lightbox;
-
 }));
