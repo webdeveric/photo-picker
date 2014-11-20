@@ -17,12 +17,14 @@
 
 <div id="content">
 
+    <button id="facebook-picker-button" class="button button-big">Get photo from Facebook</button>
+
     <button id="instagram-picker-button" class="button button-big">Get photo from Instagram</button>
 
     <div id="lightbox-demo">
-        <a href="content.html" class="item button" data-lightbox-title="Ajax Content">Lipsum</a>
+        <a href="content.html" class="item button" data-lightbox-title="Ajax Content">HREF</a>
         <a href="./" data-lightbox-href="content.html" data-lightbox-class="notice" class="item button" data-lightbox-title="Alternate HREF">Alternate HREF</a>
-        <span class="item button" data-lightbox-content="TEST" data-lightbox-title="Data Attribute Content">Content</span>
+        <span class="item button" data-lightbox-content="TEST" data-lightbox-title="Data Attribute Content">Data Content</span>
     </div>
 
     <div id="preview"></div>
@@ -44,7 +46,7 @@
     </div>
 </div>
 
-<div class="lightbox instagram-lightbox" id="instagram-lightbox">
+<div class="lightbox social-lightbox" id="social-lightbox">
     <div class="lightbox-overlay lightbox-close-action"></div>
     <div class="lightbox-frame lightbox-close-action">
         <div class="lightbox-wrapper">
@@ -59,6 +61,17 @@
         </div>
     </div>
 </div>
+
+<script type="text/template" id="faceboook-picker">
+    <div class="picker facebook-picker">
+        <div class="row photo-frame">
+            <div class="photo-container"></div>
+        </div>
+        <div class="row actions">
+            <button class="button button-cancel">Cancel</button><span class="divider">|</span><button class="button button-load-more" disabled>Load more</button><span class="divider">|</span><button class="button button-submit" disabled>Pick this photo</button>
+        </div>
+    </div>
+</script>
 
 <script type="text/template" id="instragram-picker">
     <div class="picker instagram-picker">
