@@ -2,15 +2,28 @@
     "use strict";
 
     if (typeof define === "function" && define.amd) {
-        define([ "jquery", "Lightbox", "InstagramPicker", "ContentProvider", "AjaxContentProvider" ], factory);
+        define([ "jquery", "facebook", "Lightbox", "FacebookPicker", "InstagramPicker", "ContentProvider", "AjaxContentProvider",  ], factory);
     } else {
         factory(jQuery);
     }
 
-}(function($, Lightbox, InstagramPicker, ContentProvider, AjaxContentProvider) {
+}(function( $, FB, Lightbox, FacebookPicker, InstagramPicker, ContentProvider, AjaxContentProvider ) {
     "use strict";
 
-    var instagramPicker;
+    FB.init({
+        appId: '741643222570603',
+        status: true,
+        xfbml: false,
+        version: 'v2.2'
+    });
+
+    FB.getLoginStatus(function(response) {
+        console.log(response);
+    });
+
+
+    var facebookPicker,
+        instagramPicker;
 
     /*
     https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
@@ -27,6 +40,12 @@
     };
 
     $(function() {
+
+        facebookPicker  = new FacebookPicker(
+            "#faceboook-picker"
+        );
+        facebookPicker.init();
+
         instagramPicker = new InstagramPicker(
             "#instragram-picker",
             "e63a8cb495e94cdebf6c7c16b1b55e20",
@@ -40,7 +59,8 @@
 
         instagramPicker.init();
 
-        var button = $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
+        var facebookButton = $("#facebook-picker-button").on("click", $.proxy( facebookPicker.open, facebookPicker ) );
+        var instagramButton = $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
 
         var preview = $("#preview");
 

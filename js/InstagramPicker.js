@@ -125,7 +125,7 @@
     {
         if ( !this.lightbox ) {
             this.lightbox = new Lightbox(
-                ".instagram-lightbox",
+                ".social-lightbox",
                 this,
                 {
                     title: "Choose Photo"
