@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - Lightbox.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>Lightbox.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">68.68</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">218</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">44.39</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.99</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">define(function(require) {
+    &quot;use strict&quot;;
+
+    var $ = require(&quot;jquery&quot;),
+        ContentProvider = require(&quot;ContentProvider&quot;),
+        AjaxContentProvider = require(&quot;AjaxContentProvider&quot;),
+        Lightbox = function( template, contentProvider, options )
+        {
+            this.template = $(template);
+            this.setContentProvider( contentProvider );
+            this.options = $.extend({
+                closeOnESC: true,
+                htmlClass: &quot;lightbox-open&quot;,
+                openClass: &quot;open&quot;,
+                closeSelector: &quot;.lightbox-close-action&quot;,
+                titleSelector: &quot;.lightbox-title&quot;,
+                extraClass: &quot;&quot;
+            }, options );
+        };
+
+    Lightbox.open       = false;
+    Lightbox.current    = null;
+    Lightbox.queue      = [];
+    Lightbox.queueDelay = 250;
+
+    Lightbox.close = function() {
+        if ( Lightbox.current ) {
+            Lightbox.current.close();
+        }
+        return Lightbox;
+    };
+
+    Lightbox.prototype.trigger = function( event_name, parameters ) {
+        $(document.documentElement).trigger( event_name, parameters );
+    };
+
+    Lightbox.prototype.setContentProvider = function( contentProvider )
+    {
+        this.contentProvider = contentProvider instanceof ContentProvider ? contentProvider : new ContentProvider();
+    };
+
+    Lightbox.prototype.renderContent = function()
+    {
+        this.template.addClass(&quot;loading&quot;);
+
+        this.contentProvider.unbindEvents();
+
+        var contentFrame = this.template.find(&quot;.lightbox-content&quot;).empty(),
+            self = this;
+
+        this.contentProvider.getContent( function( content, contentProvider ) {
+            contentFrame.append( content );
+            contentProvider.bindEvents();
+            self.template.removeClass(&quot;loading&quot;);
+        });
+    };
+
+    Lightbox.prototype.option = function( option_name, default_value )
+    {
+        return this.options[ option_name ] || default_value || &quot;&quot;;
+    };
+
+    Lightbox.prototype.open = function()
+    {
+        if ( Lightbox.open ) {
+            Lightbox.queue.unshift( this );
+            return;
+        }
+
+        this.bindEvents();
+        Lightbox.current = this;
+        Lightbox.open = true;
+
+        this.addClasses();
+
+        this.setTitle();
+        this.renderContent();
+
+        this.trigger(&quot;open.lightbox&quot;, [ this ] );
+        return this;
+    };
+
+    Lightbox.prototype.addClasses = function()
+    {
+        $(document.documentElement).addClass( this.option(&quot;htmlClass&quot;) );
+        this.template.addClass( this.option(&quot;openClass&quot; ) ).addClass( this.option(&quot;extraClass&quot;) );
+    };
+
+    Lightbox.prototype.removeClasses = function()
+    {
+        $(document.documentElement).removeClass( this.option(&quot;htmlClass&quot;) );
+        this.template.removeClass( this.option(&quot;openClass&quot; ) ).removeClass( this.option(&quot;extraClass&quot;) );
+    };
+
+    Lightbox.prototype.setTitle = function( title ) {
+        title = title || this.option(&quot;title&quot;, &quot;&quot;);
+        this.template.find( this.option(&quot;titleSelector&quot;) ).text( title );
+    };
+
+    Lightbox.prototype.close = function( event )
+    {
+        if (event) {
+            if (event.target != event.currentTarget) {
+                return;
+            }
+
+            if ( !$(event.currentTarget).data(&quot;allow-default&quot;) ) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }
+
+        this.unbindEvents();
+        Lightbox.current = null;
+        Lightbox.open = false;
+
+        this.removeClasses();
+
+        this.checkQueue();
+        this.trigger(&quot;close.lightbox&quot;, [ this ] );
+        return this;
+    };
+
+    Lightbox.prototype.checkQueue = function()
+    {
+        if ( Lightbox.queue.length ) {
+            var next = Lightbox.queue.pop();
+            setTimeout( function() {
+                next.open();
+            }, Lightbox.queueDelay || 250 );
+        }
+    };
+
+    Lightbox.prototype.checkESC = function(event)
+    {
+        if (event.keyCode == 27 &amp;&amp; this.option(&quot;closeOnESC&quot;, true) ) {
+            this.close();
+        }
+    };
+
+    Lightbox.prototype.bindEvents = function()
+    {
+        $(document.documentElement).on(&quot;keyup.lightbox&quot;, $.proxy( this.checkESC, this ) );
+        this.template.on(&quot;click.lightbox&quot;, this.option(&quot;closeSelector&quot;), $.proxy( this.close, this ) );
+    };
+
+    Lightbox.prototype.unbindEvents = function()
+    {
+        $(document.documentElement).off(&quot;keyup.lightbox&quot;);
+        this.template.off(&quot;click.lightbox&quot;, this.option(&quot;closeSelector&quot;) );
+    };
+
+    $.fn.lightbox = function(template, options) {
+
+        var settings    = $.extend({}, $.fn.lightbox.defaults, options),
+            lbtpl       = template || &quot;.default-lightbox&quot;,
+            handleClick = function( event ) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                var provider   = null,
+                    target     = $(event.currentTarget),
+                    href       = target.data(&quot;lightbox-href&quot;) || target.attr(&quot;href&quot;) || false,
+                    content    = target.data(&quot;lightbox-content&quot;) || false,
+                    template   = target.data(&quot;lightbox-template&quot;) || false,
+                    title      = target.data(&quot;lightbox-title&quot;) || &quot;&quot;,
+                    extraClass = target.data(&quot;lightbox-class&quot;) || &quot;&quot;;
+
+                switch (true) {
+                    case href !== false:
+                        provider = new AjaxContentProvider( href, settings.provider );
+                        break;
+                    case content !== false:
+                        provider = new ContentProvider( content );
+                        break;
+                    case template !== false:
+                        // TODO: Make this class.
+                        // provider = new TemplateProvider( template );
+                        break;
+                }
+
+                var lightbox = new Lightbox(
+                    lbtpl,
+                    provider,
+                    {
+                        title: title,
+                        extraClass: extraClass
+                    }
+                );
+
+                lightbox.open();
+
+            };
+
+        this.on(&quot;click&quot;, settings.descendantSelector, handleClick);
+
+        return this;
+    };
+
+    $.fn.lightbox.defaults = {
+        descendantSelector: null,
+        provider: {
+            ajaxOptions: {},
+            processData: function( data, textStatus, jqXHR ) {
+                var ct = jqXHR.getResponseHeader(&quot;content-type&quot;) || &quot;&quot;;
+
+                if (ct.indexOf(&quot;json&quot;) &gt; -1) {
+                    return data.content;
+                }
+
+                return data;
+            }
+        }
+    };
+
+    return Lightbox;
+
+});</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

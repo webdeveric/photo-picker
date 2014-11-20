@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - PhotoPicker.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>PhotoPicker.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">72.05</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">233</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">35.19</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.84</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">define(function(require) {
+    &quot;use strict&quot;;
+
+    var $ = require(&quot;jquery&quot;),
+        util = require(&quot;util&quot;),
+        ContentProvider = require(&quot;ContentProvider&quot;),
+        Hogan = require(&quot;hogan&quot;),
+        PhotoPicker = function( templateSelector )
+        {
+            ContentProvider.call(this);
+
+            this.type           = &quot;photopicker&quot;;
+            this.template       = templateSelector;
+            this.photos         = [];
+            this.index          = 0;
+            this.nextURL        = null;
+            this.currentURL     = null;
+            this.batchSize      = 10;
+            this.selectedPhoto  = null;
+            this.lightbox       = null;
+            this.photoContainer = null;
+            this.loadMoreButton = null;
+            this.cancelButton   = null;
+            this.submitButton   = null;
+        };
+
+    util.extendClass( PhotoPicker, ContentProvider );
+
+    PhotoPicker.prototype.init = function()
+    {
+        this.setupTemplate();
+    };
+
+    PhotoPicker.prototype.handleKeyup = function( event )
+    {
+        if (event.keyCode == 13 ) {
+            this.handleSubmit();
+        }
+    };
+
+    PhotoPicker.prototype.bindEvents = function()
+    {
+        var self = this;
+
+        $(document.documentElement).on(&quot;keyup.photopicker&quot;, $.proxy( this.handleKeyup, this ) );
+
+        if ( this.photoContainer ) {
+            this.photoContainer.on(&quot;click.photopicker&quot;, &quot;.photo&quot;, $.proxy( this.handlePhotoClick, this ) );
+        }
+
+        if ( this.loadMoreButton ) {
+            this.loadMoreButton.on(&quot;click.photopicker&quot;, function() {
+                self.loadMore();
+            });
+        }
+
+        if ( this.cancelButton ) {
+            this.cancelButton.on(&quot;click.photopicker&quot;, function() {
+                self.clearSelected();
+                self.close();
+            });
+        }
+
+        if ( this.submitButton ) {
+            this.submitButton.on(&quot;click.photopicker&quot;, function() {
+                self.handleSubmit();
+            });
+        }
+
+        return this;
+    };
+
+    PhotoPicker.prototype.unbindEvents = function()
+    {
+        $(document.documentElement).off(&quot;keyup.photopicker&quot;);
+
+        if ( this.photoContainer ) {
+            this.photoContainer.off(&quot;click.photopicker&quot;, &quot;.photo&quot;);
+        }
+
+        if ( this.loadMoreButton ) {
+            this.loadMoreButton.off(&quot;click.photopicker&quot;);
+        }
+
+        if ( this.cancelButton ) {
+            this.cancelButton.off(&quot;click.photopicker&quot;);
+        }
+
+        if ( this.submitButton ) {
+            this.submitButton.off(&quot;click.photopicker&quot;);
+        }
+
+        return this;
+    };
+
+    PhotoPicker.prototype.open = function()
+    {
+    };
+
+    PhotoPicker.prototype.close = function()
+    {
+        if ( this.lightbox ) {
+            this.lightbox.close();
+        }
+        console.log(&quot;PhotoPicker closed&quot;);
+    };
+
+    PhotoPicker.prototype.render = function()
+    {
+        console.log(&quot;Rendering data&quot;);
+    };
+
+    PhotoPicker.prototype.append = function( photo )
+    {
+        console.info(&quot;Appending photo&quot;);
+        console.log( photo );
+    };
+
+    PhotoPicker.prototype.fetchData = function()
+    {
+        console.log(&quot;Fetching data&quot;);
+    };
+
+    PhotoPicker.prototype.getPhotos = function()
+    {
+        return this.photos;
+    };
+
+    PhotoPicker.prototype.loadMore = function()
+    {
+        console.log(&quot;PhotoPicker loadMore&quot;);
+        this.loadMoreButton.prop(&quot;disabled&quot;, 1 );
+        if ( this.nextURL ) {
+            this.fetch( this.nextURL );
+        }
+    };
+
+    PhotoPicker.prototype.processData = function(data, status, jqXHR)
+    {
+        console.log(data, status, jqXHR);
+    };
+
+    PhotoPicker.prototype.fetch = function( url, data )
+    {
+        this.currentURL = url;
+        data = data || &quot;&quot;;
+
+        // console.log( url, data );
+
+        var xhr = $.ajax({
+            url: url,
+            data: data,
+            dataType: &quot;jsonp&quot;
+        }).done(
+            $.proxy( this.processData, this )
+        ).fail(
+            $.proxy( this.fetchFailed, this )
+        );
+
+        return xhr;
+    };
+
+    PhotoPicker.prototype.fetchFailed = function()
+    {
+        console.log(&quot;Fetch failed&quot;);
+    };
+
+    PhotoPicker.prototype.clearSelected = function()
+    {
+        this.selectedPhoto = null;
+        this.content.find(&quot;.selected&quot;).removeClass(&quot;selected&quot;);
+        this.submitButton.prop(&quot;disabled&quot;, 1 );
+    };
+
+    PhotoPicker.prototype.handlePhotoClick = function( event )
+    {
+        var photo = $(event.currentTarget),
+            photo_index = parseInt( photo.data(&quot;photo-index&quot;), 10 );
+
+        if ( photo_index === this.selectedPhoto ) {
+
+            this.clearSelected();
+
+        } else {
+
+            this.clearSelected();
+            photo.addClass(&quot;selected&quot;);
+            this.selectedPhoto = photo_index;
+            this.submitButton.prop(&quot;disabled&quot;, 0 );
+
+        }
+    };
+
+    PhotoPicker.prototype.getSelectedPhotoURL = function()
+    {
+        return &quot;&quot;;
+    };
+
+    PhotoPicker.prototype.getSelectedPhoto = function()
+    {
+        if ( this.hasSelectedPhoto() ) {
+            return this.photos[ this.selectedPhoto ];
+        }
+        return false;
+    };
+
+    PhotoPicker.prototype.hasSelectedPhoto = function()
+    {
+        return this.selectedPhoto !== null &amp;&amp; this.photos[ this.selectedPhoto ] != void 0;
+    };
+
+    PhotoPicker.prototype.handleSubmit = function()
+    {
+        if ( this.hasSelectedPhoto() ) {
+            $(document.documentElement).trigger(&quot;selected.photopicker&quot;, [ this.getSelectedPhotoURL(), this.type ] );
+            this.close();
+        }
+    };
+
+    PhotoPicker.prototype.setupTemplate = function()
+    {
+        this.template       = Hogan.compile( $(this.template).html() );
+        this.content        = $( this.template.render() );
+        this.photoContainer = $(&quot;.photo-container&quot;, this.content );
+        this.loadMoreButton = $(&quot;.button-load-more&quot;, this.content );
+        this.cancelButton   = $(&quot;.button-cancel&quot;, this.content );
+        this.submitButton   = $(&quot;.button-submit&quot;, this.content );
+        return this;
+    };
+
+    return PhotoPicker;
+
+});</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
