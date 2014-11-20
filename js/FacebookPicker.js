@@ -1,24 +1,20 @@
-(function(factory) {
+define(function(require) {
     "use strict";
 
-    if (typeof define === "function" && define.amd) {
-        define([ "jquery", "PhotoPicker", "Lightbox" ], factory);
-    } else {
-        factory( jQuery, PhotoPicker, Lightbox );
-    }
+    var $ = require("jquery"),
+        util = require("util"),
+        PhotoPicker = require("PhotoPicker"),
+        Lightbox = require("Lightbox"),
+        FB = require("facebook"),
+        FacebookPicker = function( templateSelector )
+        {
+            PhotoPicker.call(this, templateSelector);
 
-}(function( $, PhotoPicker, Lightbox ) {
-    "use strict";
+            this.type        = "facebookpicker";
+            this.batchSize   = 20;
+        };
 
-    var FacebookPicker = function( templateSelector )
-    {
-        PhotoPicker.call(this, templateSelector);
-
-        this.type        = "facebookpicker";
-        this.batchSize   = 20;
-    };
-
-    extendClass( FacebookPicker, PhotoPicker );
+    util.extendClass( FacebookPicker, PhotoPicker );
 
     FacebookPicker.prototype.fetch = function( url, data, callback )
     {
@@ -33,10 +29,14 @@
             },
             function(response) {
 
-                self.processData( response );
+                if ( response.error ) {
+                    console.log( response );
+                } else {
+                    self.processData( response );
 
-                if ( typeof callback === "function" ) {
-                    callback.call();
+                    if ( typeof callback === "function" ) {
+                        callback.call();
+                    }
                 }
 
             }
@@ -138,9 +138,8 @@
 
     FacebookPicker.prototype.append = function( photo )
     {
-        var photos_length = this.photos.push( photo );
-
-        var img  = new Image(),
+        var photos_length = this.photos.push( photo ),
+            img  = new Image(),
             item = document.createElement("div");
 
         item.appendChild( img );
@@ -149,7 +148,7 @@
             this.parentNode.className = "photo";
             this.onload = null;
         };
-        
+
         img.src = photo.picture;
 
         item.setAttribute("data-photo-index", photos_length - 1 );
@@ -160,4 +159,4 @@
 
     return FacebookPicker;
 
-}));
+});

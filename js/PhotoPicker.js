@@ -1,35 +1,30 @@
-(function(factory) {
+define(function(require) {
     "use strict";
 
-    if (typeof define === "function" && define.amd) {
-        define([ "jquery", "ContentProvider", "hogan" ], factory);
-    } else {
-        factory( jQuery );
-    }
+    var $ = require("jquery"),
+        util = require("util"),
+        ContentProvider = require("ContentProvider"),
+        Hogan = require("hogan"),
+        PhotoPicker = function( templateSelector )
+        {
+            ContentProvider.call(this);
 
-}(function( $, ContentProvider, Hogan ) {
-    "use strict";
+            this.type           = "photopicker";
+            this.template       = templateSelector;
+            this.photos         = [];
+            this.index          = 0;
+            this.nextURL        = null;
+            this.currentURL     = null;
+            this.batchSize      = 10;
+            this.selectedPhoto  = null;
+            this.lightbox       = null;
+            this.photoContainer = null;
+            this.loadMoreButton = null;
+            this.cancelButton   = null;
+            this.submitButton   = null;
+        };
 
-    var PhotoPicker = function( templateSelector )
-    {
-        ContentProvider.call(this);
-
-        this.type           = "photopicker";
-        this.template       = templateSelector;
-        this.photos         = [];
-        this.index          = 0;
-        this.nextURL        = null;
-        this.currentURL     = null;
-        this.batchSize      = 10;
-        this.selectedPhoto  = null;
-        this.lightbox       = null;
-        this.photoContainer = null;
-        this.loadMoreButton = null;
-        this.cancelButton   = null;
-        this.submitButton   = null;
-    };
-
-    extendClass( PhotoPicker, ContentProvider );
+    util.extendClass( PhotoPicker, ContentProvider );
 
     PhotoPicker.prototype.init = function()
     {
@@ -73,7 +68,7 @@
         }
 
         return this;
-    }
+    };
 
     PhotoPicker.prototype.unbindEvents = function()
     {
@@ -117,7 +112,8 @@
 
     PhotoPicker.prototype.append = function( photo )
     {
-        console.log("Appending photo");
+        console.info("Appending photo");
+        console.log( photo );
     };
 
     PhotoPicker.prototype.fetchData = function()
@@ -162,7 +158,7 @@
         );
 
         return xhr;
-    }
+    };
 
     PhotoPicker.prototype.fetchFailed = function()
     {
@@ -192,7 +188,7 @@
             this.selectedPhoto = photo_index;
             this.submitButton.prop("disabled", 0 );
 
-        }    
+        }
     };
 
     PhotoPicker.prototype.getSelectedPhotoURL = function()
@@ -234,4 +230,4 @@
 
     return PhotoPicker;
 
-}));
+});

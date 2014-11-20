@@ -1,20 +1,12 @@
-(function(factory) {
+define(function() {
     "use strict";
 
-    if (typeof define === "function" && define.amd) {
-        define( factory );
-    } else {
-        factory();
-    }
-
-}(function() {
-    "use strict";
-
-    var ContentProvider = function( content, options )
-    {
-        this.content = content || "";
-        this.options = $.extend({}, options );
-    };
+    var $ = require("jquery"),
+        ContentProvider = function( content, options )
+        {
+            this.content = content || "";
+            this.options = $.extend({}, options );
+        };
 
     ContentProvider.prototype.bindEvents = function()
     {
@@ -41,4 +33,4 @@
 
     return ContentProvider;
 
-}));
+});

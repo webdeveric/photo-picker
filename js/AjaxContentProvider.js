@@ -1,31 +1,26 @@
-(function(factory) {
+define(function(require) {
     "use strict";
 
-    if (typeof define === "function" && define.amd) {
-        define([ "jquery", "ContentProvider" ], factory);
-    } else {
-        factory( jQuery );
-    }
+    var $ = require("jquery"),
+        util = require("util"),
+        ContentProvider = require("ContentProvider"),
+        AjaxContentProvider = function( url, options )
+        {
+            ContentProvider.call(this, null, options);
+            this.url = url;
+            this.options = $.extend(
+                this.options,
+                {
+                    ajaxOptions: {},
+                    processData: function( data /* , textStatus, jqXHR */ ) {
+                        return data;
+                    }
+                },
+                options
+            );
+        };
 
-}(function($, ContentProvider) {
-
-    var AjaxContentProvider = function( url, options )
-    {
-        ContentProvider.call(this, null, options);
-        this.url = url;
-        this.options = $.extend(
-            this.options,
-            {
-                ajaxOptions: {},
-                processData: function( data, textStatus, jqXHR ) {
-                    return data;
-                }
-            },
-            options
-        );
-    };
-
-    extendClass( AjaxContentProvider, ContentProvider );
+    util.extendClass( AjaxContentProvider, ContentProvider );
 
     AjaxContentProvider.prototype.fetchContent = function( callback )
     {
@@ -50,10 +45,10 @@
         if ( callback ) {
             return callback.call(callback, this.content, this);
         } else {
-            return this.content;    
-        }        
+            return this.content;
+        }
     };
 
     return AjaxContentProvider;
 
-}));
+});

@@ -1,28 +1,22 @@
-(function(factory) {
+define(function(require) {
     "use strict";
 
-    if (typeof define === "function" && define.amd) {
-        define([ "jquery", "ContentProvider", "AjaxContentProvider" ], factory);
-    } else {
-        factory(jQuery, ContentProvider);
-    }
-
-}(function( $, ContentProvider, AjaxContentProvider ) {
-    "use strict";
-
-    function Lightbox( template, contentProvider, options )
-    {
-        this.template = $(template);
-        this.setContentProvider( contentProvider );
-        this.options = $.extend({
-            closeOnESC: true,
-            htmlClass: "lightbox-open",
-            openClass: "open",
-            closeSelector: ".lightbox-close-action",
-            titleSelector: ".lightbox-title",
-            extraClass: ""
-        }, options );
-    }
+    var $ = require("jquery"),
+        ContentProvider = require("ContentProvider"),
+        AjaxContentProvider = require("AjaxContentProvider"),
+        Lightbox = function( template, contentProvider, options )
+        {
+            this.template = $(template);
+            this.setContentProvider( contentProvider );
+            this.options = $.extend({
+                closeOnESC: true,
+                htmlClass: "lightbox-open",
+                openClass: "open",
+                closeSelector: ".lightbox-close-action",
+                titleSelector: ".lightbox-title",
+                extraClass: ""
+            }, options );
+        };
 
     Lightbox.open       = false;
     Lightbox.current    = null;
@@ -34,7 +28,7 @@
             Lightbox.current.close();
         }
         return Lightbox;
-    }
+    };
 
     Lightbox.prototype.trigger = function( event_name, parameters ) {
         $(document.documentElement).trigger( event_name, parameters );
@@ -42,7 +36,7 @@
 
     Lightbox.prototype.setContentProvider = function( contentProvider )
     {
-        this.contentProvider = contentProvider instanceof ContentProvider ? contentProvider : new ContentProvider;
+        this.contentProvider = contentProvider instanceof ContentProvider ? contentProvider : new ContentProvider();
     };
 
     Lightbox.prototype.renderContent = function()
@@ -57,14 +51,14 @@
         this.contentProvider.getContent( function( content, contentProvider ) {
             contentFrame.append( content );
             contentProvider.bindEvents();
-            self.template.removeClass("loading");            
-        });        
+            self.template.removeClass("loading");
+        });
     };
 
     Lightbox.prototype.option = function( option_name, default_value )
     {
         return this.options[ option_name ] || default_value || "";
-    }
+    };
 
     Lightbox.prototype.open = function()
     {
@@ -84,24 +78,24 @@
 
         this.trigger("open.lightbox", [ this ] );
         return this;
-    }
+    };
 
     Lightbox.prototype.addClasses = function()
     {
         $(document.documentElement).addClass( this.option("htmlClass") );
         this.template.addClass( this.option("openClass" ) ).addClass( this.option("extraClass") );
-    }
+    };
 
     Lightbox.prototype.removeClasses = function()
     {
         $(document.documentElement).removeClass( this.option("htmlClass") );
         this.template.removeClass( this.option("openClass" ) ).removeClass( this.option("extraClass") );
-    }
+    };
 
     Lightbox.prototype.setTitle = function( title ) {
         title = title || this.option("title", "");
         this.template.find( this.option("titleSelector") ).text( title );
-    }
+    };
 
     Lightbox.prototype.close = function( event )
     {
@@ -125,7 +119,7 @@
         this.checkQueue();
         this.trigger("close.lightbox", [ this ] );
         return this;
-    }
+    };
 
     Lightbox.prototype.checkQueue = function()
     {
@@ -135,26 +129,26 @@
                 next.open();
             }, Lightbox.queueDelay || 250 );
         }
-    }
+    };
 
     Lightbox.prototype.checkESC = function(event)
     {
         if (event.keyCode == 27 && this.option("closeOnESC", true) ) {
             this.close();
         }
-    }
+    };
 
     Lightbox.prototype.bindEvents = function()
     {
         $(document.documentElement).on("keyup.lightbox", $.proxy( this.checkESC, this ) );
         this.template.on("click.lightbox", this.option("closeSelector"), $.proxy( this.close, this ) );
-    }
+    };
 
     Lightbox.prototype.unbindEvents = function()
     {
         $(document.documentElement).off("keyup.lightbox");
         this.template.off("click.lightbox", this.option("closeSelector") );
-    }
+    };
 
     $.fn.lightbox = function(template, options) {
 
@@ -167,7 +161,7 @@
                 var provider   = null,
                     target     = $(event.currentTarget),
                     href       = target.data("lightbox-href") || target.attr("href") || false,
-                    content    = target.data("lightbox-content") || false,                
+                    content    = target.data("lightbox-content") || false,
                     template   = target.data("lightbox-template") || false,
                     title      = target.data("lightbox-title") || "",
                     extraClass = target.data("lightbox-class") || "";
@@ -192,7 +186,7 @@
                         title: title,
                         extraClass: extraClass
                     }
-                );           
+                );
 
                 lightbox.open();
 
@@ -220,4 +214,5 @@
     };
 
     return Lightbox;
-}));
+
+});

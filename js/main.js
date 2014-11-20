@@ -1,29 +1,28 @@
-(function(factory) {
+define(function(require) {
     "use strict";
 
-    if (typeof define === "function" && define.amd) {
-        define([ "jquery", "facebook", "Lightbox", "FacebookPicker", "InstagramPicker", "ContentProvider", "AjaxContentProvider",  ], factory);
-    } else {
-        factory(jQuery);
-    }
-
-}(function( $, FB, Lightbox, FacebookPicker, InstagramPicker, ContentProvider, AjaxContentProvider ) {
-    "use strict";
+    var $ = require("jquery"),
+        FB = require("facebook"),
+        FacebookPicker = require("FacebookPicker"),
+        InstagramPicker = require("InstagramPicker"),
+        /* jshint ignore:start */
+        Lightbox = require("Lightbox"),
+        ContentProvider = require("ContentProvider"),
+        AjaxContentProvider = require("AjaxContentProvider"),
+        /* jshint ignore:end */
+        facebookPicker,
+        instagramPicker;
 
     FB.init({
-        appId: '741643222570603',
+        appId: "741643222570603",
         status: true,
         xfbml: false,
-        version: 'v2.2'
+        version: "v2.2"
     });
 
-    FB.getLoginStatus(function(response) {
-        console.log(response);
-    });
-
-
-    var facebookPicker,
-        instagramPicker;
+    // FB.getLoginStatus(function(response) {
+    //     console.log(response);
+    // });
 
     /*
     https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
@@ -59,16 +58,14 @@
 
         instagramPicker.init();
 
-        var facebookButton = $("#facebook-picker-button").on("click", $.proxy( facebookPicker.open, facebookPicker ) );
-        var instagramButton = $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
+        $("#facebook-picker-button").on("click", $.proxy( facebookPicker.open, facebookPicker ) );
+        $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
 
-        var preview = $("#preview");
-
-        $(document.documentElement).on("selected.photopicker", function( e, url, pickertype ) {
+        $(document.documentElement).on("selected.photopicker", function( e, url ) {
             if ( url ) {
                 var img = new Image();
-                    img.src = url;
-                preview.empty().append( img );
+                img.src = url;
+                $("#preview").empty().append( img );
             }
         });
         // .on("open.lightbox", function( e, lightbox ) {
@@ -100,4 +97,4 @@
 
     });
 
-}));
+});
