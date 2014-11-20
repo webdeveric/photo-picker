@@ -6,7 +6,7 @@ define(function(require) {
         ContentProvider = require("ContentProvider"),
         AjaxContentProvider = function( url, options )
         {
-            ContentProvider.call(this, null, options);
+            ContentProvider.call(this, null, null, options);
             this.url = url;
             this.options = $.extend(
                 this.options,
