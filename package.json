@@ -1,0 +1,29 @@
+{
+  "name": "photo-picker",
+  "version": "0.1.0",
+  "description": "Select a photo from your facebook or instagram accounts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/webdeveric/photo-picker.git"
+  },
+  "author": "Eric King",
+  "contributors": [
+    {
+      "name": "Eric King",
+      "email": "eric@webdeveric.com",
+      "url": "http://webdeveric.com/"
+    }
+  ],
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/webdeveric/photo-picker/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-plato": "~1.3.0",
+    "load-grunt-tasks": "~1.0.0",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-jscs": "~0.8.1",
+    "grunt-contrib-watch": "~0.6.1"
+  }
+}
