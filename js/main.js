@@ -20,10 +20,6 @@ define(function(require) {
         version: "v2.2"
     });
 
-    // FB.getLoginStatus(function(response) {
-    //     console.log(response);
-    // });
-
     /*
     https://developer.mozilla.org/en-US/docs/Web/API/Window.postMessage
 
