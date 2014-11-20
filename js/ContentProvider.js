@@ -2,18 +2,21 @@ define(function() {
     "use strict";
 
     var $ = require("jquery"),
-        ContentProvider = function( content, options )
+        ContentProvider = function( title, content, options )
         {
+            this.title   = title || "";
             this.content = content || "";
             this.options = $.extend({}, options );
         };
 
     ContentProvider.prototype.bindEvents = function()
     {
+        return this;
     };
 
     ContentProvider.prototype.unbindEvents = function()
     {
+        return this;
     };
 
     ContentProvider.prototype.getContent = function( callback )
