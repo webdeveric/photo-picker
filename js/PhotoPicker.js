@@ -142,12 +142,17 @@ define(function(require) {
 
     PhotoPicker.prototype.fetch = function( url, data )
     {
+        console.log("PhotoPicker fetch");
         this.currentURL = url;
         data = data || "";
 
-        // console.log( url, data );
+        var do_fetch = this.beforeFetch( url, data );
 
-        var xhr = $.ajax({
+        if ( do_fetch === false ) {
+            return;
+        }
+
+        return $.ajax({
             url: url,
             data: data,
             dataType: "jsonp"
@@ -155,9 +160,19 @@ define(function(require) {
             $.proxy( this.processData, this )
         ).fail(
             $.proxy( this.fetchFailed, this )
+        ).always(
+            $.proxy( this.afterFetch, this )
         );
+    };
 
-        return xhr;
+    PhotoPicker.prototype.beforeFetch = function()
+    {
+        this.content.addClass("fetching");
+    };
+
+    PhotoPicker.prototype.afterFetch = function()
+    {
+        this.content.removeClass("fetching");
     };
 
     PhotoPicker.prototype.fetchFailed = function()
