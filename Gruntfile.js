@@ -22,7 +22,7 @@ module.exports = function( grunt ) {
             // https://github.com/jsoverson/grunt-plato
             plato: {
                 app: {
-                    options : {
+                    options: {
                         jshint: grunt.file.readJSON(".jshintrc")
                     },
                     files: {
@@ -31,21 +31,15 @@ module.exports = function( grunt ) {
                 }
             },
 
+            // https://github.com/gruntjs/grunt-contrib-watch
             watch: {
+                options: {
+                    livereload: true,
+                    spawn: false
+                },
                 js: {
                     files: jsFiles,
-                    tasks: [ "js" ]
-                },
-
-                livereload: {
-                    options: {
-                        // livereload: {
-                        //     port: 12345,
-                        //     key: grunt.file.read("livereload/localhost.key"),
-                        //     cert: grunt.file.read("livereload/localhost.cert")
-                        // }
-                    },
-                    files: jsFiles
+                    tasks: "js"
                 }
             }
 
@@ -66,4 +60,20 @@ module.exports = function( grunt ) {
         [ "jshint", "jscs" ]
     );
 
+    grunt.registerTask(
+        "test",
+        [ "jshint", "jscs", "plato" ]
+    );
+
+    var changedFiles = Object.create(null),
+        onChange = grunt.util._.debounce(function() {
+            grunt.config( "jshint.src", Object.keys(changedFiles) );
+            grunt.config( "jscs.src", Object.keys(changedFiles) );
+            changedFiles = Object.create(null);
+        }, 200);
+
+    grunt.event.on("watch", function(action, filepath) {
+        changedFiles[filepath] = action;
+        onChange();
+    });
 };
