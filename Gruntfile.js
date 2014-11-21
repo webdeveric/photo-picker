@@ -26,8 +26,15 @@ module.exports = function( grunt ) {
                         jshint: grunt.file.readJSON(".jshintrc")
                     },
                     files: {
-                        "reports/plato": [ "js/**/*.js",  ]
+                        "reports/plato": [ "js/**/*.js" ]
                     }
+                }
+            },
+
+            // https://github.com/sindresorhus/grunt-shell
+            shell: {
+                platoreports: {
+                    command: "open http://photopicker.dev/reports/plato/"
                 }
             },
 
@@ -62,7 +69,7 @@ module.exports = function( grunt ) {
 
     grunt.registerTask(
         "test",
-        [ "jshint", "jscs", "plato" ]
+        [ "jshint", "jscs", "plato", "shell:platoreports" ]
     );
 
     var changedFiles = Object.create(null),
