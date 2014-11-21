@@ -1,13 +1,12 @@
-define(function() {
+define( [ "jquery" ], function( $ ) {
     "use strict";
 
-    var $ = require("jquery"),
-        ContentProvider = function( title, content, options )
-        {
-            this.title   = title || "";
-            this.content = content || "";
-            this.options = $.extend({}, options );
-        };
+    function ContentProvider( title, content, options )
+    {
+        this.title   = title || "";
+        this.content = content || "";
+        this.options = $.extend({}, options );
+    }
 
     ContentProvider.prototype.bindEvents = function()
     {

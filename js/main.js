@@ -1,16 +1,13 @@
-define(function(require) {
+define( [
+    "jquery",
+    "facebook",
+    "FacebookPicker",
+    "InstagramPicker",
+    "Lightbox"
+], function( $, FB, FacebookPicker, InstagramPicker ) {
     "use strict";
 
-    var $ = require("jquery"),
-        FB = require("facebook"),
-        FacebookPicker = require("FacebookPicker"),
-        InstagramPicker = require("InstagramPicker"),
-        /* jshint ignore:start */
-        Lightbox = require("Lightbox"),
-        ContentProvider = require("ContentProvider"),
-        AjaxContentProvider = require("AjaxContentProvider"),
-        /* jshint ignore:end */
-        facebookPicker,
+    var facebookPicker,
         instagramPicker;
 
     FB.init({
@@ -46,6 +43,7 @@ define(function(require) {
             "e63a8cb495e94cdebf6c7c16b1b55e20",
             "http://photopicker.dev/callback.html"
         );
+
         // instagramPicker = new InstagramPicker(
         //     "#instragram-picker",
         //     "8f9ed714eaff481995467237175e5dfa",
@@ -64,32 +62,10 @@ define(function(require) {
                 $("#preview").empty().append( img );
             }
         });
-        // .on("open.lightbox", function( e, lightbox ) {
-        //     console.log( lightbox );
-        // }).on("close.lightbox", function( e, lightbox ) {
-        //     console.log( lightbox );
-        // });
-
-        // var staticContent = new ContentProvider("Get photos from Facebook here.");
-        // var ajaxContent   = new AjaxContentProvider("content.html");
-
-        // ajaxContent.getContent( function( content ) {
-        //     console.log( content );
-        // });
-
-        // var ajaxLightbox = new Lightbox(
-        //     ".default-lightbox",
-        //     ajaxContent,
-        //     {
-        //         title: "Ajax Content",
-        //         extraClass: "notice"
-        //     }
-        // );
-        // ajaxLightbox.open();
 
         $("#lightbox-demo").lightbox( ".default-lightbox", {
             descendantSelector: ".item"
-        }); //.find(".item").click();
+        });
 
     });
 

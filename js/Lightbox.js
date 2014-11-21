@@ -1,22 +1,23 @@
-define(function(require) {
+define( [
+    "jquery",
+    "ContentProvider",
+    "AjaxContentProvider"
+], function( $, ContentProvider, AjaxContentProvider ) {
     "use strict";
 
-    var $ = require("jquery"),
-        ContentProvider = require("ContentProvider"),
-        AjaxContentProvider = require("AjaxContentProvider"),
-        Lightbox = function( template, contentProvider, options )
-        {
-            this.template = $(template);
-            this.setContentProvider( contentProvider );
-            this.options = $.extend({
-                closeOnESC: true,
-                htmlClass: "lightbox-open",
-                openClass: "open",
-                closeSelector: ".lightbox-close-action",
-                titleSelector: ".lightbox-title",
-                extraClass: ""
-            }, options );
-        };
+    function Lightbox( template, contentProvider, options )
+    {
+        this.template = $(template);
+        this.setContentProvider( contentProvider );
+        this.options = $.extend({
+            closeOnESC: true,
+            htmlClass: "lightbox-open",
+            openClass: "open",
+            closeSelector: ".lightbox-close-action",
+            titleSelector: ".lightbox-title",
+            extraClass: ""
+        }, options );
+    }
 
     Lightbox.open       = false;
     Lightbox.current    = null;

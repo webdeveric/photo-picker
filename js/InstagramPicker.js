@@ -1,21 +1,23 @@
-define(function(require) {
+define( [
+    "jquery",
+    "util",
+    "PhotoPicker",
+    "Lightbox",
+    "Popup",
+    "ContentProvider"
+], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider ) {
     "use strict";
 
-    var $ = require("jquery"),
-        util = require("util"),
-        PhotoPicker = require("PhotoPicker"),
-        Lightbox = require("Lightbox"),
-        ContentProvider = require("ContentProvider"),
-        InstagramPicker = function( templateSelector, clientID, redirectURI )
-        {
-            PhotoPicker.call(this, templateSelector);
+    function InstagramPicker( templateSelector, clientID, redirectURI )
+    {
+        PhotoPicker.call(this, templateSelector);
 
-            this.type        = "instgrampicker";
-            this.batchSize   = 20;
-            this.clientID    = clientID;
-            this.redirectURI = redirectURI;
-            this.accessToken = null;
-        };
+        this.type        = "instgrampicker";
+        this.batchSize   = 20;
+        this.clientID    = clientID;
+        this.redirectURI = redirectURI;
+        this.accessToken = null;
+    }
 
     util.extendClass( InstagramPicker, PhotoPicker );
 
@@ -47,7 +49,8 @@ define(function(require) {
 
         var url = "https://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + this.clientID + "&redirect_uri=" + this.redirectURI;
 
-        util.popup( url, { name: "instagram", width: 650, height: 480 }, this.handlePopupBlocked );
+        new Popup( url, "instagram", { width: 650, height: 480 } ).blocked( this.handlePopupBlocked ).open();
+
     };
 
     InstagramPicker.prototype.setAccessToken = function( token )

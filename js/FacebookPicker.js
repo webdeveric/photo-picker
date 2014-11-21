@@ -1,18 +1,19 @@
-define(function(require) {
+define( [
+    "jquery",
+    "util",
+    "PhotoPicker",
+    "Lightbox",
+    "facebook"
+], function( $, util, PhotoPicker, Lightbox, FB ) {
     "use strict";
 
-    var $ = require("jquery"),
-        util = require("util"),
-        PhotoPicker = require("PhotoPicker"),
-        Lightbox = require("Lightbox"),
-        FB = require("facebook"),
-        FacebookPicker = function( templateSelector )
-        {
-            PhotoPicker.call(this, templateSelector);
+    function FacebookPicker( templateSelector )
+    {
+        PhotoPicker.call(this, templateSelector);
 
-            this.type        = "facebookpicker";
-            this.batchSize   = 20;
-        };
+        this.type        = "facebookpicker";
+        this.batchSize   = 20;
+    }
 
     util.extendClass( FacebookPicker, PhotoPicker );
 

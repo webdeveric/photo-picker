@@ -1,28 +1,29 @@
-define(function(require) {
+define( [
+    "jquery",
+    "util",
+    "ContentProvider",
+    "hogan"
+], function( $, util, ContentProvider, Hogan ) {
     "use strict";
 
-    var $ = require("jquery"),
-        util = require("util"),
-        ContentProvider = require("ContentProvider"),
-        Hogan = require("hogan"),
-        PhotoPicker = function( templateSelector )
-        {
-            ContentProvider.call(this);
+    function PhotoPicker( templateSelector )
+    {
+        ContentProvider.call(this);
 
-            this.type           = "photopicker";
-            this.template       = templateSelector;
-            this.photos         = [];
-            this.index          = 0;
-            this.nextURL        = null;
-            this.currentURL     = null;
-            this.batchSize      = 10;
-            this.selectedPhoto  = null;
-            this.lightbox       = null;
-            this.photoContainer = null;
-            this.loadMoreButton = null;
-            this.cancelButton   = null;
-            this.submitButton   = null;
-        };
+        this.type           = "photopicker";
+        this.template       = templateSelector;
+        this.photos         = [];
+        this.index          = 0;
+        this.nextURL        = null;
+        this.currentURL     = null;
+        this.batchSize      = 10;
+        this.selectedPhoto  = null;
+        this.lightbox       = null;
+        this.photoContainer = null;
+        this.loadMoreButton = null;
+        this.cancelButton   = null;
+        this.submitButton   = null;
+    }
 
     util.extendClass( PhotoPicker, ContentProvider );
 

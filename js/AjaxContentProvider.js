@@ -1,24 +1,25 @@
-define(function(require) {
+define( [
+    "jquery",
+    "util",
+    "ContentProvider"
+], function( $, util, ContentProvider ) {
     "use strict";
 
-    var $ = require("jquery"),
-        util = require("util"),
-        ContentProvider = require("ContentProvider"),
-        AjaxContentProvider = function( url, options )
-        {
-            ContentProvider.call(this, null, null, options);
-            this.url = url;
-            this.options = $.extend(
-                this.options,
-                {
-                    ajaxOptions: {},
-                    processData: function( data /* , textStatus, jqXHR */ ) {
-                        return data;
-                    }
-                },
-                options
-            );
-        };
+    function AjaxContentProvider( url, options )
+    {
+        ContentProvider.call(this, null, null, options);
+        this.url = url;
+        this.options = $.extend(
+            this.options,
+            {
+                ajaxOptions: {},
+                processData: function( data /* , textStatus, jqXHR */ ) {
+                    return data;
+                }
+            },
+            options
+        );
+    }
 
     util.extendClass( AjaxContentProvider, ContentProvider );
 

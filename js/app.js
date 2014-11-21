@@ -17,4 +17,4 @@ requirejs.config({
     }
 });
 
-requirejs([ "jquery", "main" ]);
+requirejs([ "main" ]);
