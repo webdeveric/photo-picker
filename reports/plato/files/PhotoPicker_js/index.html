@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">72.05</p>
+      <p class="stat">72.61</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">233</p>
+      <p class="stat">249</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">35.19</p>
+      <p class="stat">35.92</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">1.84</p>
+      <p class="stat">1.95</p>
     </div>
   </div>
 </div>
@@ -89,31 +89,32 @@
 
 <div class="container">
   <div class="row">
-    <textarea id="file-source" class="col-md-12">define(function(require) {
+    <textarea id="file-source" class="col-md-12">define( [
+    &quot;jquery&quot;,
+    &quot;util&quot;,
+    &quot;ContentProvider&quot;,
+    &quot;hogan&quot;
+], function( $, util, ContentProvider, Hogan ) {
     &quot;use strict&quot;;
 
-    var $ = require(&quot;jquery&quot;),
-        util = require(&quot;util&quot;),
-        ContentProvider = require(&quot;ContentProvider&quot;),
-        Hogan = require(&quot;hogan&quot;),
-        PhotoPicker = function( templateSelector )
-        {
-            ContentProvider.call(this);
+    function PhotoPicker( templateSelector )
+    {
+        ContentProvider.call(this);
 
-            this.type           = &quot;photopicker&quot;;
-            this.template       = templateSelector;
-            this.photos         = [];
-            this.index          = 0;
-            this.nextURL        = null;
-            this.currentURL     = null;
-            this.batchSize      = 10;
-            this.selectedPhoto  = null;
-            this.lightbox       = null;
-            this.photoContainer = null;
-            this.loadMoreButton = null;
-            this.cancelButton   = null;
-            this.submitButton   = null;
-        };
+        this.type           = &quot;photopicker&quot;;
+        this.template       = templateSelector;
+        this.photos         = [];
+        this.index          = 0;
+        this.nextURL        = null;
+        this.currentURL     = null;
+        this.batchSize      = 10;
+        this.selectedPhoto  = null;
+        this.lightbox       = null;
+        this.photoContainer = null;
+        this.loadMoreButton = null;
+        this.cancelButton   = null;
+        this.submitButton   = null;
+    }
 
     util.extendClass( PhotoPicker, ContentProvider );
 
@@ -233,12 +234,17 @@
 
     PhotoPicker.prototype.fetch = function( url, data )
     {
+        console.log(&quot;PhotoPicker fetch&quot;);
         this.currentURL = url;
         data = data || &quot;&quot;;
 
-        // console.log( url, data );
+        var do_fetch = this.beforeFetch( url, data );
 
-        var xhr = $.ajax({
+        if ( do_fetch === false ) {
+            return;
+        }
+
+        return $.ajax({
             url: url,
             data: data,
             dataType: &quot;jsonp&quot;
@@ -246,9 +252,19 @@
             $.proxy( this.processData, this )
         ).fail(
             $.proxy( this.fetchFailed, this )
+        ).always(
+            $.proxy( this.afterFetch, this )
         );
+    };
 
-        return xhr;
+    PhotoPicker.prototype.beforeFetch = function()
+    {
+        this.content.addClass(&quot;fetching&quot;);
+    };
+
+    PhotoPicker.prototype.afterFetch = function()
+    {
+        this.content.removeClass(&quot;fetching&quot;);
     };
 
     PhotoPicker.prototype.fetchFailed = function()

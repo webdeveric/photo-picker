@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Plato - util.js</title>
+  <title>Plato - Popup.js</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
@@ -36,7 +36,7 @@
 
 <div class="jumbotron">
   <div class="container">
-    <h1>util.js</h1>
+    <h1>Popup.js</h1>
   </div>
 </div>
 
@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">76.51</p>
+      <p class="stat">65.99</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">27</p>
+      <p class="stat">120</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">13.36</p>
+      <p class="stat">56.65</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">0.10</p>
+      <p class="stat">1.04</p>
     </div>
   </div>
 </div>
@@ -92,28 +92,121 @@
     <textarea id="file-source" class="col-md-12">define(function() {
     &quot;use strict&quot;;
 
-    function createObject(proto)
+    function Popup( url, name, features )
     {
-        if ( Object.create !== void 0 ) {
-            return Object.create( proto );
+        this.url      = url;
+        this.name     = name || &quot;&quot;;
+        this.features = Popup.features;
+        this.win      = null;
+        this.timer    = null;
+
+        this.blockedCallback = null;
+        this.closedCallback = null;
+        this.openedCallback = null;
+
+        for (var f in features) {
+            if ( !(f in this.features) ) {
+                continue;
+            }
+            this.features[ f ] = features[ f ];
         }
 
-        function Obj() {}
-        Obj.prototype = proto;
-        return new Obj();
+        this.features.width  = this.features.width || screen.availWidth / 2;
+        this.features.height = this.features.height || screen.availHeight / 2;
+        this.features.left   = this.features.left || (screen.availWidth - this.features.width) / 2;
+        this.features.top    = this.features.top || (screen.availHeight - this.features.height) / 2;
+
+        return this;
     }
 
-    function extendClass( Class, ParentClass )
-    {
-        Class.prototype = createObject( ParentClass.prototype );
-        Class.prototype.constructor = Class;
-        return Class;
-    }
-
-    return {
-        createObject: createObject,
-        extendClass: extendClass
+    Popup.features = {
+        width: null,
+        height: null,
+        left: null,
+        top: null,
+        menubar: 0,
+        toolbar: 0,
+        location: 1,
+        status: 1,
+        resizable: 1,
+        scrollbars: 1
     };
+
+    Popup.prototype._featuresString = function() {
+        var features = [];
+
+        for (var f in this.features) {
+            if ( this.features[f] )
+                features.push( f + &quot;=&quot; + this.features[f] );
+        }
+
+        return features.join(&quot;,&quot;);
+    };
+
+    Popup.prototype.open = function() {
+        this.win = window.open( this.url, this.name, this._featuresString() );
+
+        if ( this.win &amp;&amp; !this.win.closed ) {
+
+            this.win.focus();
+
+            if ( typeof this.openedCallback === &quot;function&quot; ) {
+                this.openedCallback.call( this.openedCallback, this );
+            }
+
+            if ( typeof this.closedCallback === &quot;function&quot; ) {
+                this._waitForClosed();
+            }
+
+        } else if ( typeof this.blockedCallback === &quot;function&quot; ) {
+
+            this.blockedCallback.call( this.blockedCallback, this );
+
+        }
+
+        return this;
+    };
+
+    Popup.prototype.close = function() {
+        if ( this.win &amp;&amp; !this.win.closed ) {
+            this.win.close();
+        }
+        return this;
+    };
+
+    Popup.prototype._clearTimer = function() {
+        window.clearInterval( this.timer );
+        this.timer = null;
+    };
+
+    Popup.prototype._waitForClosed = function() {
+        var self = this;
+        this.timer = window.setInterval( function() {
+            if ( !self.win || self.win.closed ) {
+                self._clearTimer();
+                if ( typeof self.closedCallback === &quot;function&quot; ) {
+                    self.closedCallback.call( self.closedCallback, self );
+                }
+            }
+        }, 500 );
+    };
+
+    Popup.prototype.blocked = function( callback ) {
+        this.blockedCallback = typeof callback === &quot;function&quot; ? callback : null;
+        return this;
+    };
+
+    Popup.prototype.opened = function( callback ) {
+        this.openedCallback = typeof callback === &quot;function&quot; ? callback : null;
+        return this;
+    };
+
+    Popup.prototype.closed = function( callback ) {
+        this.closedCallback = typeof callback === &quot;function&quot; ? callback : null;
+        return this;
+    };
+
+    return Popup;
 
 });</textarea>
   </div>
