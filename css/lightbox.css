@@ -116,17 +116,18 @@
   position: relative;
   height: 40px;
   line-height: 40px;
-  background: orangered;
-  background-image: linear-gradient( to top, #B00, orangered);
+  background: #4B6AA2;
+  background-image: linear-gradient( to bottom, #4B6AA2, #395A98);
   color: #FFF;
 }
 
 .lightbox-title{
   position: relative;
-  height: 40px;
-  line-height: 40px;
-  padding: 0 10px;
-  font-size: 14px;
+  height: 100%;
+  line-height: 45px;
+  font-weight: bold;
+  padding: 0 6px;
+  font-size: 18px;
   text-align: left;
   white-space: nowrap;
   hyphens: none;
@@ -136,26 +137,59 @@
 }
 
 .lightbox-title:empty{
-    display: none;
+  display: none;
+}
+
+.lightbox-title-icon{
+  display: inline-block;
+  vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  background: center center no-repeat;
+  background-size: contain;
+  background-color: #FFF;
+  border-radius: 3px;
+  margin: 0 6px 0 0;
+}
+
+.facebook-picker-lightbox .lightbox-title-icon{
+  background-color: #EEE;
+}
+
+.instagram-picker-lightbox .lightbox-title-icon{
+  background-color: #AAA;
+}
+
+.lightbox-title-text{
+  display: inline-block;
+  vertical-align: middle; 
 }
 
 .lightbox-close{
   cursor: pointer;
-  display: block;
   position: absolute;
   z-index: 10;
   top: 0;
   right: 0;
+  bottom: 0;
   width: 40px;
-  height: 40px;
-  line-height: 35px;
   font-size: 20px;
+  line-height: 40px;
+  font-weight: bold;
   text-align: center;
+}
+
+.lightbox-close-inner{
+  border: 2px solid #FFF;
+  display: inline-block;
+  line-height: 16px;
+  width: 16px;
+  height: 16px;
   transition: all ease-in-out 200ms;
 }
 
-.lightbox-close:hover{
-  background: #000;
+.lightbox-close:hover .lightbox-close-inner{
+  background: orangered;
 }
 
 .lightbox-content{

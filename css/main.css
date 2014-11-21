@@ -110,17 +110,22 @@ html, body{
     border-color: #2B732B;
 }
 
-.picker{
+.photo-picker{
     text-align: left;
+    background: #EBEBEB;
     border: 1px solid #DDD;
 }
 
-.picker .row{
-    padding: 20px;
+.lightbox .photo-picker{
+    border: 0;
+}
+
+.photo-picker .row{
+    padding: 6px;
     line-height: 1;
 }
 
-.picker .header{
+.photo-picker .header{
     background-color: #FEFEFE;
     background-image: linear-gradient(to bottom, #FEFEFE, #EEE);
     border-bottom: 1px solid #DDD;
@@ -128,22 +133,25 @@ html, body{
     color: #474747;
 }
 
-.photo-frame{
-    min-height: 150px;
-    max-height: 450px;
+.photo-scroll-frame{
+    position: relative;
     display: block;
     background: #FFF;
+    border: 1px solid #D7D7D7;    
     overflow: auto;
-    transition: height ease-in-out 10s;
+    min-height: 150px;
+    max-height: 450px;
+}
+
+.photo-frame{
+    padding: 6px 0 6px 6px;
+    box-sizing: border-box;
 }
 
 .photo-container{
-    display: block;
-    margin-bottom: 20px;
 }
 
 .photo-container:empty{
-    height: auto;
 }
 
 .photo-container:after{
@@ -170,25 +178,22 @@ html, body{
     animation-iteration-count: infinite;
 }
 
-.picker .actions{
-    background-color: #FEFEFE;
-    background-image: linear-gradient(to bottom, #EEE, #FEFEFE);
-    border-top: 1px solid #DDD;
-    color: #474747;
-    text-align: right;
-    padding-top: 0;
+.photo-picker .tabs{
     padding-bottom: 0;
 }
 
-.picker .divider{
+.photo-picker .actions{
+    color: #474747;
+    text-align: right;
+    padding-top: 0;
+}
+
+.photo-picker .divider{
     display: inline-block;
     vertical-align: middle;
-    width: 1px;
-    line-height: 3em;
-    margin: 0 20px;
-    border-width: 0 1px 0 0;
-    border-style: solid;
-    border-color: rgba(0,0,0,.1);
+    width: 6px;
+    line-height: 1;
+    margin: 0;
     box-shadow: 1px 0 0 #FFF;
     text-indent: 200%;
     white-space: nowrap;
@@ -196,7 +201,7 @@ html, body{
     overflow:hidden;
 }
 
-.picker .photo{
+.photo-picker .photo{
     position: relative;
     z-index: 1;
     cursor: pointer;
@@ -204,42 +209,50 @@ html, body{
     display: inline-block;
     vertical-align: top;
     overflow: hidden;
-    width: 24%;
+    width: calc(25% - 6px);
     height: 150px;
     line-height: 150px;
     box-sizing: border-box;
-    margin: 0 1.333% 1.333% 0;
+    margin: 0 6px 6px 0;
     text-align: center;
-    border: 1px solid #CCC;
-    background: #DFDFDF;
+    border: 1px solid #D7D7D7;
+    background: #EBEBEB;
     opacity: 1;
     transition: all ease-in-out 150ms;
 }
 
-.picker .photo:nth-child(4n){
+.photo-picker .photo:nth-child(4n){
     margin-right: 0;
 }
 
-.picker .photo:nth-last-child(-n+4){
+.photo-picker .photo:nth-last-child(-n+4){
     margin-bottom: 0;
 }
 
-.lte8 .picker .photo{
+.lte8 .photo-picker .photo{
+    position: relative;
+    z-index: 1;
     width: 23%;
     margin: 0 2% 2% 0;
 }
 
-.picker .photo:hover{
+.photo-picker .photo:hover{
     background-color: #C9D7EC;
     border-color: #B1C9EA;
 }
 
-.picker .photo.selected{
-    outline: 4px solid orangered;
+.photo-picker .photo.selected:before{
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: 6px solid #41619C;
     z-index: 2;
 }
 
-.picker .photo img{
+.photo-picker .photo img{
     display: inline-block;
     max-width: 100%;
     max-height: 100%;
@@ -249,6 +262,6 @@ html, body{
     vertical-align: middle;
 }
 
-:not(.lte8) .picker .photo.loading{
+:not(.lte8) .photo-picker .photo.loading{
     opacity: .25;
 }
