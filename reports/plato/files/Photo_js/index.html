@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Plato - ContentProvider.js</title>
+  <title>Plato - Photo.js</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
@@ -36,7 +36,7 @@
 
 <div class="jumbotron">
   <div class="container">
-    <h1>ContentProvider.js</h1>
+    <h1>Photo.js</h1>
   </div>
 </div>
 
@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">79.27</p>
+      <p class="stat">75.45</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">37</p>
+      <p class="stat">91</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">14.72</p>
+      <p class="stat">25.47</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">0.15</p>
+      <p class="stat">0.52</p>
     </div>
   </div>
 </div>
@@ -89,41 +89,95 @@
 
 <div class="container">
   <div class="row">
-    <textarea id="file-source" class="col-md-12">define( [ &quot;jquery&quot; ], function( $ ) {
+    <textarea id="file-source" class="col-md-12">define( &quot;jquery&quot;, function( $ ) {
     &quot;use strict&quot;;
 
-    function ContentProvider( content, options )
+    function Photo( id, src, thumbnail, likes, tags, description )
     {
-        this.content = content || &quot;&quot;;
-        this.options = $.extend({}, options );
+        this.id          = id;
+        this.src         = src;
+        this.thumbnail   = thumbnail;
+        this.likes       = likes || 0;
+        this.tags        = tags || [];
+        this.description = description || &quot;&quot;;
     }
 
-    ContentProvider.prototype.bindEvents = function()
-    {
+    Photo.prototype.addTag = function( tag ) {
+        this.tags.push( tag );
         return this;
     };
 
-    ContentProvider.prototype.unbindEvents = function()
-    {
-        return this;
-    };
-
-    ContentProvider.prototype.getContent = function( callback )
-    {
-        if ( callback ) {
-            return callback.call(callback, this.content, this );
-        } else {
-            return this.content;
+    Photo.prototype.setDescription = function( description ) {
+        if ( description ) {
+            this.description = description;
         }
-    };
-
-    ContentProvider.prototype.setContent = function( content )
-    {
-        this.content = content;
         return this;
     };
 
-    return ContentProvider;
+    Photo.prototype.setTags = function( tags ) {
+        if ( tags ) {
+            this.tags = [];
+
+            var i = 0,
+                l = tags.length;
+
+            for ( ; i &lt; l ; ) {
+                this.tags.push( tags[ i ] );
+            }
+        }
+        return this;
+    };
+
+    Photo.prototype.incrementLikes = function() {
+        ++this.likes;
+        return this;
+    };
+
+    Photo.prototype.getSrc = function() {
+        return this.src;
+    };
+
+    Photo.prototype.getThumbnail = function() {
+        return this.thumbnail;
+    };
+
+    Photo.prototype.getThumbnailImg = function()
+    {
+        var self = this;
+
+        function loadImage( deferred ) {
+
+            if ( !self.thumbnail ) {
+
+                deferred.resolve( false );
+
+            } else {
+
+                var img = new Image(),
+                    resetEvents = function( img ) {
+                        img.onload = img.onerror = img.onabort = null;
+                    };
+
+                img.onload = function() {
+                    resetEvents( this );
+                    deferred.resolve( this );
+                };
+
+                img.onerror = img.onabort = function() {
+                    resetEvents( this );
+                    deferred.reject( this );
+                };
+
+                img.src = self.thumbnail;
+
+            }
+
+        }
+
+        return $.Deferred( loadImage ).promise();
+    };
+
+    return Photo;
 
 });</textarea>
   </div>

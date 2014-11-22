@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">69.40</p>
+      <p class="stat">68.33</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">158</p>
+      <p class="stat">188</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">26.59</p>
+      <p class="stat">26.89</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">1.18</p>
+      <p class="stat">1.36</p>
     </div>
   </div>
 </div>
@@ -95,19 +95,22 @@
     &quot;PhotoPicker&quot;,
     &quot;Lightbox&quot;,
     &quot;Popup&quot;,
-    &quot;ContentProvider&quot;
-], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider ) {
+    &quot;ContentProvider&quot;,
+    &quot;Photo&quot;
+], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider, Photo ) {
     &quot;use strict&quot;;
+
+    alert(Photo);
 
     function InstagramPicker( templateSelector, clientID, redirectURI )
     {
         PhotoPicker.call(this, templateSelector);
 
-        this.type        = &quot;instgrampicker&quot;;
-        this.batchSize   = 20;
-        this.clientID    = clientID;
-        this.redirectURI = redirectURI;
-        this.accessToken = null;
+        this.type           = &quot;instgrampicker&quot;;
+        this.clientID       = clientID;
+        this.redirectURI    = redirectURI;
+        this.accessToken    = null;
+        this.supportsAlbums = false;
     }
 
     util.extendClass( InstagramPicker, PhotoPicker );
@@ -116,10 +119,13 @@
     {
         PhotoPicker.prototype.init.call(this);
         this.bindEvents();
+        var def = $.Deferred();
+        def.resolve(true);
+        return def.promise();
     };
 
-    InstagramPicker.prototype.handlePopupBlocked = function( url ) {
-        var content = &quot;&lt;p&gt;Unable to open Instagram in a new window.&lt;/p&gt;&lt;p&gt;You need to authorize this app to be able to select a photo.&lt;/p&gt;&lt;p&gt;&lt;a target=&#039;_blank&#039; class=&#039;button lightbox-close-action&#039; href=&#039;&quot; + url + &quot;&#039; data-allow-default=&#039;true&#039;&gt;Authorize app&lt;/a&gt;&lt;/p&gt;&quot;,
+    InstagramPicker.prototype.handlePopupBlocked = function( popup ) {
+        var content = &quot;&lt;p&gt;Unable to open Instagram in a new window.&lt;/p&gt;&lt;p&gt;You need to authorize this app to be able to select a photo.&lt;/p&gt;&lt;p&gt;&lt;a target=&#039;_blank&#039; class=&#039;button lightbox-close-action&#039; href=&#039;&quot; + popup.url + &quot;&#039; data-allow-default=&#039;true&#039;&gt;Authorize app&lt;/a&gt;&lt;/p&gt;&quot;,
             blocked_lightbox = new Lightbox(
                 &quot;.default-lightbox&quot;,
                 new ContentProvider( content ),
@@ -131,6 +137,16 @@
         blocked_lightbox.open();
     };
 
+    InstagramPicker.prototype.handlePopupClosed = function( /* popup */ ) {
+        if ( !this.accessToken ) {
+            var error = {
+                message: &quot;An active access token is required to query Instagram.&quot;,
+                type: &quot;OAuthException&quot;
+            };
+            this.trigger(&quot;error.photopicker&quot;, [ error, this ] );
+        }
+    };
+
     InstagramPicker.prototype.authorizePicker = function()
     {
         if ( !this.clientID || !this.redirectURI ) {
@@ -140,7 +156,11 @@
 
         var url = &quot;https://api.instagram.com/oauth/authorize/?response_type=token&amp;client_id=&quot; + this.clientID + &quot;&amp;redirect_uri=&quot; + this.redirectURI;
 
-        new Popup( url, &quot;instagram&quot;, { width: 650, height: 480 } ).blocked( this.handlePopupBlocked ).open();
+        new Popup( url, &quot;instagram&quot;, { width: 650, height: 480 } ).blocked(
+            $.proxy( this.handlePopupBlocked, this )
+        ).closed(
+            $.proxy( this.handlePopupClosed, this )
+        ).open();
 
     };
 
@@ -210,12 +230,26 @@
 
     InstagramPicker.prototype.render = function()
     {
+        // var photos_length = this.photos.length,
+        //     item = document.createElement(&quot;div&quot;),
+        //     imgObj = img.getThumbnailImg( function( /* event */ ) {
+        //         this.parentNode.className = &quot;photo&quot;;
+        //     });
+
+        // item.appendChild( imgObj );
+        // item.setAttribute(&quot;data-photo-index&quot;, photos_length - 1 );
+        // item.className = &quot;photo loading&quot;;
+
+        // this.photoContainer.append( item );
+
         if ( !this.lightbox ) {
             this.lightbox = new Lightbox(
-                &quot;.social-lightbox&quot;,
+                &quot;#photo-picker-lightbox&quot;,
                 this,
                 {
-                    title: &quot;Choose Photo&quot;
+                    title: &quot;Instagram Photos&quot;,
+                    titleSelector: &quot;.lightbox-title-text&quot;,
+                    extraClass: &quot;instagram-picker-lightbox&quot;
                 }
             );
         }
@@ -225,23 +259,19 @@
 
     InstagramPicker.prototype.append = function( photo )
     {
-        var photos_length = this.photos.push( photo ),
-            img  = new Image(),
-            item = document.createElement(&quot;div&quot;);
+        var img = new Photo(
+            &quot;&quot;,
+            photo.images.standard_resolution.url.replace(&quot;http://&quot;, &quot;//&quot;),
+            photo.images.thumbnail.url.replace(&quot;http://&quot;, &quot;//&quot;),
+            photo.likes.count,
+            photo.tags
+        );
 
-        item.appendChild( img );
+        if ( photo.caption &amp;&amp; photo.caption.text ) {
+            img.setDescription( photo.caption.text );
+        }
 
-        img.onload = function() {
-            this.parentNode.className = &quot;photo&quot;;
-            this.onload = null;
-        };
-
-        img.src = photo.images.thumbnail.url.replace(&quot;http://&quot;, &quot;//&quot;);
-
-        item.setAttribute(&quot;data-photo-index&quot;, photos_length - 1 );
-        item.className = &quot;photo loading&quot;;
-
-        this.photoContainer.append( item );
+        return PhotoPicker.prototype.append.call( this, img );
     };
 
     return InstagramPicker;
