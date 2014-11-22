@@ -36,7 +36,20 @@ define( [
         facebookPicker  = new FacebookPicker(
             "#faceboook-picker"
         );
+
         facebookPicker.init();
+
+        /*
+.done( function() {
+
+            facebookPicker.getAlbums().done( function( albums ) {
+                console.log( facebookPicker );
+            });
+
+        });
+        */
+
+        // console.log( facebookPicker );
 
         instagramPicker = new InstagramPicker(
             "#instragram-picker",
@@ -52,6 +65,10 @@ define( [
 
         instagramPicker.init();
 
+        instagramPicker.getAlbums().done( function( albums ) {
+            console.log( albums );
+        });
+
         $("#facebook-picker-button").on("click", $.proxy( facebookPicker.open, facebookPicker ) );
         $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
 
@@ -61,6 +78,8 @@ define( [
                 img.src = url;
                 $("#preview").empty().append( img );
             }
+        }).on("error.photopicker", function( e, error /* , photopicker */ ) {
+            console.log( error.message );
         });
 
         $("#lightbox-demo").lightbox( ".default-lightbox", {

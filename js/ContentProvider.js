@@ -1,9 +1,8 @@
 define( [ "jquery" ], function( $ ) {
     "use strict";
 
-    function ContentProvider( title, content, options )
+    function ContentProvider( content, options )
     {
-        this.title   = title || "";
         this.content = content || "";
         this.options = $.extend({}, options );
     }

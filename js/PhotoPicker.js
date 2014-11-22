@@ -2,8 +2,8 @@ define( [
     "jquery",
     "util",
     "ContentProvider",
-    "hogan"
-], function( $, util, ContentProvider, Hogan ) {
+    "Photo"
+], function( $, util, ContentProvider, Photo ) {
     "use strict";
 
     function PhotoPicker( templateSelector )
@@ -12,11 +12,15 @@ define( [
 
         this.type           = "photopicker";
         this.template       = templateSelector;
-        this.photos         = [];
-        this.index          = 0;
+        this.albums         = [];
+        this.photos         = {};
+        this.supportsAlbums = true;
+        this.currentAlbum   = 0;
+        this.lastPhoto      = 0;
+        this.batchSize      = 40;
+        this.currentTab     = "photo"; // "albumb"
         this.nextURL        = null;
         this.currentURL     = null;
-        this.batchSize      = 10;
         this.selectedPhoto  = null;
         this.lightbox       = null;
         this.photoContainer = null;
@@ -30,11 +34,14 @@ define( [
     PhotoPicker.prototype.init = function()
     {
         this.setupTemplate();
+        var def = $.Deferred();
+        def.resolve(true);
+        return def.promise();
     };
 
     PhotoPicker.prototype.handleKeyup = function( event )
     {
-        if (event.keyCode == 13 ) {
+        if ( event.keyCode == 13 ) {
             this.handleSubmit();
         }
     };
@@ -111,10 +118,19 @@ define( [
         console.log("Rendering data");
     };
 
-    PhotoPicker.prototype.append = function( photo )
+    PhotoPicker.prototype.addPhoto = function( img )
     {
-        console.info("Appending photo");
-        console.log( photo );
+        this.photos[ img.id ] = img;
+        return this;
+    };
+
+    PhotoPicker.prototype.append = function( img )
+    {
+        if ( img instanceof Photo ) {
+            this.photos.push( img );
+            // console.log( img );
+        }
+        return this;
     };
 
     PhotoPicker.prototype.fetchData = function()
@@ -125,6 +141,31 @@ define( [
     PhotoPicker.prototype.getPhotos = function()
     {
         return this.photos;
+    };
+
+    PhotoPicker.prototype.hasAlbums = function() {
+        return this.supportsAlbums && this.albums.length > 0;
+    };
+
+    PhotoPicker.prototype.getAlbums = function()
+    {
+        var def = $.Deferred();
+
+        if ( this.supportsAlbums ) {
+
+            if ( !this.albums.length ) {
+                return this.loadAlbums();
+            }
+
+            def.resolve( this.albums );
+        }
+        def.resolve( false );
+        return def.promise();
+    };
+
+    PhotoPicker.prototype.loadAlbums = function()
+    {
+        return $.when( this.supportsAlbums ? [] : false );
     };
 
     PhotoPicker.prototype.loadMore = function()
@@ -235,13 +276,18 @@ define( [
 
     PhotoPicker.prototype.setupTemplate = function()
     {
-        this.template       = Hogan.compile( $(this.template).html() );
-        this.content        = $( this.template.render() );
+        // this.template       = Hogan.compile( $(this.template).html() );
+        this.template       = $(this.template).html();
+        this.content        = $(this.template);
         this.photoContainer = $(".photo-container", this.content );
         this.loadMoreButton = $(".button-load-more", this.content );
         this.cancelButton   = $(".button-cancel", this.content );
         this.submitButton   = $(".button-submit", this.content );
         return this;
+    };
+
+    PhotoPicker.prototype.trigger = function( event_name, parameters ) {
+        $(document.documentElement).trigger( event_name, parameters );
     };
 
     return PhotoPicker;

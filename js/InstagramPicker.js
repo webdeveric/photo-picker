@@ -4,19 +4,22 @@ define( [
     "PhotoPicker",
     "Lightbox",
     "Popup",
-    "ContentProvider"
-], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider ) {
+    "ContentProvider",
+    "Photo"
+], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider, Photo ) {
     "use strict";
+
+    alert(Photo);
 
     function InstagramPicker( templateSelector, clientID, redirectURI )
     {
         PhotoPicker.call(this, templateSelector);
 
-        this.type        = "instgrampicker";
-        this.batchSize   = 20;
-        this.clientID    = clientID;
-        this.redirectURI = redirectURI;
-        this.accessToken = null;
+        this.type           = "instgrampicker";
+        this.clientID       = clientID;
+        this.redirectURI    = redirectURI;
+        this.accessToken    = null;
+        this.supportsAlbums = false;
     }
 
     util.extendClass( InstagramPicker, PhotoPicker );
@@ -25,10 +28,13 @@ define( [
     {
         PhotoPicker.prototype.init.call(this);
         this.bindEvents();
+        var def = $.Deferred();
+        def.resolve(true);
+        return def.promise();
     };
 
-    InstagramPicker.prototype.handlePopupBlocked = function( url ) {
-        var content = "<p>Unable to open Instagram in a new window.</p><p>You need to authorize this app to be able to select a photo.</p><p><a target='_blank' class='button lightbox-close-action' href='" + url + "' data-allow-default='true'>Authorize app</a></p>",
+    InstagramPicker.prototype.handlePopupBlocked = function( popup ) {
+        var content = "<p>Unable to open Instagram in a new window.</p><p>You need to authorize this app to be able to select a photo.</p><p><a target='_blank' class='button lightbox-close-action' href='" + popup.url + "' data-allow-default='true'>Authorize app</a></p>",
             blocked_lightbox = new Lightbox(
                 ".default-lightbox",
                 new ContentProvider( content ),
@@ -40,6 +46,16 @@ define( [
         blocked_lightbox.open();
     };
 
+    InstagramPicker.prototype.handlePopupClosed = function( /* popup */ ) {
+        if ( !this.accessToken ) {
+            var error = {
+                message: "An active access token is required to query Instagram.",
+                type: "OAuthException"
+            };
+            this.trigger("error.photopicker", [ error, this ] );
+        }
+    };
+
     InstagramPicker.prototype.authorizePicker = function()
     {
         if ( !this.clientID || !this.redirectURI ) {
@@ -49,7 +65,11 @@ define( [
 
         var url = "https://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + this.clientID + "&redirect_uri=" + this.redirectURI;
 
-        new Popup( url, "instagram", { width: 650, height: 480 } ).blocked( this.handlePopupBlocked ).open();
+        new Popup( url, "instagram", { width: 650, height: 480 } ).blocked(
+            $.proxy( this.handlePopupBlocked, this )
+        ).closed(
+            $.proxy( this.handlePopupClosed, this )
+        ).open();
 
     };
 
@@ -119,12 +139,26 @@ define( [
 
     InstagramPicker.prototype.render = function()
     {
+        // var photos_length = this.photos.length,
+        //     item = document.createElement("div"),
+        //     imgObj = img.getThumbnailImg( function( /* event */ ) {
+        //         this.parentNode.className = "photo";
+        //     });
+
+        // item.appendChild( imgObj );
+        // item.setAttribute("data-photo-index", photos_length - 1 );
+        // item.className = "photo loading";
+
+        // this.photoContainer.append( item );
+
         if ( !this.lightbox ) {
             this.lightbox = new Lightbox(
-                ".social-lightbox",
+                "#photo-picker-lightbox",
                 this,
                 {
-                    title: "Choose Photo"
+                    title: "Instagram Photos",
+                    titleSelector: ".lightbox-title-text",
+                    extraClass: "instagram-picker-lightbox"
                 }
             );
         }
@@ -134,23 +168,19 @@ define( [
 
     InstagramPicker.prototype.append = function( photo )
     {
-        var photos_length = this.photos.push( photo ),
-            img  = new Image(),
-            item = document.createElement("div");
+        var img = new Photo(
+            "",
+            photo.images.standard_resolution.url.replace("http://", "//"),
+            photo.images.thumbnail.url.replace("http://", "//"),
+            photo.likes.count,
+            photo.tags
+        );
 
-        item.appendChild( img );
+        if ( photo.caption && photo.caption.text ) {
+            img.setDescription( photo.caption.text );
+        }
 
-        img.onload = function() {
-            this.parentNode.className = "photo";
-            this.onload = null;
-        };
-
-        img.src = photo.images.thumbnail.url.replace("http://", "//");
-
-        item.setAttribute("data-photo-index", photos_length - 1 );
-        item.className = "photo loading";
-
-        this.photoContainer.append( item );
+        return PhotoPicker.prototype.append.call( this, img );
     };
 
     return InstagramPicker;

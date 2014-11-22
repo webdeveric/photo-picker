@@ -117,8 +117,10 @@ define( [
 
         this.removeClasses();
 
-        this.checkQueue();
         this.trigger("close.lightbox", [ this ] );
+
+        this.checkQueue();
+
         return this;
     };
 
