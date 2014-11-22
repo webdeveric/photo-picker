@@ -1,4 +1,6 @@
-define( "jquery", function( $ ) {
+define( [
+    "jquery"
+], function( $ ) {
     "use strict";
 
     function Photo( id, src, thumbnail, likes, tags, description )
