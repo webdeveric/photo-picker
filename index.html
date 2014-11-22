@@ -46,26 +46,33 @@
     </div>
 </div>
 
-<div class="lightbox social-lightbox" id="social-lightbox">
+<div class="lightbox social-lightbox" id="photo-picker-lightbox">
     <div class="lightbox-overlay lightbox-close-action"></div>
     <div class="lightbox-frame lightbox-close-action">
         <div class="lightbox-wrapper">
             <div class="lightbox-titlebar">
-                <div class="lightbox-title"></div>
-                <div class="lightbox-close lightbox-close-action">&times;</div>
+                <div class="lightbox-title"><div class="lightbox-title-icon"></div><div class="lightbox-title-text"></div></div>
+                <div class="lightbox-close lightbox-close-action">
+                    <div class="lightbox-close-inner lightbox-close-action">&times;</div>
+                </div>
             </div>
             <div class="lightbox-content">
-
-
             </div>
         </div>
     </div>
 </div>
 
 <script type="text/template" id="faceboook-picker">
-    <div class="picker facebook-picker">
-        <div class="row photo-frame">
-            <div class="photo-container"></div>
+    <div class="photo-picker facebook-picker">
+        <div class="row tabs">
+            <button class="button button-photos">Photos</button><span class="divider">|</span><button class="button button-albums" disabled>Albums</button>
+        </div>
+        <div class="row">
+            <div class="photo-scroll-frame">
+                <div class="photo-frame">
+                    <div class="photo-container"></div>
+                </div>
+            </div>
         </div>
         <div class="row actions">
             <button class="button button-cancel">Cancel</button><span class="divider">|</span><button class="button button-load-more" disabled>Load more</button><span class="divider">|</span><button class="button button-submit" disabled>Pick this photo</button>
@@ -74,9 +81,13 @@
 </script>
 
 <script type="text/template" id="instragram-picker">
-    <div class="picker instagram-picker">
-        <div class="row photo-frame">
-            <div class="photo-container"></div>
+    <div class="photo-picker">
+        <div class="row">
+            <div class="photo-scroll-frame">
+                <div class="photo-frame">
+                    <div class="photo-container"></div>
+                </div>
+            </div>
         </div>
         <div class="row actions">
             <button class="button button-cancel">Cancel</button><span class="divider">|</span><button class="button button-load-more" disabled>Load more</button><span class="divider">|</span><button class="button button-submit" disabled>Pick this photo</button>
