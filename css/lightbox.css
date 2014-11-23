@@ -236,13 +236,13 @@
     margin: 0 0 10px 0;
 }
 
-.social-lightbox .lightbox-wrapper{
+.photo-picker-lightbox .lightbox-wrapper{
   width: 800px;
   border-radius: 3px;
   box-shadow: 0 0 10px 10px rgba(0,0,0,.15);
   color: #333;
 }
 
-.social-lightbox .lightbox-content{
+.photo-picker-lightbox .lightbox-content{
     padding: 0;
 }
