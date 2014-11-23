@@ -1,8 +1,17 @@
 module.exports = function( grunt ) {
     "use strict";
 
+    var openCommand = "open";
+
+    /* jshint ignore:start */
+    if (process.platform === "linux" ) {
+        openCommand = "xdg-open";
+    }
+    /* jshint ignore:end */
+
     var jsFiles = [ "Gruntfile.js", "./js/**/*.js", "!./js/**/*.min.js" ],
         config = {
+
             // https://github.com/gruntjs/grunt-contrib-jshint
             jshint: {
                 src: jsFiles,
@@ -34,7 +43,7 @@ module.exports = function( grunt ) {
             // https://github.com/sindresorhus/grunt-shell
             shell: {
                 platoreports: {
-                    command: "open http://photopicker.dev/reports/plato/"
+                    command: openCommand + " http://photopicker.dev/reports/plato/"
                 }
             },
 
