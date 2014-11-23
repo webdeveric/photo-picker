@@ -1,4 +1,4 @@
-define(function() {
+define( [ "polyfills" ], function() {
     "use strict";
 
     function createObject(proto)
