@@ -24,6 +24,16 @@ define( [
     Lightbox.queue      = [];
     Lightbox.queueDelay = 250;
 
+    Lightbox.checkQueue = function()
+    {
+        if ( Lightbox.queue.length ) {
+            var next = Lightbox.queue.pop();
+            setTimeout( function() {
+                next.open();
+            }, Lightbox.queueDelay || 250 );
+        }
+    };
+
     Lightbox.close = function() {
         if ( Lightbox.current ) {
             Lightbox.current.close();
@@ -85,17 +95,25 @@ define( [
     {
         $(document.documentElement).addClass( this.option("htmlClass") );
         this.template.addClass( this.option("openClass" ) ).addClass( this.option("extraClass") );
+        return this;
+    };
+
+    Lightbox.prototype.toggleClass = function( className, state ) {
+        this.template.toggleClass( className, state );
+        return this;
     };
 
     Lightbox.prototype.removeClasses = function()
     {
         $(document.documentElement).removeClass( this.option("htmlClass") );
         this.template.removeClass( this.option("openClass" ) ).removeClass( this.option("extraClass") );
+        return this;
     };
 
     Lightbox.prototype.setTitle = function( title ) {
         title = title || this.option("title", "");
         this.template.find( this.option("titleSelector") ).text( title );
+        return this;
     };
 
     Lightbox.prototype.close = function( event )
@@ -119,19 +137,9 @@ define( [
 
         this.trigger("close.lightbox", [ this ] );
 
-        this.checkQueue();
+        Lightbox.checkQueue();
 
         return this;
-    };
-
-    Lightbox.prototype.checkQueue = function()
-    {
-        if ( Lightbox.queue.length ) {
-            var next = Lightbox.queue.pop();
-            setTimeout( function() {
-                next.open();
-            }, Lightbox.queueDelay || 250 );
-        }
     };
 
     Lightbox.prototype.checkESC = function(event)
@@ -145,12 +153,14 @@ define( [
     {
         $(document.documentElement).on("keyup.lightbox", $.proxy( this.checkESC, this ) );
         this.template.on("click.lightbox", this.option("closeSelector"), $.proxy( this.close, this ) );
+        return this;
     };
 
     Lightbox.prototype.unbindEvents = function()
     {
         $(document.documentElement).off("keyup.lightbox");
         this.template.off("click.lightbox", this.option("closeSelector") );
+        return this;
     };
 
     $.fn.lightbox = function(template, options) {
