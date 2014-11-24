@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "homepage": "https://github.com/webdeveric/photo-picker",
   "authors": [
-    "Eric King <eric.king@lonelyplanet.com>"
+    "Eric King <eric@webdeveric.com>"
   ],
   "description": "Pick a photo from a lightbox",
   "license": "MIT",
@@ -16,7 +16,6 @@
     "tests"
   ],
   "dependencies": {
-    "hogan": "~3.0.2",
     "requirejs": "~2.1.15",
     "jquery": "~1.11.1",
     "es6-promise": "~2.0.0"
