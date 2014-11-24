@@ -62,23 +62,26 @@ define( function() {
             } else {
 
                 var img = new Image(),
-                    resetEvents = function( img ) {
+                    resetImg = function( img ) {
+                        img.className = "";
                         img.onload = img.onerror = img.onabort = null;
                     };
 
                 img.id = self.id;
+                img.className = "image-loading";
 
                 img.onload = function() {
-                    resetEvents( this );
-                    resolve( this );
+                    resetImg( this );
                 };
 
                 img.onerror = img.onabort = function() {
-                    resetEvents( this );
-                    reject( new Error("Unable to load image") );
+                    resetImg( this );
+                    this.parentNode.removeChild( this );
                 };
 
                 img.src = self.thumbnail;
+
+                resolve( img );
 
             }
 
