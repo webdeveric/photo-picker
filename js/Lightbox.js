@@ -68,7 +68,12 @@ define( [
 
     Lightbox.prototype.option = function( option_name, default_value )
     {
-        return this.options[ option_name ] || default_value || "";
+        if ( this.options[ option_name ] === void 0 ) {
+            if ( default_value === void 0 )
+                return "";
+            return default_value;
+        }
+        return this.options[ option_name ];
     };
 
     Lightbox.prototype.open = function()
