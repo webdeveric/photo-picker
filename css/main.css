@@ -125,6 +125,10 @@ html, body{
     line-height: 1;
 }
 
+.photo-picker .button-container{
+    padding-bottom: 0;
+}
+
 .photo-picker .header{
     background-color: #FEFEFE;
     background-image: linear-gradient(to bottom, #FEFEFE, #EEE);
