@@ -43,8 +43,8 @@ define( [
                 "e63a8cb495e94cdebf6c7c16b1b55e20",
                 "http://photopicker.dev/callback.html"
             ),
-            facebookPicker = new PhotoPicker( "#photo-picker", facebookPhotoProvider ),
-            instagramPicker = new PhotoPicker( "#photo-picker", instagramPhotoProvider );
+            facebookPicker = new PhotoPicker( "#photo-picker", facebookPhotoProvider, { lightbox: { title: "Facebook Photos", extraClass: "facebook-picker-lightbox", titleSelector: ".lightbox-title-text" } } ),
+            instagramPicker = new PhotoPicker( "#photo-picker", instagramPhotoProvider, { lightbox: { title: "Instagram Photos", extraClass: "instagram-picker-lightbox", titleSelector: ".lightbox-title-text" } } );
 
         $("#facebook-picker-button").on("click", $.proxy( facebookPicker.open, facebookPicker ) );
         $("#instagram-picker-button").on("click", $.proxy( instagramPicker.open, instagramPicker ) );
