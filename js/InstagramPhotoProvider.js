@@ -123,38 +123,31 @@ define( [
         return "/media/" + photo_id;
     };
 
-    InstagramPhotoProvider.prototype.processResults = function( results )
+    InstagramPhotoProvider.prototype.apiGetAlbumURL = function()
     {
-        console.info("Processing results", results );
+        return false;
+    };
 
-        this.url = results.pagination && results.pagination.next_url ? results.pagination.next_url : false;
+    InstagramPhotoProvider.prototype.getNextUrl = function( results )
+    {
+        return results.pagination && results.pagination.next_url ? results.pagination.next_url : false;
+    };
 
-        var i      = 0,
-            data   = results.data,
-            l      = data.length,
-            photos = [];
+    InstagramPhotoProvider.prototype.buildPhoto = function( data )
+    {
+        var photo = new Photo(
+            data.id,
+            data.images.standard_resolution.url.replace("http://", "//"),
+            data.images.thumbnail.url.replace("http://", "//"),
+            data.likes.count,
+            data.tags
+        );
 
-        for ( ; i < l ; ++i ) {
-
-            var img = data[i],
-                photo = new Photo(
-                    img.id,
-                    img.images.standard_resolution.url.replace("http://", "//"),
-                    img.images.thumbnail.url.replace("http://", "//"),
-                    img.likes.count,
-                    img.tags
-                );
-
-            if ( img.caption && img.caption.text ) {
-                photo.setDescription( img.caption.text );
-            }
-
-            this.addPhoto( photo );
-            photos.push( photo );
+        if ( data.caption && data.caption.text ) {
+            photo.setDescription( data.caption.text );
         }
 
-        return photos;
-
+        return photo;
     };
 
     return InstagramPhotoProvider;

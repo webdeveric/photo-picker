@@ -119,40 +119,39 @@ define( [
         return albums;
     };
 
-    FacebookPhotoProvider.prototype.processResults = function( results )
+    FacebookPhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
-        console.log("FacebookPhotoProvider.processResults: Called with results", results );
-        this.url = results.paging && results.paging.next ? results.paging.next : false;
+        return "/" + photo_id;
+    };
 
-        var i      = 0,
-            data   = results.data,
-            l      = data.length,
-            photos = [];
+    FacebookPhotoProvider.prototype.apiGetAlbumURL = function( album_id )
+    {
+        return "/" + album_id;
+    };
 
-        for ( ; i < l ; ++i ) {
+    FacebookPhotoProvider.prototype.getNextUrl = function( results )
+    {
+        return results.paging && results.paging.next ? results.paging.next : false;
+    };
 
-            var source,
-                thumbnail;
+    FacebookPhotoProvider.prototype.buildPhoto = function( data )
+    {
+        var source,
+            thumbnail;
 
-            if ( data[i].images.length > 1 ) {
+        if ( data.images.length > 1 ) {
 
-                source = data[i].images.shift().source;
-                thumbnail = data[i].images.pop().source;
+            source = data.images.shift().source;
+            thumbnail = data.images.pop().source;
 
-            } else {
+        } else {
 
-                source = data[i].source;
-                thumbnail = data[i].picture;
-
-            }
-
-            var photo = new Photo( data[i].id, source, thumbnail );
-            this.addPhoto( photo );
-            photos.push( photo );
+            source = data.source;
+            thumbnail = data.picture;
 
         }
 
-        return photos;
+        return new Photo( data.id, source, thumbnail );
     };
 
     return FacebookPhotoProvider;
