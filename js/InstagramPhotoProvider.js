@@ -87,9 +87,9 @@ define( [
 
     InstagramPhotoProvider.prototype.api = function( url, parameters )
     {
-        console.log("Calling Instagram api", this );
-
         parameters = $.extend( this.getParameters(), parameters );
+
+        console.log("Calling Instagram api", url, parameters );
 
         return new Promise( function( resolve, reject ) {
 
