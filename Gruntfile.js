@@ -35,7 +35,7 @@ module.exports = function( grunt ) {
                         jshint: grunt.file.readJSON(".jshintrc")
                     },
                     files: {
-                        "reports/plato": [ "js/**/*.js" ]
+                        "reports/plato": [ "js/**/*.js", "!js/polyfills.js" ]
                     }
                 }
             },
@@ -78,7 +78,7 @@ module.exports = function( grunt ) {
 
     grunt.registerTask(
         "test",
-        [ "jshint", "jscs", "plato", "shell:platoreports" ]
+        [ "js", "plato", "shell:platoreports" ]
     );
 
     var changedFiles = Object.create(null),
