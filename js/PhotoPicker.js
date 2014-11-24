@@ -190,7 +190,7 @@ define( [
 
         });
 
-        console.log("PhotoPicker opened");
+        console.log("PhotoPicker.open");
     };
 
     PhotoPicker.prototype.close = function()
@@ -198,7 +198,7 @@ define( [
         if ( this.lightbox ) {
             this.lightbox.close();
         }
-        console.log("PhotoPicker closed");
+        console.log("PhotoPicker.close");
     };
 
     PhotoPicker.prototype.clearContainer = function()
@@ -208,6 +208,10 @@ define( [
 
     PhotoPicker.prototype.renderImage = function( img )
     {
+        if ( !img ) {
+            return;
+        }
+
         var item = document.createElement("div");
         item.className = "photo";
         item.appendChild( img );
@@ -253,11 +257,6 @@ define( [
 
     };
 
-    PhotoPicker.prototype.getPhoto = function( id )
-    {
-        return this.photos[ id ] || false;
-    };
-
     PhotoPicker.prototype.maybeLoad = function()
     {
         console.info("maybeLoad");
@@ -282,18 +281,6 @@ define( [
     {
         console.log("PhotoPicker.getPhotos: Getting photos from provider");
         return this.photoProvider.getPhotos();
-
-        // return this.photoProvider.init().then( $.proxy( this.maybeLoad, this ) ).then( function( provider ) {
-        //     return provider.getPhotos();
-        // }, function( error ) {
-        //     return error;
-        // });
-
-        // return this.maybeLoad().then( function( provider ) {
-        //     return provider.getPhotos();
-        // }, function( error ) {
-        //     return error;
-        // });
     };
 
     PhotoPicker.prototype.hasAlbums = function() {
