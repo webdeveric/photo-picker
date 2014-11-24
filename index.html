@@ -70,11 +70,9 @@
             <button class="button button-photos" data-panel="photos">Photos</button><span class="divider">|</span><button class="button button-albums" data-panel="albums">Albums</button>
         </div>
         <div class="row">
-            <div class="photo-scroll-frame">
-                <div class="photo-frame">
-                    <div class="photo-container"></div>
-                    <div class="albums-container"></div>
-                </div>
+            <div class="photo-frame">
+                <div class="panel photos-panel photo-container active" data-loading-message="Loading photos"></div>
+                <div class="panel albums-panel albums-container" data-loading-message="Loading albums"></div>
             </div>
         </div>
         <div class="row actions">
