@@ -4,16 +4,16 @@ define( [
     "facebook",
     "PhotoPicker",
     "Lightbox",
-    "Photo"
-], function( $, util, FB, PhotoPicker, Lightbox, Photo ) {
+    "Photo",
+    "Album"
+], function( $, util, FB, PhotoPicker, Lightbox, Photo, Album ) {
     "use strict";
 
     function FacebookPicker( templateSelector )
     {
         PhotoPicker.call(this, templateSelector);
-
-        this.type        = "facebookpicker";
-        // this.batchSize   = 20;
+        this.type = "facebookpicker";
+        this.albumURL = "/me/albums";
     }
 
     util.extendClass( FacebookPicker, PhotoPicker );
@@ -21,6 +21,10 @@ define( [
     FacebookPicker.prototype.api = function( url, parameters )
     {
         var def = $.Deferred();
+
+        parameters = $.extend({
+            limit: this.resultsLimit
+        }, parameters );
 
         console.log("Calling FB.api");
 
@@ -72,12 +76,12 @@ define( [
 
     FacebookPicker.prototype.addPhoto = function( data )
     {
-        console.log( data );
+        // console.log( data );
 
         var photo = new Photo(
             data.id,
-            data.images.shift(),
-            data.images.pop()
+            data.images.shift().source,
+            data.images.pop().source
         );
 
         return PhotoPicker.prototype.addPhoto.call( this, photo );
@@ -85,31 +89,35 @@ define( [
 
     FacebookPicker.prototype.getAlbums = function()
     {
-        return this.api("/me/albums").pipe( $.proxy( this.processAlbumData, this ) );
+        return this.api( this.albumURL ).pipe( $.proxy( this.processAlbumData, this ) );
     };
 
     FacebookPicker.prototype.processAlbumData = function( albums )
     {
         var data   = albums.data,
-            // paging = albums.paging,
+            paging = albums.paging,
             i      = 0,
             l      = data.length,
             cover_photo_ids = [];
 
-        for ( ; i < l ; ++i ) {
+        this.albumURL = paging.next || false;
 
-            if ( !this.photos[ data[ i ].cover_photo ] ) {
-                cover_photo_ids.push( data[ i ].cover_photo );
+        for ( ; i < l ; ++i ) {
+            var album = data[ i ];
+            if ( !this.photos[ album.cover_photo ] ) {
+                cover_photo_ids.push( album.cover_photo );
             }
 
-            // this.api("/" + data[ i ].cover_photo ).done( function( response ) {
-            //     console.log( response );
-            // } );
-
-            this.albums.push( data[ i ] );
+            this.albums[ album.id ] = new Album( album.id, album.name, album.cover_photo, this );
         }
 
+        console.info( cover_photo_ids );
+
         this.getAlbumImages( cover_photo_ids );
+
+        if ( this.albumURL !== false ) {
+            return this.getAlbums();
+        }
 
         return this.albums;
 
@@ -124,7 +132,7 @@ define( [
         FB.api(
             this.currentURL,
             {
-                limit: this.batchSize
+                limit: this.resultsLimit
             },
             function(response) {
 

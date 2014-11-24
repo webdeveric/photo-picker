@@ -20,7 +20,54 @@ define( [
 
     InstagramPhotoProvider.prototype.init = function()
     {
-        return this.authorizePicker();
+        var self = this;
+        return new Promise(function(resolve, reject) {
+
+            if ( self.accessToken !== null ) {
+
+                console.log("Instagram access token already set");
+                resolve( self );
+
+            } else {
+
+                console.log("Trying to get access token from Instagram");
+
+                if ( !self.clientID || !self.redirectURI ) {
+
+                    reject( new Error("Please provide clientID and redirectURI") );
+
+                } else {
+
+                    var url = "https://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + self.clientID + "&redirect_uri=" + self.redirectURI,
+                        popup = new Popup( url, "instagram", { width: 650, height: 480 } );
+
+                    popup.opened( function() {
+
+                        window.receiveInstagramToken = function( token )
+                        {
+                            console.log("Instagram access token received");
+                            self.setAccessToken( token );
+                            resolve( self );
+                            window.receiveInstagramToken = null;
+                        };
+
+                    }).closed( function() {
+
+                        window.receiveInstagramToken = null;
+
+                        if ( self.accessToken !== null ) {
+                            resolve( self );
+                        } else {
+                            reject( new Error("Authorization window was blocked or closed") );
+                        }
+
+                    }).blocked( popup.closedCallback ).open();
+
+                }
+
+            }
+
+        });
     };
 
     InstagramPhotoProvider.prototype.getParameters = function()
@@ -29,60 +76,6 @@ define( [
             count: this.limit,
             access_token: this.accessToken
         };
-    };
-
-    InstagramPhotoProvider.prototype.authorizePicker = function()
-    {
-        var self = this,
-            promise = new Promise(function(resolve, reject) {
-
-                if ( self.accessToken !== null ) {
-
-                    console.log("Instagram access token already set");
-                    resolve( true );
-
-                } else {
-
-                    console.log("Trying to get access token from Instagram");
-
-                    if ( !self.clientID || !self.redirectURI ) {
-
-                        reject( new Error("Please provide clientID and redirectURI") );
-
-                    } else {
-
-                        var url = "https://api.instagram.com/oauth/authorize/?response_type=token&client_id=" + self.clientID + "&redirect_uri=" + self.redirectURI,
-                            popup = new Popup( url, "instagram", { width: 650, height: 480 } );
-
-                        popup.opened( function() {
-
-                            window.receiveInstagramToken = function( token )
-                            {
-                                console.log("Instagram access token received");
-                                self.setAccessToken( token );
-                                resolve( true );
-                                window.receiveInstagramToken = null;
-                            };
-
-                        }).closed( function() {
-
-                            window.receiveInstagramToken = null;
-
-                            if ( self.accessToken !== null ) {
-                                resolve( true );
-                            } else {
-                                reject( new Error("Authorization window was blocked or closed") );
-                            }
-
-                        }).blocked( popup.closedCallback ).open();
-
-                    }
-
-                }
-
-            });
-
-        return promise;
     };
 
     InstagramPhotoProvider.prototype.setAccessToken = function( token )
@@ -94,7 +87,7 @@ define( [
 
     InstagramPhotoProvider.prototype.api = function( url, parameters )
     {
-        console.log("Calling Instagram api");
+        console.log("Calling Instagram api", this );
 
         parameters = $.extend( this.getParameters(), parameters );
 
@@ -131,9 +124,10 @@ define( [
 
         this.url = results.pagination && results.pagination.next_url ? results.pagination.next_url : false;
 
-        var i    = 0,
-            data = results.data,
-            l    = data.length;
+        var i      = 0,
+            data   = results.data,
+            l      = data.length,
+            photos = [];
 
         for ( ; i < l ; ++i ) {
 
@@ -151,9 +145,10 @@ define( [
             }
 
             this.addPhoto( photo );
+            photos.push( photo );
         }
 
-        return this.photos;
+        return photos;
 
     };
 

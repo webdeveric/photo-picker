@@ -9,8 +9,6 @@ define( [
 ], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider, Photo ) {
     "use strict";
 
-    alert(Photo);
-
     function InstagramPicker( templateSelector, clientID, redirectURI )
     {
         PhotoPicker.call(this, templateSelector);
@@ -76,6 +74,7 @@ define( [
     InstagramPicker.prototype.setAccessToken = function( token )
     {
         this.accessToken = token;
+        // console.log( token );
         return this;
     };
 
@@ -83,7 +82,7 @@ define( [
     {
         var endpoint = "https://api.instagram.com/v1/users/self/media/recent",
             data = {
-                "count": this.batchSize,
+                "count": this.resultsLimit,
                 "access_token": this.accessToken
             };
         // console.log("Fetching instagram data");
@@ -92,7 +91,7 @@ define( [
 
     InstagramPicker.prototype.processData = function( data /* , status, jqXHR */ )
     {
-        this.nextURL = data.pagination.next_url || false;
+        this.nextURL = data.pagination && data.pagination.next_url ? data.pagination.next_url : false;
 
         if ( this.loadMoreButton ) {
             this.loadMoreButton.prop("disabled", this.nextURL === false );
@@ -103,7 +102,7 @@ define( [
             l = imgs.length;
 
         for ( ; i < l ; ) {
-            this.append( imgs[ i++ ] );
+            this.addPhoto( imgs[ i++ ] );
         }
     };
 
@@ -111,7 +110,7 @@ define( [
     {
         if ( this.accessToken ) {
 
-            if ( this.photos.length === 0 ) {
+            if ( this.numPhotos() === 0 ) {
                 this.fetchData().done( $.proxy( this.render, this ) );
             } else {
                 this.render();
@@ -166,21 +165,28 @@ define( [
         this.lightbox.open();
     };
 
-    InstagramPicker.prototype.append = function( photo )
+    InstagramPicker.prototype.addPhoto = function( data )
     {
-        var img = new Photo(
-            "",
-            photo.images.standard_resolution.url.replace("http://", "//"),
-            photo.images.thumbnail.url.replace("http://", "//"),
-            photo.likes.count,
-            photo.tags
+        console.log( data );
+
+        var photo = new Photo(
+            data.id,
+            data.images.standard_resolution.url.replace("http://", "//"),
+            data.images.thumbnail.url.replace("http://", "//"),
+            data.likes.count,
+            data.tags
         );
 
-        if ( photo.caption && photo.caption.text ) {
-            img.setDescription( photo.caption.text );
+        if ( data.caption && data.caption.text ) {
+            photo.setDescription( data.caption.text );
         }
 
-        return PhotoPicker.prototype.append.call( this, img );
+        return PhotoPicker.prototype.addPhoto.call( this, photo );
+    };
+
+    InstagramPicker.prototype.append = function( photo )
+    {
+        return PhotoPicker.prototype.append.call( this, photo );
     };
 
     return InstagramPicker;

@@ -1,6 +1,4 @@
-define( [
-    "jquery"
-], function( $ ) {
+define( function() {
     "use strict";
 
     function Photo( id, src, thumbnail, likes, tags, description )
@@ -55,12 +53,11 @@ define( [
     Photo.prototype.getThumbnailImg = function()
     {
         var self = this;
-
-        function loadImage( deferred ) {
+        return new Promise( function( resolve, reject ) {
 
             if ( !self.thumbnail ) {
 
-                deferred.resolve( false );
+                reject( new Error("No thumbnail found") );
 
             } else {
 
@@ -69,23 +66,23 @@ define( [
                         img.onload = img.onerror = img.onabort = null;
                     };
 
+                img.id = self.id;
+
                 img.onload = function() {
                     resetEvents( this );
-                    deferred.resolve( this );
+                    resolve( this );
                 };
 
                 img.onerror = img.onabort = function() {
                     resetEvents( this );
-                    deferred.reject( this );
+                    reject( new Error("Unable to load image") );
                 };
 
                 img.src = self.thumbnail;
 
             }
 
-        }
-
-        return $.Deferred( loadImage ).promise();
+        });
     };
 
     return Photo;

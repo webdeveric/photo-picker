@@ -17,20 +17,21 @@ define( [
 
     FacebookPhotoProvider.prototype.init = function()
     {
+        var self = this;
         return new Promise( function( resolve, reject ) {
 
             FB.getLoginStatus( function(response) {
 
                 if ( response.status === "connected" ) {
 
-                    resolve( true );
+                    resolve( self );
 
                 } else {
 
                     FB.login( function(response) {
 
                         if ( response.authResponse ) {
-                            resolve( true );
+                            resolve( self );
                         } else {
                             reject( new Error("User cancelled login or did not fully authorize.") );
                         }
@@ -80,11 +81,13 @@ define( [
 
     FacebookPhotoProvider.prototype.processResults = function( results )
     {
+        console.log("FacebookPhotoProvider.processResults: Called with results", results );
         this.url = results.paging && results.paging.next ? results.paging.next : false;
 
-        var i    = 0,
-            data = results.data,
-            l    = data.length;
+        var i      = 0,
+            data   = results.data,
+            l      = data.length,
+            photos = [];
 
         for ( ; i < l ; ++i ) {
 
@@ -103,13 +106,13 @@ define( [
 
             }
 
-            this.addPhoto(
-                new Photo( data[i].id, source, thumbnail )
-            );
+            var photo = new Photo( data[i].id, source, thumbnail );
+            this.addPhoto( photo );
+            photos.push( photo );
 
         }
 
-        return this.photos;
+        return photos;
 
     };
 
