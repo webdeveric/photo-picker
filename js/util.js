@@ -19,9 +19,23 @@ define( [ "polyfills" ], function() {
         return Class;
     }
 
+    function objectToArray( obj, callback )
+    {
+        var data = [];
+
+        for ( var i in obj ) {
+            if ( obj.hasOwnProperty(i) ) {
+                data.push( typeof callback === "function" ? callback( obj[ i ] ) : obj[ i ] );
+            }
+        }
+
+        return data;
+    }
+
     return {
         createObject: createObject,
-        extendClass: extendClass
+        extendClass: extendClass,
+        objectToArray: objectToArray
     };
 
 });
