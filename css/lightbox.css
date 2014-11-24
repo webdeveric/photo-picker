@@ -12,6 +12,20 @@
     }
 }
 
+@keyframes throbber {
+    0% {
+       box-shadow: inset 0 0 1px rgba(0,0,0,.4), 0 0 3px #FFF;
+    }
+
+    50% {
+
+    }
+
+    100% {
+        box-shadow: inset 0 0 12px rgba(0,0,0,.4), 0 0 3px #000;
+    }
+}
+
 .lightbox-open,
 .lightbox-open body {
     overflow: hidden;
@@ -126,8 +140,7 @@
   align-self: center;
 }
 
-.lightbox.loading .lightbox-wrapper:before,
-.lightbox.picker-loading .lightbox-wrapper:before{
+.lightbox.loading .lightbox-wrapper:before{
     display: block;
     position: absolute;
     z-index: 100;
@@ -280,4 +293,27 @@
 
 .photo-picker-lightbox .lightbox-content{
     padding: 0;
+}
+
+.photo-picker .throbber{
+    display: inline-block;
+    vertical-align: middle;
+    visibility: hidden;
+    width: 18px;
+    height: 18px;
+    margin: 0 6px 0 0;
+    content: "";
+    border-radius: 18px;
+    box-shadow: inset 0 0 1px rgba(0,0,0,.4), 0 0 3px #FFF;
+    animation-name: throbber;
+    animation-play-state: paused;
+    animation-duration: 250ms;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.loading-picker .photo-picker .throbber{
+    visibility: visible;
+    animation-play-state: running;
 }
