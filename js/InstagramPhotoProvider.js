@@ -118,6 +118,11 @@ define( [
         });
     };
 
+    InstagramPhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
+    {
+        return "/media/" + photo_id;
+    };
+
     InstagramPhotoProvider.prototype.processResults = function( results )
     {
         console.info("Processing results", results );

@@ -96,6 +96,10 @@ define( [
             this.photoContainer.on("click.photopicker", ".photo", $.proxy( this.handlePhotoClick, this ) );
         }
 
+        // if ( this.albumContainer ) {
+        //     this.albumContainer.on("click.photopicker", ".album", $.proxy( this.handleAlbumClick, this ) );
+        // }
+
         if ( this.photosButton ) {
             this.photosButton.on("click.photopicker", $.proxy( this.handlePhotosButtonClick, this ) );
         }
@@ -216,9 +220,12 @@ define( [
             return;
         }
 
-        var item = document.createElement("div");
+        var item = document.createElement("div"),
+            imgWraper = document.createElement("div");
         item.className = "photo";
-        item.appendChild( img );
+        imgWraper.className = "image-wrapper";
+        imgWraper.appendChild( img );
+        item.appendChild( imgWraper );
         item.setAttribute("data-photo-id", img.id );
         this.photoContainer.append( item );
     };
@@ -313,12 +320,10 @@ define( [
     // Override this in your own class.
     PhotoPicker.prototype.loadAlbums = function()
     {
-        return $.when( this.supportsAlbums ? this.albums = {} : false );
     };
 
     PhotoPicker.prototype.loadAlbumPhotos = function()
     {
-        return $.when( this.supportsAlbums ? {} : false );
     };
 
     PhotoPicker.prototype.toggleLoadMoreDisabled = function( state ) {
@@ -355,9 +360,19 @@ define( [
         console.log( event );
     };
 
-    PhotoPicker.prototype.handleAlbumsButtonClick = function( event ) {
-        alert("Show albums panel");
-        console.log( event );
+    PhotoPicker.prototype.handleAlbumsButtonClick = function() {
+
+        /*
+            Show throbber
+                then get albums
+                then switch to albums panel
+                then add album items to panel
+                then hide throbber
+        */
+        this.photoProvider.getAlbums().then( function( albums ) {
+            console.log( albums );
+        });
+
     };
 
     PhotoPicker.prototype.handlePhotoClick = function( event )
@@ -418,9 +433,15 @@ define( [
         this.photosButton   = $(".button-photos", this.content );
         this.albumsButton   = $(".button-albums", this.content );
 
-        if ( !this.supportsAlbums ) {
+        if ( !this.photoProvider.supportsAlbums() ) {
+
+            this.photosButton.remove();
             this.albumsButton.remove();
+
+            this.photosButton = null;
             this.albumsButton = null;
+
+            $(".button-container", this.content ).remove();
         }
 
         this.loadMoreButton = $(".button-load-more", this.content );

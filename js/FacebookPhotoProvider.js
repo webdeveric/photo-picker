@@ -2,15 +2,17 @@ define( [
     "jquery",
     "util",
     "Photo",
+    "Album",
     "PhotoProvider",
     "facebook"
-], function( $, util, Photo, PhotoProvider, FB ) {
+], function( $, util, Photo, Album, PhotoProvider, FB ) {
     "use strict";
 
     function FacebookPhotoProvider()
     {
         PhotoProvider.call(this);
-        this.url = "/me/photos/uploaded";
+        this.url       = "/me/photos/uploaded";
+        this.albumsurl = "/me/albums";
     }
 
     util.extendClass( FacebookPhotoProvider, PhotoProvider );
@@ -48,9 +50,13 @@ define( [
 
     FacebookPhotoProvider.prototype.api = function( url, parameters )
     {
-        console.log("Calling FB.api");
+        console.log("FacebookPhotoProvider.api", url, parameters );
 
         parameters = $.extend( this.getParameters(), parameters );
+
+        if ( url === void 0 ) {
+            return Promise.reject( new Error("FacebookPhotoProvider.api: URL is undefined") );
+        }
 
         return new Promise( function( resolve, reject ) {
 
@@ -77,6 +83,40 @@ define( [
 
         });
 
+    };
+
+    FacebookPhotoProvider.prototype.apiScrape = function( url, parameters, data )
+    {
+        if ( data === void 0 ) {
+            data = [];
+        }
+        var self = this;
+        return this.api( url, parameters ).then( function( results ) {
+            var nextURL = results.paging && results.paging.next ? results.paging.next : false;
+            data = data.concat( results.data );
+            if ( nextURL ) {
+                return self.apiScrape( nextURL, parameters, data );
+            }
+            return data;
+        } );
+    };
+
+    FacebookPhotoProvider.prototype.processAlbumData = function( data )
+    {
+        console.log("FacebookPhotoProvider.processAlbumData: Called with data", data );
+
+        var i = 0,
+            l = data.length,
+            albums = [];
+
+        for ( ; i < l ; ++i ) {
+            var album = new Album( data[i].id, data[i].name, "/" + data[i].id + "/photos", data[i].cover_photo );
+            this.albums[ album.id ] = album;
+            this.albumsOrder.push( album.id );
+            albums.push( album );
+        }
+
+        return albums;
     };
 
     FacebookPhotoProvider.prototype.processResults = function( results )
@@ -113,7 +153,6 @@ define( [
         }
 
         return photos;
-
     };
 
     return FacebookPhotoProvider;

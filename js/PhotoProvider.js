@@ -6,15 +6,15 @@ define( [
 
     function PhotoProvider()
     {
-        this.url   = null;
-        this.limit = 40;
+        this.url       = null;
+        this.albumsurl = null;
+        this.limit     = 40;
 
-        /*
-            This is an index array containing photo IDs for this.photos so I know the order.
-            The lower the index, the more recent the photo.
-        */
-        this.photos = {};
-        this.photosOrder = [];
+        this.photos      = {}; // Photo.id => Photo object
+        this.photosOrder = []; // index => Photo.id
+
+        this.albums      = {}; // Album.id => Album object
+        this.albumsOrder = []; // index => Album.id
     }
 
     PhotoProvider.prototype.init = function()
@@ -40,10 +40,14 @@ define( [
         };
     };
 
+    PhotoProvider.prototype.numAlbums = function()
+    {
+        return this.albumsOrder.length;
+    };
+
     PhotoProvider.prototype.numPhotos = function()
     {
         return this.photosOrder.length;
-        // return Object.keys( this.photos ).length;
     };
 
     PhotoProvider.prototype.addPhoto = function( photo_obj )
@@ -57,22 +61,28 @@ define( [
 
     PhotoProvider.prototype.getPhotosArray = function()
     {
+        return this._getDataArray( this.photosOrder, this.photos );
+    };
+
+    PhotoProvider.prototype.getAlbumsArray = function()
+    {
+        return this._getDataArray( this.albumsOrder, this.albums );
+    };
+
+    PhotoProvider.prototype._getDataArray = function( order, items )
+    {
         var i = 0,
-            l = this.photosOrder.length,
-            photos = [];
+            l = order.length,
+            data = [];
 
         for ( ; i < l ; ++i ) {
-
-            var photo_id = this.photosOrder[ i ],
-                photo = this.photos[ photo_id ] || false;
-
-            if ( photo ) {
-                photos.push( photo );
+            var item = items[ order[ i ] ] || false;
+            if ( item ) {
+                data.push( item );
             }
-
         }
 
-        return photos;
+        return data;
     };
 
     PhotoProvider.prototype.hasPhoto = function( photo_id )
@@ -113,13 +123,13 @@ define( [
         return promise;
     };
 
-    PhotoProvider.prototype.loadPhotos = function()
+    PhotoProvider.prototype.loadPhotos = function( url )
     {
         console.log("PhotoProvider.loadPhotos: loading photos");
         var self = this;
         if ( this.getURL() !== false ) {
             console.log("PhotoProvider.loadPhotos: URL is not false");
-            return this.api( this.url, this.getParameters() ).then( function( results ) {
+            return this.api( url || this.url, this.getParameters() ).then( function( results ) {
                     return self.processResults( results );
                 }, function( error ) {
                     throw error;
@@ -132,6 +142,43 @@ define( [
         return Promise.reject( new Error("No more photos to load") );
     };
 
+    PhotoProvider.prototype.supportsAlbums = function()
+    {
+        return this.albumsurl !== null;
+    };
+
+    PhotoProvider.prototype.getAlbums = function()
+    {
+        return this.loadAlbums();
+    };
+
+    PhotoProvider.prototype.loadAlbums = function()
+    {
+        /*
+            This method is a little different from loadPhotos.
+            Albums should be loaded all at once since there are normally many more photos than albums.
+        */
+        if ( !this.supportsAlbums() ) {
+            return Promise.reject( new Error("This photo provider does not support albums") );
+        }
+
+        if ( this.numAlbums() > 0 ) {
+            return Promise.resolve( this.getAlbumsArray() );
+        }
+
+        return this.apiScrape( this.albumsurl, { limit: 3 } ).then( $.proxy( this.processAlbumData, this ) );
+    };
+
+    PhotoProvider.prototype.apiGetPhoto = function( photo_id )
+    {
+        return this.api( this.apiGetPhotoURL( photo_id ), this.getParameters() );
+    };
+
+    PhotoProvider.prototype.apiGetAlbumURL = function( album_id )
+    {
+        return this.api( this.apiGetPhotoURL( album_id ), this.getParameters() );
+    };
+
     /*
         Please override the following functions when you subclass PhotoProvider.
     */
@@ -142,6 +189,21 @@ define( [
             data: [],
             paging: {}
         } );
+    };
+
+    PhotoProvider.prototype.apiScrape = function( /* url, parameters */ )
+    {
+        return Promise.reject( new Error("PhotoProvider.apiScrape not implemented.") );
+    };
+
+    PhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
+    {
+        return "/" + photo_id;
+    };
+
+    PhotoProvider.prototype.apiGetAlbumURL = function( album_id )
+    {
+        return "/" + album_id;
     };
 
     PhotoProvider.prototype.processResults = function( results )
@@ -162,6 +224,12 @@ define( [
         }
         console.log("processResults returning", photos );
         return photos;
+    };
+
+    PhotoProvider.prototype.processAlbumData = function( data )
+    {
+        console.log("PhotoProvider.processAlbumData: Called with data", data );
+        return [].concat( data );
     };
 
     return PhotoProvider;
