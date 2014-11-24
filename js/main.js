@@ -17,6 +17,8 @@ define( [
 
     $(function() {
 
+        $(".no-js").removeClass("no-js").addClass("js");
+
         // Handle selected photo
         $(document.documentElement).on("selected.photopicker", function( e, url ) {
             if ( url ) {
