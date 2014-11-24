@@ -25,11 +25,10 @@ define( [
 
         this.template       = templateSelector;
         this.photoProvider  = photoProvider;
-        // this.albumbProvider = albumbProvider;
-        this.supportsAlbums = true;
-        this.currentAlbum   = 0;
-        this.lastPhoto      = 0;
-        this.currentPanel   = "photo"; // "albumb"
+
+        // this.currentAlbum   = 0;
+        // this.lastPhoto      = 0;
+        // this.currentPanel   = "photo"; // "albumb"
 
         this.selectedPhoto  = null;
         this.lightbox       = null;
@@ -46,7 +45,8 @@ define( [
         this.cancelButton   = null;
         this.submitButton   = null;
 
-        // Promise
+        // Promises
+        this.setupLightbox  = null;
         this.initialized    = null;
     }
 
@@ -54,16 +54,16 @@ define( [
 
     PhotoPicker.prototype.init = function()
     {
+        if ( !this.setupLightbox ) {
+            var self = this;
+            this.setupLightbox = new Promise( function( resolve /* , reject */ ) {
+                self.setupTemplate().initLightbox();
+                resolve( self );
+            });
+        }
+
         if ( !this.initialized ) {
-
-            var self = this,
-                setupLightbox = new Promise( function( resolve /* , reject */ ) {
-                    self.setupTemplate().initLightbox();
-                    resolve( self );
-                });
-
-            this.initialized = Promise.all( [ setupLightbox, this.photoProvider.init() ] );
-
+            this.initialized = Promise.all( [ this.setupLightbox, this.photoProvider.init() ] );
         }
 
         return this.initialized;
@@ -71,7 +71,7 @@ define( [
 
     PhotoPicker.prototype.numAlbums = function()
     {
-        return Object.keys( this.albums ).length;
+        return this.photoProvider.numAlbums();
     };
 
     PhotoPicker.prototype.numPhotos = function()
@@ -171,6 +171,7 @@ define( [
 
     PhotoPicker.prototype.open = function()
     {
+        var self = this;
         this.init().then( function( initResults ) {
 
             var picker = initResults[0],
@@ -188,6 +189,9 @@ define( [
                 console.error("PhotoPicker and PhotoProvider not initialized properly");
             }
 
+        }, function( error ) {
+            console.error( error.message );
+            self.initialized = null; // reset the Promise so that you don't get stuck in a rejected state.
         });
 
         console.log("PhotoPicker.open");
@@ -284,25 +288,8 @@ define( [
     };
 
     PhotoPicker.prototype.hasAlbums = function() {
-        return this.supportsAlbums && this.numAlbums() > 0;
+        return this.photoProvider.hasAlbums();
     };
-
-    // Override this in your own class if it supports albums.
-    // PhotoPicker.prototype.getAlbums = function()
-    // {
-    //     var def = $.Deferred();
-
-    //     if ( this.supportsAlbums ) {
-
-    //         if ( !this.albums.length ) {
-    //             return this.loadAlbums();
-    //         }
-
-    //         def.resolve( this.albums );
-    //     }
-    //     def.resolve( false );
-    //     return def.promise();
-    // };
 
     // Override this in your own class.
     PhotoPicker.prototype.loadPhotos = function()
@@ -346,12 +333,12 @@ define( [
 
         this.toggleLoadMoreDisabled( 1 );
 
-        this.loadMoreButton.prop("disabled", 1 );
+        this.loadMoreButton.prop("disabled", true );
         var self = this;
         this.loadPhotos().then( function() {
             self.toggleLoadMoreDisabled();
         }, function( error ) {
-            console.debug( error );
+            console.error( error );
             self.toggleLoadMoreDisabled();
         });
     };
