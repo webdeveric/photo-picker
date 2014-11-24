@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">69.18</p>
+      <p class="stat">68.92</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">221</p>
+      <p class="stat">232</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">44.36</p>
+      <p class="stat">45.58</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">1.97</p>
+      <p class="stat">2.09</p>
     </div>
   </div>
 </div>
@@ -114,6 +114,16 @@
     Lightbox.current    = null;
     Lightbox.queue      = [];
     Lightbox.queueDelay = 250;
+
+    Lightbox.checkQueue = function()
+    {
+        if ( Lightbox.queue.length ) {
+            var next = Lightbox.queue.pop();
+            setTimeout( function() {
+                next.open();
+            }, Lightbox.queueDelay || 250 );
+        }
+    };
 
     Lightbox.close = function() {
         if ( Lightbox.current ) {
@@ -176,17 +186,26 @@
     {
         $(document.documentElement).addClass( this.option(&quot;htmlClass&quot;) );
         this.template.addClass( this.option(&quot;openClass&quot; ) ).addClass( this.option(&quot;extraClass&quot;) );
+        return this;
+    };
+
+    Lightbox.prototype.toggleClass = function( className, state ) {
+        console.log( ( state ? &quot;Adding&quot; : &quot;Removing&quot; ) + &quot; class &quot; + className );
+        this.template.toggleClass( className, state );
+        return this;
     };
 
     Lightbox.prototype.removeClasses = function()
     {
         $(document.documentElement).removeClass( this.option(&quot;htmlClass&quot;) );
         this.template.removeClass( this.option(&quot;openClass&quot; ) ).removeClass( this.option(&quot;extraClass&quot;) );
+        return this;
     };
 
     Lightbox.prototype.setTitle = function( title ) {
         title = title || this.option(&quot;title&quot;, &quot;&quot;);
         this.template.find( this.option(&quot;titleSelector&quot;) ).text( title );
+        return this;
     };
 
     Lightbox.prototype.close = function( event )
@@ -210,19 +229,9 @@
 
         this.trigger(&quot;close.lightbox&quot;, [ this ] );
 
-        this.checkQueue();
+        Lightbox.checkQueue();
 
         return this;
-    };
-
-    Lightbox.prototype.checkQueue = function()
-    {
-        if ( Lightbox.queue.length ) {
-            var next = Lightbox.queue.pop();
-            setTimeout( function() {
-                next.open();
-            }, Lightbox.queueDelay || 250 );
-        }
     };
 
     Lightbox.prototype.checkESC = function(event)
@@ -236,12 +245,14 @@
     {
         $(document.documentElement).on(&quot;keyup.lightbox&quot;, $.proxy( this.checkESC, this ) );
         this.template.on(&quot;click.lightbox&quot;, this.option(&quot;closeSelector&quot;), $.proxy( this.close, this ) );
+        return this;
     };
 
     Lightbox.prototype.unbindEvents = function()
     {
         $(document.documentElement).off(&quot;keyup.lightbox&quot;);
         this.template.off(&quot;click.lightbox&quot;, this.option(&quot;closeSelector&quot;) );
+        return this;
     };
 
     $.fn.lightbox = function(template, options) {

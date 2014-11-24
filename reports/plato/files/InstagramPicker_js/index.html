@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">68.33</p>
+      <p class="stat">68.73</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">188</p>
+      <p class="stat">194</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">26.89</p>
+      <p class="stat">29.69</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">1.36</p>
+      <p class="stat">1.43</p>
     </div>
   </div>
 </div>
@@ -99,8 +99,6 @@
     &quot;Photo&quot;
 ], function( $, util, PhotoPicker, Lightbox, Popup, ContentProvider, Photo ) {
     &quot;use strict&quot;;
-
-    alert(Photo);
 
     function InstagramPicker( templateSelector, clientID, redirectURI )
     {
@@ -167,6 +165,7 @@
     InstagramPicker.prototype.setAccessToken = function( token )
     {
         this.accessToken = token;
+        // console.log( token );
         return this;
     };
 
@@ -174,7 +173,7 @@
     {
         var endpoint = &quot;https://api.instagram.com/v1/users/self/media/recent&quot;,
             data = {
-                &quot;count&quot;: this.batchSize,
+                &quot;count&quot;: this.resultsLimit,
                 &quot;access_token&quot;: this.accessToken
             };
         // console.log(&quot;Fetching instagram data&quot;);
@@ -183,7 +182,7 @@
 
     InstagramPicker.prototype.processData = function( data /* , status, jqXHR */ )
     {
-        this.nextURL = data.pagination.next_url || false;
+        this.nextURL = data.pagination &amp;&amp; data.pagination.next_url ? data.pagination.next_url : false;
 
         if ( this.loadMoreButton ) {
             this.loadMoreButton.prop(&quot;disabled&quot;, this.nextURL === false );
@@ -194,7 +193,7 @@
             l = imgs.length;
 
         for ( ; i &lt; l ; ) {
-            this.append( imgs[ i++ ] );
+            this.addPhoto( imgs[ i++ ] );
         }
     };
 
@@ -202,7 +201,7 @@
     {
         if ( this.accessToken ) {
 
-            if ( this.photos.length === 0 ) {
+            if ( this.numPhotos() === 0 ) {
                 this.fetchData().done( $.proxy( this.render, this ) );
             } else {
                 this.render();
@@ -257,21 +256,28 @@
         this.lightbox.open();
     };
 
-    InstagramPicker.prototype.append = function( photo )
+    InstagramPicker.prototype.addPhoto = function( data )
     {
-        var img = new Photo(
-            &quot;&quot;,
-            photo.images.standard_resolution.url.replace(&quot;http://&quot;, &quot;//&quot;),
-            photo.images.thumbnail.url.replace(&quot;http://&quot;, &quot;//&quot;),
-            photo.likes.count,
-            photo.tags
+        console.log( data );
+
+        var photo = new Photo(
+            data.id,
+            data.images.standard_resolution.url.replace(&quot;http://&quot;, &quot;//&quot;),
+            data.images.thumbnail.url.replace(&quot;http://&quot;, &quot;//&quot;),
+            data.likes.count,
+            data.tags
         );
 
-        if ( photo.caption &amp;&amp; photo.caption.text ) {
-            img.setDescription( photo.caption.text );
+        if ( data.caption &amp;&amp; data.caption.text ) {
+            photo.setDescription( data.caption.text );
         }
 
-        return PhotoPicker.prototype.append.call( this, img );
+        return PhotoPicker.prototype.addPhoto.call( this, photo );
+    };
+
+    InstagramPicker.prototype.append = function( photo )
+    {
+        return PhotoPicker.prototype.append.call( this, photo );
     };
 
     return InstagramPicker;

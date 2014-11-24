@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">70.24</p>
+      <p class="stat">69.18</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">273</p>
+      <p class="stat">281</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">38.22</p>
+      <p class="stat">39.46</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">1.91</p>
+      <p class="stat">2.08</p>
     </div>
   </div>
 </div>
@@ -95,16 +95,16 @@
     &quot;facebook&quot;,
     &quot;PhotoPicker&quot;,
     &quot;Lightbox&quot;,
-    &quot;Photo&quot;
-], function( $, util, FB, PhotoPicker, Lightbox, Photo ) {
+    &quot;Photo&quot;,
+    &quot;Album&quot;
+], function( $, util, FB, PhotoPicker, Lightbox, Photo, Album ) {
     &quot;use strict&quot;;
 
     function FacebookPicker( templateSelector )
     {
         PhotoPicker.call(this, templateSelector);
-
-        this.type        = &quot;facebookpicker&quot;;
-        // this.batchSize   = 20;
+        this.type = &quot;facebookpicker&quot;;
+        this.albumURL = &quot;/me/albums&quot;;
     }
 
     util.extendClass( FacebookPicker, PhotoPicker );
@@ -112,6 +112,10 @@
     FacebookPicker.prototype.api = function( url, parameters )
     {
         var def = $.Deferred();
+
+        parameters = $.extend({
+            limit: this.resultsLimit
+        }, parameters );
 
         console.log(&quot;Calling FB.api&quot;);
 
@@ -163,12 +167,12 @@
 
     FacebookPicker.prototype.addPhoto = function( data )
     {
-        console.log( data );
+        // console.log( data );
 
         var photo = new Photo(
             data.id,
-            data.images.shift(),
-            data.images.pop()
+            data.images.shift().source,
+            data.images.pop().source
         );
 
         return PhotoPicker.prototype.addPhoto.call( this, photo );
@@ -176,31 +180,35 @@
 
     FacebookPicker.prototype.getAlbums = function()
     {
-        return this.api(&quot;/me/albums&quot;).pipe( $.proxy( this.processAlbumData, this ) );
+        return this.api( this.albumURL ).pipe( $.proxy( this.processAlbumData, this ) );
     };
 
     FacebookPicker.prototype.processAlbumData = function( albums )
     {
         var data   = albums.data,
-            // paging = albums.paging,
+            paging = albums.paging,
             i      = 0,
             l      = data.length,
             cover_photo_ids = [];
 
-        for ( ; i &lt; l ; ++i ) {
+        this.albumURL = paging.next || false;
 
-            if ( !this.photos[ data[ i ].cover_photo ] ) {
-                cover_photo_ids.push( data[ i ].cover_photo );
+        for ( ; i &lt; l ; ++i ) {
+            var album = data[ i ];
+            if ( !this.photos[ album.cover_photo ] ) {
+                cover_photo_ids.push( album.cover_photo );
             }
 
-            // this.api(&quot;/&quot; + data[ i ].cover_photo ).done( function( response ) {
-            //     console.log( response );
-            // } );
-
-            this.albums.push( data[ i ] );
+            this.albums[ album.id ] = new Album( album.id, album.name, album.cover_photo, this );
         }
 
+        console.info( cover_photo_ids );
+
         this.getAlbumImages( cover_photo_ids );
+
+        if ( this.albumURL !== false ) {
+            return this.getAlbums();
+        }
 
         return this.albums;
 
@@ -215,7 +223,7 @@
         FB.api(
             this.currentURL,
             {
-                limit: this.batchSize
+                limit: this.resultsLimit
             },
             function(response) {
 
