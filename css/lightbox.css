@@ -1,3 +1,17 @@
+@keyframes loading {
+    from {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+        border-radius: 0;
+    }
+
+    to {
+        transform: rotate(360deg) scale(2);
+        opacity: .25;
+        border-radius: 25%;
+    }
+}
+
 .lightbox-open,
 .lightbox-open body {
     overflow: hidden;
@@ -16,6 +30,7 @@
   visibility: hidden;
   z-index: -1000;
   text-align: center;
+  transition: all ease-in-out 200ms;
 }
 
 .lightbox.open{
@@ -109,6 +124,26 @@
   -webkit-align-self: center;
   -ms-flex-item-align: center;
   align-self: center;
+}
+
+.lightbox.loading .lightbox-wrapper:before,
+.lightbox.picker-loading .lightbox-wrapper:before{
+    display: block;
+    position: absolute;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    margin: -25px 0 0 -25px;
+    /*border-radius: 50px;*/
+    content: "";
+    background: #333;
+    color: #FFF;
+    animation-duration: 1s;
+    animation-name: loading;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
 }
 
 .lightbox-titlebar{
