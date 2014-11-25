@@ -10,9 +10,7 @@ define( [
 
     function FacebookPhotoProvider()
     {
-        PhotoProvider.call(this);
-        this.url       = "/me/photos/uploaded";
-        this.albumsurl = "/me/albums";
+        PhotoProvider.call( this, "/me/photos/uploaded", "/me/albums" );
     }
 
     util.extendClass( FacebookPhotoProvider, PhotoProvider );

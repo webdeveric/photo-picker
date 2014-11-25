@@ -9,8 +9,8 @@ define( [
 
     function InstagramPhotoProvider( clientID, redirectURI )
     {
-        PhotoProvider.call(this);
-        this.url = "https://api.instagram.com/v1/users/self/media/recent";
+        PhotoProvider.call( this, "https://api.instagram.com/v1/users/self/media/recent", null );
+
         this.clientID = clientID;
         this.redirectURI = redirectURI;
         this.accessToken = null;
