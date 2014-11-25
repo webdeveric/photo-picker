@@ -83,14 +83,12 @@ define( [
     PhotoPicker.prototype.handleKeyup = function( event )
     {
         if ( event.keyCode == 13 ) {
-            this.handleSubmit();
+            this.handleSubmit( event );
         }
     };
 
     PhotoPicker.prototype.bindEvents = function()
     {
-        var self = this;
-
         $(document.documentElement).on("keyup.photopicker", $.proxy( this.handleKeyup, this ) );
 
         if ( this.photosPanel ) {
@@ -110,22 +108,15 @@ define( [
         }
 
         if ( this.loadMoreButton ) {
-            this.loadMoreButton.on("click.photopicker", function() {
-                self.loadMore();
-            });
+            this.loadMoreButton.on("click.photopicker", $.proxy( this.handleLoadMoreButtonClick, this ) );
         }
 
         if ( this.cancelButton ) {
-            this.cancelButton.on("click.photopicker", function() {
-                self.clearSelected();
-                self.close();
-            });
+            this.cancelButton.on("click.photopicker", $.proxy( this.handleCancelButtonClick, this ) );
         }
 
         if ( this.submitButton ) {
-            this.submitButton.on("click.photopicker", function() {
-                self.handleSubmit();
-            });
+            this.submitButton.on("click.photopicker", $.proxy( this.handleSubmitButtonClick, this ) );
         }
 
         return this;
@@ -137,6 +128,10 @@ define( [
 
         if ( this.photosPanel ) {
             this.photosPanel.off("click.photopicker", ".photo");
+        }
+
+        if ( this.albumbsPanel ) {
+            this.albumbsPanel.off("click.photopicker", ".photo");
         }
 
         if ( this.photosButton ) {
@@ -200,6 +195,8 @@ define( [
         });
 
         console.log("PhotoPicker.open");
+
+        return this;
     };
 
     PhotoPicker.prototype.close = function()
@@ -207,12 +204,18 @@ define( [
         if ( this.lightbox ) {
             this.lightbox.close();
         }
+
         console.log("PhotoPicker.close");
+
+        return this;
     };
 
-    PhotoPicker.prototype.clearContainer = function()
+    PhotoPicker.prototype.clearPhotosPanel = function()
     {
-        this.photosPanel.empty();
+        if ( this.photosPanel ) {
+            this.photosPanel.empty();
+        }
+        return this;
     };
 
     PhotoPicker.prototype.renderImage = function( img )
@@ -296,7 +299,8 @@ define( [
         return this.photoProvider.getPhotos();
     };
 
-    PhotoPicker.prototype.hasAlbums = function() {
+    PhotoPicker.prototype.hasAlbums = function()
+    {
         return this.photoProvider.hasAlbums();
     };
 
@@ -319,14 +323,14 @@ define( [
         ).then( removeLoadingClass, removeLoadingClass );
     };
 
-    // Override this in your own class.
-    PhotoPicker.prototype.loadAlbums = function()
-    {
-    };
+    // // Override this in your own class.
+    // PhotoPicker.prototype.loadAlbums = function()
+    // {
+    // };
 
-    PhotoPicker.prototype.loadAlbumPhotos = function()
-    {
-    };
+    // PhotoPicker.prototype.loadAlbumPhotos = function()
+    // {
+    // };
 
     PhotoPicker.prototype.toggleLoadMoreDisabled = function( state ) {
         state = state || this.photoProvider.getURL() === false;
@@ -350,15 +354,16 @@ define( [
         });
     };
 
-    PhotoPicker.prototype.clearSelected = function()
+    PhotoPicker.prototype.clearSelected = function( selector )
     {
         this.selectedPhoto = null;
-        this.content.find(".selected").removeClass("selected");
+        var panel = selector ? $( selector, this.content ) : this.content;
+        panel.find(".selected").removeClass("selected");
         this.submitButton.prop("disabled", 1 );
     };
 
-    PhotoPicker.prototype.switchToPanel = function( panel ) {
-
+    PhotoPicker.prototype.switchToPanel = function( panel )
+    {
         if ( this.currentPanel === panel ) {
             console.info("You're already on " + panel );
             return this;
@@ -389,12 +394,23 @@ define( [
         return this;
     };
 
-    PhotoPicker.prototype.handlePhotosButtonClick = function() {
+    PhotoPicker.prototype.switchToAlbum = function( album_id )
+    {
+        if ( album_id !== this.photoProvider.currentAlbumID ) {
+            this.photoProvider.switchToAlbum( album_id );
+            this.clearPhotosPanel().render( this.photoProvider.getCurrentAlbumPhotos() );
+        }
+
+        return this.switchToPanel("photos");
+    };
+
+    PhotoPicker.prototype.handlePhotosButtonClick = function()
+    {
         this.switchToPanel("photos");
     };
 
-    PhotoPicker.prototype.handleAlbumsButtonClick = function() {
-
+    PhotoPicker.prototype.handleAlbumsButtonClick = function()
+    {
         /*
             Show throbber
                 then get albums
@@ -411,24 +427,63 @@ define( [
 
     };
 
-    PhotoPicker.prototype.handlePhotoClick = function( event )
+    PhotoPicker.prototype.handleAlbumClick = function( event )
     {
-        var photo = $(event.currentTarget),
-            photo_id = photo.data("photo-id");
+        var album_tn = $(event.currentTarget),
+            album_id = album_tn.data("album-id");
 
-        if ( photo_id === this.selectedPhoto ) {
+        if ( album_id === this.photoProvider.currentAlbumID ) {
 
-            this.clearSelected();
+            // You clicked the album you already have loaded in the photos panel so just go back to it.
+            this.switchToPanel("photos");
 
         } else {
 
-            this.clearSelected();
+            this.clearSelected( this.albumbsPanel );
+            album_tn.addClass("selected");
+            this.switchToAlbum( album_id );
+
+        }
+
+        console.log("PhotoPicker.handlePhotoClick: Selected photo", this.selectedPhoto );
+    };
+
+    PhotoPicker.prototype.handlePhotoClick = function( event )
+    {
+        event.preventDefault();
+
+        var photo = $(event.currentTarget),
+            photo_id = photo.data("photo-id");
+
+        this.clearSelected( this.photosPanel );
+
+        if ( photo_id !== this.selectedPhoto ) {
+
             photo.addClass("selected");
             this.selectedPhoto = photo_id;
             this.submitButton.prop("disabled", 0 );
 
         }
+
         console.log("PhotoPicker.handlePhotoClick: Selected photo", this.selectedPhoto );
+    };
+
+    PhotoPicker.prototype.handleLoadMoreButtonClick = function( event )
+    {
+        event.preventDefault();
+        this.loadMore();
+    };
+
+    PhotoPicker.prototype.handleCancelButtonClick = function( event )
+    {
+        event.preventDefault();
+        this.clearSelected( this.photosPanel );
+        this.close();
+    };
+
+    PhotoPicker.prototype.handleSubmitButtonClick = function( event )
+    {
+        this.handleSubmit( event );
     };
 
     PhotoPicker.prototype.getSelectedPhotoURL = function()
@@ -449,8 +504,10 @@ define( [
         return this.selectedPhoto !== null && this.photoProvider.hasPhoto( this.selectedPhoto );
     };
 
-    PhotoPicker.prototype.handleSubmit = function()
+    PhotoPicker.prototype.handleSubmit = function( event )
     {
+        event.preventDefault();
+
         var photo = this.getSelectedPhoto();
 
         if ( photo !== false ) {
@@ -488,7 +545,8 @@ define( [
         return this;
     };
 
-    PhotoPicker.prototype.trigger = function( event_name, parameters ) {
+    PhotoPicker.prototype.trigger = function( event_name, parameters )
+    {
         $(document.documentElement).trigger( event_name, parameters );
     };
 
