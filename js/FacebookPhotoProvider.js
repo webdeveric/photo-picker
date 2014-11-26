@@ -99,23 +99,22 @@ define( [
         } );
     };
 
-    FacebookPhotoProvider.prototype.processAlbumData = function( data )
-    {
-        console.log("FacebookPhotoProvider.processAlbumData: Called with data", data );
+    // FacebookPhotoProvider.prototype.processAlbumData = function( data )
+    // {
+    //     console.log("FacebookPhotoProvider.processAlbumData: Called with data", data );
 
-        var i = 0,
-            l = data.length,
-            albums = [];
+    //     var i = 0,
+    //         l = data.length,
+    //         albums = {};
 
-        for ( ; i < l ; ++i ) {
-            var album = new Album( data[i].id, data[i].name, "/" + data[i].id + "/photos", data[i].cover_photo );
-            this.albums[ album.id ] = album;
-            this.albumsOrder.push( album.id );
-            albums.push( album );
-        }
+    //     for ( ; i < l ; ++i ) {
+    //         var album = new Album( data[i].id, data[i].name, "/" + data[i].id + "/photos", data[i].cover_photo );
+    //         this.albums[ album.id ] = album;
+    //         albums[ album.id ] = album;
+    //     }
 
-        return albums;
-    };
+    //     return albums;
+    // };
 
     FacebookPhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
@@ -125,6 +124,11 @@ define( [
     FacebookPhotoProvider.prototype.apiGetAlbumURL = function( album_id )
     {
         return "/" + album_id;
+    };
+
+    FacebookPhotoProvider.prototype.apiGetAlbumPhotosURL = function( album_id )
+    {
+        return "/" + album_id + "/photos";
     };
 
     FacebookPhotoProvider.prototype.getNextUrl = function( results )
@@ -150,6 +154,16 @@ define( [
         }
 
         return new Photo( data.id, source, thumbnail );
+    };
+
+    FacebookPhotoProvider.prototype.buildAlbum = function( data )
+    {
+        return new Album(
+            data.id,
+            data.name,
+            this.apiGetAlbumPhotosURL( data.id ),
+            data.cover_photo
+        );
     };
 
     return FacebookPhotoProvider;
