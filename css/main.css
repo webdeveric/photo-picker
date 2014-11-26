@@ -272,6 +272,7 @@ html, body{
 
 .image-wrapper{
     position: absolute;
+    z-index: -1;
     top: 0;
     right: 0;
     bottom: 0;
@@ -306,8 +307,8 @@ html, body{
 .lte8 .photo-picker .photo-box{
     position: relative;
     z-index: 1;
-    width: 23%;
-    margin: 0 2% 2% 0;
+    width: 24%;
+    margin: 0 1% 1% 0;
 }
 
 .photo-picker .photo-box:hover{
@@ -327,6 +328,8 @@ html, body{
 }
 
 .photo-picker .photo-box img{
+    position: relative;
+    z-index: 1;
     display: inline-block;
     max-width: 100%;
     max-height: 100%;
@@ -341,10 +344,18 @@ html, body{
     opacity: .5;
 }
 
-.facebook-picker-lightbox .photo-box img{
-    position: relative;
+/*:not(.lte8) .facebook-picker-lightbox .photo-box img{
+    position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+*/
+
+.facebook-picker-lightbox .photo-box img{
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
 }
 
 .instagram-picker-lightbox .photo-box img{
