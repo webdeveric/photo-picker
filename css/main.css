@@ -72,8 +72,16 @@ html, body{
 }
 
 .button[disabled]{
-    opacity: .5;
+    opacity: .33;
     cursor: not-allowed;
+}
+
+.button.active{
+    background: #FFF linear-gradient(to bottom, rgba(168,219,164,.66) 0%,rgba(103,147,81,.66) 100%);
+    border-color: rgba(103,147,81,.75);
+    color: #000;
+    /*text-shadow: 1px 1px 1px rgba(255,255,255,.2);*/
+    box-shadow: 0 0 3px 1px #FFF, inset 0 0 0 1px rgba(255,255,255,0.2)
 }
 
 .button-big{
@@ -153,7 +161,7 @@ html, body{
 }
 
 .photo-picker .panel{
-    /*visibility: hidden;*/
+    visibility: hidden;
     opacity: 0;
     position: absolute;
     padding: 6px;
@@ -164,7 +172,7 @@ html, body{
     z-index: 1;
     overflow: hidden;
     box-sizing: border-box;
-    transition: all ease-in-out 250ms;
+    transition: all linear 150ms;
 }
 
 .photo-picker .panel:after{
@@ -230,7 +238,7 @@ html, body{
     display: none;
 }
 
-.photo-picker .photo{
+.photo-picker .photo-box{
     position: relative;
     z-index: 1;
     cursor: pointer;
@@ -248,17 +256,17 @@ html, body{
     transition: all ease-in-out 150ms;
 }
 
-.photo-picker .photo:before{
+.photo-picker .photo-box:before{
     content:"";
     display: block;
     padding-bottom: 100%;
 }
 
-.photo-picker .photo:nth-child(4n){
+.photo-picker .photo-box:nth-child(4n){
     margin-right: 0;
 }
 
-.photo-picker .photo:nth-last-child(-n+4){
+.photo-picker .photo-box:nth-last-child(-n+4){
     margin-bottom: 0;
 }
 
@@ -270,21 +278,44 @@ html, body{
     left: 0;
 }
 
-.lte8 .photo-picker .photo{
+.image-placeholder{
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #DFEDF6;
+}
+
+.caption{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 12px;
+    z-index: 5;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: bold;
+    background: #FFF;
+    background: rgba(255,255,255,.95);
+    color: #333;
+    border-top: 1px solid #D7D7D7;
+
+}
+
+.lte8 .photo-picker .photo-box{
     position: relative;
     z-index: 1;
     width: 23%;
     margin: 0 2% 2% 0;
 }
 
-.photo-picker .photo:hover{
+.photo-picker .photo-box:hover{
     background-color: #C9D7EC;
     border-color: #B1C9EA;
 }
 
-
-
-.photo-picker .photo.selected:after{
+.photo-picker .photo-box.selected:after{
     content: "";
     position: absolute;
     top: 0;
@@ -295,7 +326,7 @@ html, body{
     z-index: 10;
 }
 
-.photo-picker .photo img{
+.photo-picker .photo-box img{
     display: inline-block;
     max-width: 100%;
     max-height: 100%;
@@ -303,20 +334,20 @@ html, body{
     height: auto;
     margin: 0 auto;
     vertical-align: middle;
-    transition: opacity linear 200ms;
+    transition: opacity linear 100ms;
 }
 
 :not(.lte8) .photo-picker img.image-loading{
-    opacity: .2;
+    opacity: .5;
 }
 
-.facebook-picker-lightbox .photo img{
+.facebook-picker-lightbox .photo-box img{
     position: relative;
     top: 50%;
     transform: translateY(-50%);
 }
 
-.instagram-picker-lightbox .photo img{
+.instagram-picker-lightbox .photo-box img{
     width: 100%;
     height: 100%;
 }
