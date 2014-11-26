@@ -50,42 +50,92 @@ define( function() {
         return this.thumbnail;
     };
 
+    // Photo.prototype.getThumbnailImg = function()
+    // {
+    //     var self = this;
+    //     return new Promise( function( resolve, reject ) {
+
+    //         if ( !self.thumbnail ) {
+
+    //             reject( new Error("No thumbnail found") );
+
+    //         } else {
+
+    //             var img = new Image(),
+    //                 resetImg = function( img ) {
+    //                     img.className = "";
+    //                     img.onload = img.onerror = img.onabort = null;
+    //                 };
+
+    //             img.id = self.id;
+    //             img.className = "image-loading";
+
+    //             img.onload = function() {
+    //                 resetImg( this );
+    //             };
+
+    //             img.onerror = img.onabort = function() {
+    //                 resetImg( this );
+    //                 this.parentNode.removeChild( this );
+    //             };
+
+    //             img.src = self.thumbnail;
+
+    //             resolve( img );
+
+    //         }
+
+    //     });
+    // };
+
     Photo.prototype.getThumbnailImg = function()
     {
-        var self = this;
-        return new Promise( function( resolve, reject ) {
+        if ( !this.thumbnail ) {
 
-            if ( !self.thumbnail ) {
+            return false;
 
-                reject( new Error("No thumbnail found") );
+        } else {
 
-            } else {
-
-                var img = new Image(),
-                    resetImg = function( img ) {
-                        img.className = "";
-                        img.onload = img.onerror = img.onabort = null;
-                    };
-
-                img.id = self.id;
-                img.className = "image-loading";
-
-                img.onload = function() {
-                    resetImg( this );
+            var img = new Image(),
+                resetImg = function( img ) {
+                    img.className = "";
+                    img.onload = img.onerror = img.onabort = null;
                 };
 
-                img.onerror = img.onabort = function() {
-                    resetImg( this );
-                    this.parentNode.removeChild( this );
-                };
+            img.id = this.id;
+            img.className = "image-loading";
 
-                img.src = self.thumbnail;
+            img.onload = function() {
+                resetImg( this );
+            };
 
-                resolve( img );
+            img.onerror = img.onabort = function() {
+                resetImg( this );
+                this.parentNode.removeChild( this );
+            };
 
-            }
+            img.src = this.thumbnail;
 
-        });
+            return img;
+
+        }
+
+    };
+
+    Photo.prototype.getHTML = function()
+    {
+        var item      = document.createElement("div"),
+            imgWraper = document.createElement("div"),
+            img       = this.getThumbnailImg();
+
+        item.className = "photo-box photo";
+        imgWraper.className = "image-wrapper";
+        imgWraper.appendChild( img );
+        item.appendChild( imgWraper );
+
+        item.setAttribute("data-photo-id", this.id );
+
+        return item;
     };
 
     return Photo;
