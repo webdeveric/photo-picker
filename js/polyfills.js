@@ -131,6 +131,77 @@ if (!Array.prototype.map) {
 
 }
 
+/*
+    For browsers that don't have a console.
+    IE8 has one, but dev tools has to be open for the console object to exist.
+*/
+if ( window.console === void 0 ) {
+
+    (function() {
+        "use strict";
+
+        var debugConsole = document.createElement("ul"),
+            printObject = function( obj, depth ) {
+                depth = depth || 0;
+
+                if ( typeof obj === "string" ) {
+                    return document.createTextNode( obj );
+                }
+
+                var dl = document.createElement("dl");
+
+                dl.className = "object-details depth-" + depth;
+                dl.className += depth % 2 === 0 ? " depth-even" : " depth-odd";
+
+                for ( var i in obj ) {
+                    if ( obj.hasOwnProperty(i) ) {
+                        var dt = document.createElement("dt"),
+                            dd = document.createElement("dd");
+                        dt.appendChild( document.createTextNode( i ) );
+                        dd.appendChild( printObject( obj[ i ], depth + 1 ) );
+                        dl.appendChild( dt );
+                        dl.appendChild( dd );
+                    }
+                }
+
+                return dl;
+            },
+            msg = function( level ) {
+                return function( /* msg1, ..., msgN */ ) {
+
+                    var i = 0,
+                        l = arguments.length;
+
+                    for ( ; i < l ; ++i ) {
+
+                        var arg = arguments[ i ],
+                            li = document.createElement("li");
+
+                        li.className = "msg " + level;
+                        li.appendChild( printObject( arg ) );
+
+                        debugConsole.appendChild( li );
+                    }
+
+                };
+            };
+
+        debugConsole.className = "debug-console";
+
+        document.body.appendChild( debugConsole );
+
+        window.console = {
+            log:   msg("log"),
+            info:  msg("info"),
+            warn:  msg("warn"),
+            error: msg("error"),
+            debug: msg("debug")
+        };
+
+    })();
+
+}
+
 define( [ "promise" ], function( promise ) {
     "use strict";
     promise.polyfill();
