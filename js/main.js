@@ -8,8 +8,24 @@ define( [
 ], function( $, FB, Lightbox, PhotoPicker, FacebookPhotoProvider, InstagramPhotoProvider ) {
     "use strict";
 
+    var facebookAppIDs = {
+        "photopicker.dev": "741643222570603",
+        "photopicker.webdeveric.com": "744567285611530"
+    };
+
+    var instagramClient = {
+        "photopicker.dev": {
+            id: "e63a8cb495e94cdebf6c7c16b1b55e20",
+            url: "http://photopicker.dev/callback.html"
+        },
+        "photopicker.webdeveric.com": {
+            id: "8f9ed714eaff481995467237175e5dfa",
+            url: "https://photopicker.webdeveric.com/callback.html"
+        }
+    };
+
     FB.init({
-        appId: "741643222570603",
+        appId: facebookAppIDs[ window.location.host ],
         status: true,
         xfbml: false,
         version: "v2.2"
@@ -35,15 +51,10 @@ define( [
             descendantSelector: ".item"
         });
 
-        // var instagramPhotoProvider = new InstagramPhotoProvider(
-        //     "8f9ed714eaff481995467237175e5dfa",
-        //     "https://photopicker.webdeveric.com/callback.html"
-        // );
-
         var facebookPhotoProvider = new FacebookPhotoProvider(),
             instagramPhotoProvider = new InstagramPhotoProvider(
-                "e63a8cb495e94cdebf6c7c16b1b55e20",
-                "http://photopicker.dev/callback.html"
+                instagramClient[ window.location.host ].id,
+                instagramClient[ window.location.host ].url
             ),
             facebookPicker = new PhotoPicker( "#photo-picker", facebookPhotoProvider, { lightbox: { title: "Facebook Photos", extraClass: "facebook-picker-lightbox", titleSelector: ".lightbox-title-text" } } ),
             instagramPicker = new PhotoPicker( "#photo-picker", instagramPhotoProvider, { lightbox: { title: "Instagram Photos", extraClass: "instagram-picker-lightbox", titleSelector: ".lightbox-title-text" } } );
