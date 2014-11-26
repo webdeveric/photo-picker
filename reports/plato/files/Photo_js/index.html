@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">75.33</p>
+      <p class="stat">73.09</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">90</p>
+      <p class="stat">143</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">27.19</p>
+      <p class="stat">26.94</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">0.51</p>
+      <p class="stat">0.64</p>
     </div>
   </div>
 </div>
@@ -141,39 +141,92 @@
         return this.thumbnail;
     };
 
+    // Photo.prototype.getThumbnailImg = function()
+    // {
+    //     var self = this;
+    //     return new Promise( function( resolve, reject ) {
+
+    //         if ( !self.thumbnail ) {
+
+    //             reject( new Error(&quot;No thumbnail found&quot;) );
+
+    //         } else {
+
+    //             var img = new Image(),
+    //                 resetImg = function( img ) {
+    //                     img.className = &quot;&quot;;
+    //                     img.onload = img.onerror = img.onabort = null;
+    //                 };
+
+    //             img.id = self.id;
+    //             img.className = &quot;image-loading&quot;;
+
+    //             img.onload = function() {
+    //                 resetImg( this );
+    //             };
+
+    //             img.onerror = img.onabort = function() {
+    //                 resetImg( this );
+    //                 this.parentNode.removeChild( this );
+    //             };
+
+    //             img.src = self.thumbnail;
+
+    //             resolve( img );
+
+    //         }
+
+    //     });
+    // };
+
     Photo.prototype.getThumbnailImg = function()
     {
-        var self = this;
-        return new Promise( function( resolve, reject ) {
+        if ( !this.thumbnail ) {
 
-            if ( !self.thumbnail ) {
+            return false;
 
-                reject( new Error(&quot;No thumbnail found&quot;) );
+        } else {
 
-            } else {
-
-                var img = new Image(),
-                    resetEvents = function( img ) {
-                        img.onload = img.onerror = img.onabort = null;
-                    };
-
-                img.id = self.id;
-
-                img.onload = function() {
-                    resetEvents( this );
-                    resolve( this );
+            var img = new Image(),
+                resetImg = function( img ) {
+                    img.className = &quot;&quot;;
+                    img.onload = img.onerror = img.onabort = null;
                 };
 
-                img.onerror = img.onabort = function() {
-                    resetEvents( this );
-                    reject( new Error(&quot;Unable to load image&quot;) );
-                };
+            img.id = this.id;
+            img.className = &quot;image-loading&quot;;
 
-                img.src = self.thumbnail;
+            img.onload = function() {
+                resetImg( this );
+            };
 
-            }
+            img.onerror = img.onabort = function() {
+                resetImg( this );
+                this.parentNode.removeChild( this );
+            };
 
-        });
+            img.src = this.thumbnail;
+
+            return img;
+
+        }
+
+    };
+
+    Photo.prototype.getHTML = function()
+    {
+        var item      = document.createElement(&quot;div&quot;),
+            imgWraper = document.createElement(&quot;div&quot;),
+            img       = this.getThumbnailImg();
+
+        item.className = &quot;photo-box photo&quot;;
+        imgWraper.className = &quot;image-wrapper&quot;;
+        imgWraper.appendChild( img );
+        item.appendChild( imgWraper );
+
+        item.setAttribute(&quot;data-photo-id&quot;, this.id );
+
+        return item;
     };
 
     return Photo;

@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">68.94</p>
+      <p class="stat">72.75</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">157</p>
+      <p class="stat">155</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">28.77</p>
+      <p class="stat">25.05</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">1.12</p>
+      <p class="stat">1.06</p>
     </div>
   </div>
 </div>
@@ -100,8 +100,8 @@
 
     function InstagramPhotoProvider( clientID, redirectURI )
     {
-        PhotoProvider.call(this);
-        this.url = &quot;https://api.instagram.com/v1/users/self/media/recent&quot;;
+        PhotoProvider.call( this, &quot;https://api.instagram.com/v1/users/self/media/recent&quot;, null );
+
         this.clientID = clientID;
         this.redirectURI = redirectURI;
         this.accessToken = null;
@@ -178,9 +178,9 @@
 
     InstagramPhotoProvider.prototype.api = function( url, parameters )
     {
-        console.log(&quot;Calling Instagram api&quot;, this );
-
         parameters = $.extend( this.getParameters(), parameters );
+
+        console.log(&quot;Calling Instagram api&quot;, url, parameters );
 
         return new Promise( function( resolve, reject ) {
 
@@ -209,38 +209,36 @@
         });
     };
 
-    InstagramPhotoProvider.prototype.processResults = function( results )
+    InstagramPhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
-        console.info(&quot;Processing results&quot;, results );
+        return &quot;/media/&quot; + photo_id;
+    };
 
-        this.url = results.pagination &amp;&amp; results.pagination.next_url ? results.pagination.next_url : false;
+    InstagramPhotoProvider.prototype.apiGetAlbumURL = function()
+    {
+        return false;
+    };
 
-        var i      = 0,
-            data   = results.data,
-            l      = data.length,
-            photos = [];
+    InstagramPhotoProvider.prototype.getNextUrl = function( results )
+    {
+        return results.pagination &amp;&amp; results.pagination.next_url ? results.pagination.next_url : false;
+    };
 
-        for ( ; i &lt; l ; ++i ) {
+    InstagramPhotoProvider.prototype.buildPhoto = function( data )
+    {
+        var photo = new Photo(
+            data.id,
+            data.images.standard_resolution.url.replace(&quot;http://&quot;, &quot;//&quot;),
+            data.images.thumbnail.url.replace(&quot;http://&quot;, &quot;//&quot;),
+            data.likes.count,
+            data.tags
+        );
 
-            var img = data[i],
-                photo = new Photo(
-                    img.id,
-                    img.images.standard_resolution.url.replace(&quot;http://&quot;, &quot;//&quot;),
-                    img.images.thumbnail.url.replace(&quot;http://&quot;, &quot;//&quot;),
-                    img.likes.count,
-                    img.tags
-                );
-
-            if ( img.caption &amp;&amp; img.caption.text ) {
-                photo.setDescription( img.caption.text );
-            }
-
-            this.addPhoto( photo );
-            photos.push( photo );
+        if ( data.caption &amp;&amp; data.caption.text ) {
+            photo.setDescription( data.caption.text );
         }
 
-        return photos;
-
+        return photo;
     };
 
     return InstagramPhotoProvider;
