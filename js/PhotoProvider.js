@@ -9,7 +9,7 @@ define( [
     {
         this.url       = url;
         this.albumsurl = albumsurl;
-        this.limit     = 40;
+        this.limit     = 32;
 
         this.photos    = {}; // Photo.id => Photo object
         this.albums    = {}; // Album.id => Album object
@@ -100,29 +100,29 @@ define( [
             }
         }
 
-        console.log("PhotoProvider.getCurrentAlbumPhotos: Photos", photos );
+        // console.log("PhotoProvider.getCurrentAlbumPhotos: Photos", photos );
 
         return photos;
     };
 
     PhotoProvider.prototype.getPhotos = function()
     {
-        console.info("PhotoProvider.getPhotos: Called");
+        // console.info("PhotoProvider.getPhotos: Called");
         var self = this,
             promise = new Promise( function( resolve, reject ) {
                 if ( self.getCurrentAlbum().getPhotoIDs().length === 0 ) {
 
                     return self.loadPhotos().then( function( photos ) {
-                        console.log("PhotoProvider.getPhotos < Promise: Photos loaded", photos );
+                        // console.log("PhotoProvider.getPhotos < Promise: Photos loaded", photos );
                         resolve( photos );
                     }, function( error ) {
-                        console.warn("PhotoProvider.getPhotos < Promise: Error", error );
+                        // console.warn("PhotoProvider.getPhotos < Promise: Error", error );
                         reject( error );
                     });
 
                 } else {
 
-                    console.info("PhotoProvider.getPhotos < Promise: Photos already loaded");
+                    // console.info("PhotoProvider.getPhotos < Promise: Photos already loaded");
                     resolve( self.getCurrentAlbumPhotos() );
 
                 }
@@ -134,14 +134,14 @@ define( [
 
     PhotoProvider.prototype.loadPhotos = function( url )
     {
-        console.info("PhotoProvider.loadPhotos: loading photos");
+        // console.info("PhotoProvider.loadPhotos: loading photos");
 
         var self = this,
             apiURL = url || this.getURL();
 
         if ( apiURL !== false ) {
 
-            console.log("PhotoProvider.loadPhotos: API URL", apiURL );
+            // console.log("PhotoProvider.loadPhotos: API URL", apiURL );
 
             return this.api( apiURL, this.getParameters() ).then( function( results ) {
                     return self.processResults( results );
@@ -153,7 +153,7 @@ define( [
 
         }
 
-        console.warn("PhotoProvider.loadPhotos: URL is false");
+        // console.warn("PhotoProvider.loadPhotos: URL is false");
 
         return Promise.reject( new Error("No more photos to load") );
     };
@@ -234,7 +234,7 @@ define( [
 
     PhotoProvider.prototype.processResults = function( results )
     {
-        console.log("PhotoProvider.processResults: Called with results", results );
+        // console.log("PhotoProvider.processResults: Called with results", results );
 
         var album = this.getCurrentAlbum();
 
@@ -252,7 +252,7 @@ define( [
             photos[ photo.id ] = photo;
         }
 
-        console.log("PhotoProvider.processResults: photos ", photos );
+        // console.log("PhotoProvider.processResults: photos ", photos );
         return photos;
     };
 
@@ -263,15 +263,10 @@ define( [
     */
     PhotoProvider.prototype.processAlbumData = function( data )
     {
-        console.group();
-        console.log("PhotoProvider.processAlbumData: Called with data", data );
+        // console.group();
+        // console.log("PhotoProvider.processAlbumData: Called with data", data );
 
-        if ( this.albumsLoaded ) {
-
-            console.info("The albums have already been loaded.");
-
-        } else {
-
+        if ( !this.albumsLoaded ) {
             var i = 0,
                 l = data.length;
 
@@ -280,10 +275,9 @@ define( [
             }
 
             this.albumsLoaded = true;
-
         }
 
-        console.groupEnd();
+        // console.groupEnd();
 
         return this.albums;
     };
@@ -294,7 +288,7 @@ define( [
 
     PhotoProvider.prototype.api = function( /* url, parameters */ )
     {
-        console.info("PhotoProvider.api: Please override this method in your subclasses");
+        // console.info("PhotoProvider.api: Please override this method in your subclasses");
         return Promise.resolve( {
             data: [],
             paging: {}
@@ -319,13 +313,13 @@ define( [
 
     PhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
-        console.info("PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses");
+        // console.info("PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses");
         return "/" + photo_id;
     };
 
     PhotoProvider.prototype.apiGetAlbumURL = function( album_id )
     {
-        console.info("PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses");
+        // console.info("PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses");
         return "/" + album_id;
     };
 

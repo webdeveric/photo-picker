@@ -173,7 +173,7 @@ define( [
 
     PhotoPicker.prototype.open = function()
     {
-        console.info("PhotoPicker.open");
+        // console.info("PhotoPicker.open");
 
         var self = this;
         this.init().then( function( initResults ) {
@@ -207,7 +207,7 @@ define( [
             this.lightbox.close();
         }
 
-        console.info("PhotoPicker.close");
+        // console.info("PhotoPicker.close");
 
         return this;
     };
@@ -223,32 +223,16 @@ define( [
     PhotoPicker.prototype.renderPhotos = function( photos )
     {
         // Photos is an object, not array.
-        console.log("PhotoPicker.renderPhotos: photos", photos );
+        // console.log("PhotoPicker.renderPhotos: photos", photos );
 
         for ( var i in photos ) {
             this.photosPanel.append( photos[ i ].getHTML() );
         }
 
-        // var self = this,
-        //     thumbnailPromises = util.objectToArray( photos, function( photo ) {
-        //         return photo.getThumbnailImg();
-        //     });
-
-        // return Promise.all( thumbnailPromises ).then( function( photos ) {
-
-        //     var i = 0,
-        //         l = photos.length;
-
-        //     for ( ; i < l ; ++i ) {
-        //         self.photosPanel.append( photos[ i ].getHTML() );
-        //     }
-
-        // });
-
     };
 
-    PhotoPicker.prototype.renderAlbums = function( albums ) {
-
+    PhotoPicker.prototype.renderAlbums = function( albums )
+    {
         if ( !this.albumsRendered ) {
 
             var self = this,
@@ -283,7 +267,7 @@ define( [
 
     PhotoPicker.prototype.getPhotos = function()
     {
-        console.info("PhotoPicker.getPhotos: Getting photos from provider");
+        // console.info("PhotoPicker.getPhotos: Getting photos from provider");
         return this.photoProvider.getPhotos();
     };
 
@@ -323,14 +307,14 @@ define( [
             disabled = !!disabled;
         }
 
-        console.log("PhotoPicker.toggleLoadMoreDisabled: disabled", disabled );
+        // console.log("PhotoPicker.toggleLoadMoreDisabled: disabled", disabled );
 
         this.loadMoreButton.prop("disabled", disabled );
     };
 
     PhotoPicker.prototype.loadMore = function()
     {
-        console.info("PhotoPicker loadMore");
+        // console.info("PhotoPicker loadMore");
 
         this.toggleLoadMoreDisabled( true );
 
@@ -355,11 +339,11 @@ define( [
     PhotoPicker.prototype.switchToPanel = function( panel )
     {
         if ( this.currentPanel === panel ) {
-            console.info("You're already on " + panel );
+            // console.info("You're already on " + panel );
             return this;
         }
 
-        console.info("Trying to switch to " + panel );
+        // console.info("Trying to switch to " + panel );
 
         if ( panel === "photos" ) {
 
@@ -412,7 +396,12 @@ define( [
         this.switchToPanel("albums");
         this.toggleLoadingClass( true );
         this.loadMoreButton.prop("disabled", true );
-        this.photoProvider.getAlbums().then( $.proxy( this.renderAlbums, this ) ).then( function() {
+
+        // alert("albums button clicked");
+
+        this.photoProvider.getAlbums().then( function( albums ) {
+            self.renderAlbums( albums );
+        }).then( function() {
             self.toggleLoadingClass( false );
         });
     };
@@ -435,7 +424,7 @@ define( [
 
         }
 
-        console.log("PhotoPicker.handleAlbumClick: album ID", album_id );
+        // console.log("PhotoPicker.handleAlbumClick: album ID", album_id );
     };
 
     PhotoPicker.prototype.handlePhotoClick = function( event )
@@ -454,7 +443,7 @@ define( [
 
         }
 
-        console.log("PhotoPicker.handlePhotoClick: Selected photo", this.selectedPhoto );
+        // console.log("PhotoPicker.handlePhotoClick: Selected photo", this.selectedPhoto );
     };
 
     PhotoPicker.prototype.handlePhotoDoubleClick = function( event )

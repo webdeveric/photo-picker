@@ -48,7 +48,7 @@ define( [
 
     FacebookPhotoProvider.prototype.api = function( url, parameters )
     {
-        console.log("FacebookPhotoProvider.api", url, parameters );
+        // console.log("FacebookPhotoProvider.api", url, parameters );
 
         parameters = $.extend( this.getParameters(), parameters );
 
@@ -62,8 +62,7 @@ define( [
                 url,
                 parameters,
                 function(response) {
-
-                    if (response && !response.error) {
+                    if ( response && !response.error ) {
 
                         resolve( response );
 

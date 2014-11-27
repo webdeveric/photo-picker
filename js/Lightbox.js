@@ -104,7 +104,7 @@ define( [
     };
 
     Lightbox.prototype.toggleClass = function( className, state ) {
-        console.log( ( state ? "Adding" : "Removing" ) + " class " + className );
+        // console.log( ( state ? "Adding" : "Removing" ) + " class " + className );
         this.template.toggleClass( className, state );
         return this;
     };
