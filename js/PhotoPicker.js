@@ -93,6 +93,7 @@ define( [
 
         if ( this.photosPanel ) {
             this.photosPanel.on("click.photopicker", ".photo", $.proxy( this.handlePhotoClick, this ) );
+            this.photosPanel.on("dblclick.photopicker", ".photo", $.proxy( this.handlePhotoDoubleClick, this ) );
         }
 
         if ( this.albumsPanel ) {
@@ -128,6 +129,7 @@ define( [
 
         if ( this.photosPanel ) {
             this.photosPanel.off("click.photopicker", ".photo");
+            this.photosPanel.off("dblclick.photopicker", ".photo");
         }
 
         if ( this.albumsPanel ) {
@@ -171,6 +173,8 @@ define( [
 
     PhotoPicker.prototype.open = function()
     {
+        console.info("PhotoPicker.open");
+
         var self = this;
         this.init().then( function( initResults ) {
 
@@ -190,11 +194,9 @@ define( [
             }
 
         }, function( error ) {
-            console.error( error.message );
+            console.warn( error.message );
             self.initialized = null; // reset the Promise so that you don't get stuck in a rejected state.
         });
-
-        console.log("PhotoPicker.open");
 
         return this;
     };
@@ -205,7 +207,7 @@ define( [
             this.lightbox.close();
         }
 
-        console.log("PhotoPicker.close");
+        console.info("PhotoPicker.close");
 
         return this;
     };
@@ -281,7 +283,7 @@ define( [
 
     PhotoPicker.prototype.getPhotos = function()
     {
-        console.log("PhotoPicker.getPhotos: Getting photos from provider");
+        console.info("PhotoPicker.getPhotos: Getting photos from provider");
         return this.photoProvider.getPhotos();
     };
 
@@ -321,14 +323,14 @@ define( [
             disabled = !!disabled;
         }
 
-        console.info("PhotoPicker.toggleLoadMoreDisabled: disabled", disabled );
+        console.log("PhotoPicker.toggleLoadMoreDisabled: disabled", disabled );
 
         this.loadMoreButton.prop("disabled", disabled );
     };
 
     PhotoPicker.prototype.loadMore = function()
     {
-        console.log("PhotoPicker loadMore");
+        console.info("PhotoPicker loadMore");
 
         this.toggleLoadMoreDisabled( true );
 
@@ -337,7 +339,7 @@ define( [
         this.loadPhotos().then( function() {
             self.toggleLoadMoreDisabled();
         }, function( error ) {
-            console.error( error );
+            console.warn( error );
             self.toggleLoadMoreDisabled();
         });
     };
@@ -440,13 +442,12 @@ define( [
     {
         event.preventDefault();
 
-        var photo = $(event.currentTarget),
+        var photo    = $(event.currentTarget),
             photo_id = photo.data("photo-id");
-
-        this.clearSelected( this.photosPanel );
 
         if ( photo_id !== this.selectedPhoto ) {
 
+            this.clearSelected( this.photosPanel );
             photo.addClass("selected");
             this.selectedPhoto = photo_id;
             this.submitButton.prop("disabled", 0 );
@@ -454,6 +455,16 @@ define( [
         }
 
         console.log("PhotoPicker.handlePhotoClick: Selected photo", this.selectedPhoto );
+    };
+
+    PhotoPicker.prototype.handlePhotoDoubleClick = function( event )
+    {
+        var photo    = $(event.currentTarget),
+            photo_id = photo.data("photo-id");
+
+        if ( photo_id === this.selectedPhoto ) {
+            this.handleSubmit( event );
+        }
     };
 
     PhotoPicker.prototype.handleLoadMoreButtonClick = function( event )
@@ -506,14 +517,14 @@ define( [
 
     PhotoPicker.prototype.setupTemplate = function()
     {
-        this.template       = $(this.template).html();
-        this.content        = $(this.template);
+        this.template     = $(this.template).html();
+        this.content      = $(this.template);
 
-        this.photosPanel    = $(".photos-panel", this.content );
-        this.albumsPanel   = $(".albums-panel", this.content );
+        this.photosPanel  = $(".photos-panel", this.content );
+        this.albumsPanel  = $(".albums-panel", this.content );
 
-        this.photosButton   = $(".button-photos", this.content );
-        this.albumsButton   = $(".button-albums", this.content );
+        this.photosButton = $(".button-photos", this.content );
+        this.albumsButton = $(".button-albums", this.content );
 
         if ( !this.photoProvider.supportsAlbums() ) {
 
