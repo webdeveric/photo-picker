@@ -31,13 +31,17 @@
 
 .debug-console .error{
     background-color: #C33;
-    color: #FFF;
 }
 
 .object-details{
     background-color: #F9F9F9;
     margin: 0;
     padding: 0;
+}
+
+.object-details.depth-0 > dd{
+    max-height: 100px;
+    overflow: scroll;
 }
 
 .object-details.depth-even{
