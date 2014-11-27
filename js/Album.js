@@ -56,8 +56,6 @@ define( [ "Photo" ], function( Photo ) {
         item.appendChild( imgWraper );
         item.appendChild( caption );
 
-        console.log("Album", this.name );
-
         item.setAttribute("data-album-id", this.id );
 
         return item;
