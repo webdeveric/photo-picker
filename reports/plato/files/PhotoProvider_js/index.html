@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">73.71</p>
+      <p class="stat">74.81</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">349</p>
+      <p class="stat">343</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">59.14</p>
+      <p class="stat">69.84</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">2.43</p>
+      <p class="stat">2.25</p>
     </div>
   </div>
 </div>
@@ -100,13 +100,13 @@
     {
         this.url       = url;
         this.albumsurl = albumsurl;
-        this.limit     = 40;
+        this.limit     = 32;
 
         this.photos    = {}; // Photo.id =&gt; Photo object
         this.albums    = {}; // Album.id =&gt; Album object
 
         this.currentAlbumID = &quot;default&quot;;
-        this.albumsLoaded = false;
+        this.albumsLoaded   = false;
 
         this.addAlbum(
             new Album( &quot;default&quot;, &quot;All Photos&quot;, this.url )
@@ -125,12 +125,6 @@
         return album !== false ? album.getURL() : false;
         // return this.url;
     };
-
-    // PhotoProvider.prototype.setURL = function( url )
-    // {
-    //     this.url = url;
-    //     return this;
-    // };
 
     PhotoProvider.prototype.getParameters = function()
     {
@@ -190,10 +184,6 @@
             i         = 0,
             l         = photo_ids.length;
 
-        // if ( photo_ids.length === 0 ) {
-        //     this.loadPhotos();
-        // }
-
         for ( ; i &lt; l ; ++i ) {
             var photo = this.photos[ photo_ids[ i ] ] || false;
             if ( photo !== false ) {
@@ -201,29 +191,29 @@
             }
         }
 
-        console.log(&quot;PhotoProvider.getCurrentAlbumPhotos: Photos&quot;, photos );
+        // console.log(&quot;PhotoProvider.getCurrentAlbumPhotos: Photos&quot;, photos );
 
         return photos;
     };
 
     PhotoProvider.prototype.getPhotos = function()
     {
-        console.log(&quot;PhotoProvider.getPhotos: Called&quot;);
+        // console.info(&quot;PhotoProvider.getPhotos: Called&quot;);
         var self = this,
             promise = new Promise( function( resolve, reject ) {
                 if ( self.getCurrentAlbum().getPhotoIDs().length === 0 ) {
 
                     return self.loadPhotos().then( function( photos ) {
-                        console.log(&quot;PhotoProvider.getPhotos &lt; Promise: Photos loaded&quot;, photos );
+                        // console.log(&quot;PhotoProvider.getPhotos &lt; Promise: Photos loaded&quot;, photos );
                         resolve( photos );
                     }, function( error ) {
-                        console.error(&quot;PhotoProvider.getPhotos &lt; Promise: Error&quot;, error );
+                        // console.warn(&quot;PhotoProvider.getPhotos &lt; Promise: Error&quot;, error );
                         reject( error );
                     });
 
                 } else {
 
-                    console.info(&quot;PhotoProvider.getPhotos &lt; Promise: Photos already loaded&quot;, self.photos );
+                    // console.info(&quot;PhotoProvider.getPhotos &lt; Promise: Photos already loaded&quot;);
                     resolve( self.getCurrentAlbumPhotos() );
 
                 }
@@ -235,14 +225,14 @@
 
     PhotoProvider.prototype.loadPhotos = function( url )
     {
-        console.log(&quot;PhotoProvider.loadPhotos: loading photos&quot;);
+        // console.info(&quot;PhotoProvider.loadPhotos: loading photos&quot;);
 
         var self = this,
             apiURL = url || this.getURL();
 
         if ( apiURL !== false ) {
 
-            console.log(&quot;PhotoProvider.loadPhotos: API URL&quot;, apiURL );
+            // console.log(&quot;PhotoProvider.loadPhotos: API URL&quot;, apiURL );
 
             return this.api( apiURL, this.getParameters() ).then( function( results ) {
                     return self.processResults( results );
@@ -254,7 +244,7 @@
 
         }
 
-        console.error(&quot;PhotoProvider.loadPhotos: URL is false&quot;);
+        // console.warn(&quot;PhotoProvider.loadPhotos: URL is false&quot;);
 
         return Promise.reject( new Error(&quot;No more photos to load&quot;) );
     };
@@ -335,7 +325,7 @@
 
     PhotoProvider.prototype.processResults = function( results )
     {
-        console.log(&quot;PhotoProvider.processResults: Called with results&quot;, results );
+        // console.log(&quot;PhotoProvider.processResults: Called with results&quot;, results );
 
         var album = this.getCurrentAlbum();
 
@@ -353,7 +343,7 @@
             photos[ photo.id ] = photo;
         }
 
-        console.log(&quot;PhotoProvider.processResults: photos &quot;, photos );
+        // console.log(&quot;PhotoProvider.processResults: photos &quot;, photos );
         return photos;
     };
 
@@ -364,15 +354,10 @@
     */
     PhotoProvider.prototype.processAlbumData = function( data )
     {
-        console.group();
-        console.log(&quot;PhotoProvider.processAlbumData: Called with data&quot;, data );
+        // console.group();
+        // console.log(&quot;PhotoProvider.processAlbumData: Called with data&quot;, data );
 
-        if ( this.albumsLoaded ) {
-
-            console.log(&quot;The albums have already been loaded.&quot;);
-
-        } else {
-
+        if ( !this.albumsLoaded ) {
             var i = 0,
                 l = data.length;
 
@@ -381,10 +366,9 @@
             }
 
             this.albumsLoaded = true;
-
         }
 
-        console.groupEnd();
+        // console.groupEnd();
 
         return this.albums;
     };
@@ -395,28 +379,38 @@
 
     PhotoProvider.prototype.api = function( /* url, parameters */ )
     {
-        console.log(&quot;PhotoProvider.api: Please override this method in your subclasses&quot;);
+        // console.info(&quot;PhotoProvider.api: Please override this method in your subclasses&quot;);
         return Promise.resolve( {
             data: [],
             paging: {}
         } );
     };
 
-    PhotoProvider.prototype.apiScrape = function( /* url, parameters */ )
+    PhotoProvider.prototype.apiScrape = function( url, parameters, data )
     {
-        console.log(&quot;PhotoProvider.apiScrape: Please override this method in your subclasses&quot;);
-        return Promise.reject( new Error(&quot;PhotoProvider.apiScrape not implemented.&quot;) );
+        if ( data === void 0 ) {
+            data = [];
+        }
+        var self = this;
+        return this.api( url, parameters ).then( function( results ) {
+            var nextURL = self.getNextUrl( results );
+            data = data.concat( results.data );
+            if ( nextURL ) {
+                return self.apiScrape( nextURL, parameters, data );
+            }
+            return data;
+        } );
     };
 
     PhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
-        console.log(&quot;PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses&quot;);
+        // console.info(&quot;PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses&quot;);
         return &quot;/&quot; + photo_id;
     };
 
     PhotoProvider.prototype.apiGetAlbumURL = function( album_id )
     {
-        console.log(&quot;PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses&quot;);
+        // console.info(&quot;PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses&quot;);
         return &quot;/&quot; + album_id;
     };
 

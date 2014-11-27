@@ -44,7 +44,7 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">69.69</p>
+      <p class="stat">70.24</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">65.09</p>
+      <p class="stat">65.43</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">4.60</p>
+      <p class="stat">4.56</p>
     </div>
   </div>
 </div>
@@ -184,6 +184,7 @@
 
         if ( this.photosPanel ) {
             this.photosPanel.on(&quot;click.photopicker&quot;, &quot;.photo&quot;, $.proxy( this.handlePhotoClick, this ) );
+            this.photosPanel.on(&quot;dblclick.photopicker&quot;, &quot;.photo&quot;, $.proxy( this.handlePhotoDoubleClick, this ) );
         }
 
         if ( this.albumsPanel ) {
@@ -219,6 +220,7 @@
 
         if ( this.photosPanel ) {
             this.photosPanel.off(&quot;click.photopicker&quot;, &quot;.photo&quot;);
+            this.photosPanel.off(&quot;dblclick.photopicker&quot;, &quot;.photo&quot;);
         }
 
         if ( this.albumsPanel ) {
@@ -262,6 +264,8 @@
 
     PhotoPicker.prototype.open = function()
     {
+        // console.info(&quot;PhotoPicker.open&quot;);
+
         var self = this;
         this.init().then( function( initResults ) {
 
@@ -281,11 +285,9 @@
             }
 
         }, function( error ) {
-            console.error( error.message );
+            console.warn( error.message );
             self.initialized = null; // reset the Promise so that you don&#039;t get stuck in a rejected state.
         });
-
-        console.log(&quot;PhotoPicker.open&quot;);
 
         return this;
     };
@@ -296,7 +298,7 @@
             this.lightbox.close();
         }
 
-        console.log(&quot;PhotoPicker.close&quot;);
+        // console.info(&quot;PhotoPicker.close&quot;);
 
         return this;
     };
@@ -312,32 +314,16 @@
     PhotoPicker.prototype.renderPhotos = function( photos )
     {
         // Photos is an object, not array.
-        console.log(&quot;PhotoPicker.renderPhotos: photos&quot;, photos );
+        // console.log(&quot;PhotoPicker.renderPhotos: photos&quot;, photos );
 
         for ( var i in photos ) {
             this.photosPanel.append( photos[ i ].getHTML() );
         }
 
-        // var self = this,
-        //     thumbnailPromises = util.objectToArray( photos, function( photo ) {
-        //         return photo.getThumbnailImg();
-        //     });
-
-        // return Promise.all( thumbnailPromises ).then( function( photos ) {
-
-        //     var i = 0,
-        //         l = photos.length;
-
-        //     for ( ; i &lt; l ; ++i ) {
-        //         self.photosPanel.append( photos[ i ].getHTML() );
-        //     }
-
-        // });
-
     };
 
-    PhotoPicker.prototype.renderAlbums = function( albums ) {
-
+    PhotoPicker.prototype.renderAlbums = function( albums )
+    {
         if ( !this.albumsRendered ) {
 
             var self = this,
@@ -372,7 +358,7 @@
 
     PhotoPicker.prototype.getPhotos = function()
     {
-        console.log(&quot;PhotoPicker.getPhotos: Getting photos from provider&quot;);
+        // console.info(&quot;PhotoPicker.getPhotos: Getting photos from provider&quot;);
         return this.photoProvider.getPhotos();
     };
 
@@ -412,14 +398,14 @@
             disabled = !!disabled;
         }
 
-        console.info(&quot;PhotoPicker.toggleLoadMoreDisabled: disabled&quot;, disabled );
+        // console.log(&quot;PhotoPicker.toggleLoadMoreDisabled: disabled&quot;, disabled );
 
         this.loadMoreButton.prop(&quot;disabled&quot;, disabled );
     };
 
     PhotoPicker.prototype.loadMore = function()
     {
-        console.log(&quot;PhotoPicker loadMore&quot;);
+        // console.info(&quot;PhotoPicker loadMore&quot;);
 
         this.toggleLoadMoreDisabled( true );
 
@@ -428,7 +414,7 @@
         this.loadPhotos().then( function() {
             self.toggleLoadMoreDisabled();
         }, function( error ) {
-            console.error( error );
+            console.warn( error );
             self.toggleLoadMoreDisabled();
         });
     };
@@ -444,11 +430,11 @@
     PhotoPicker.prototype.switchToPanel = function( panel )
     {
         if ( this.currentPanel === panel ) {
-            console.info(&quot;You&#039;re already on &quot; + panel );
+            // console.info(&quot;You&#039;re already on &quot; + panel );
             return this;
         }
 
-        console.info(&quot;Trying to switch to &quot; + panel );
+        // console.info(&quot;Trying to switch to &quot; + panel );
 
         if ( panel === &quot;photos&quot; ) {
 
@@ -501,7 +487,12 @@
         this.switchToPanel(&quot;albums&quot;);
         this.toggleLoadingClass( true );
         this.loadMoreButton.prop(&quot;disabled&quot;, true );
-        this.photoProvider.getAlbums().then( $.proxy( this.renderAlbums, this ) ).then( function() {
+
+        // alert(&quot;albums button clicked&quot;);
+
+        this.photoProvider.getAlbums().then( function( albums ) {
+            self.renderAlbums( albums );
+        }).then( function() {
             self.toggleLoadingClass( false );
         });
     };
@@ -524,27 +515,36 @@
 
         }
 
-        console.log(&quot;PhotoPicker.handleAlbumClick: album ID&quot;, album_id );
+        // console.log(&quot;PhotoPicker.handleAlbumClick: album ID&quot;, album_id );
     };
 
     PhotoPicker.prototype.handlePhotoClick = function( event )
     {
         event.preventDefault();
 
-        var photo = $(event.currentTarget),
+        var photo    = $(event.currentTarget),
             photo_id = photo.data(&quot;photo-id&quot;);
-
-        this.clearSelected( this.photosPanel );
 
         if ( photo_id !== this.selectedPhoto ) {
 
+            this.clearSelected( this.photosPanel );
             photo.addClass(&quot;selected&quot;);
             this.selectedPhoto = photo_id;
             this.submitButton.prop(&quot;disabled&quot;, 0 );
 
         }
 
-        console.log(&quot;PhotoPicker.handlePhotoClick: Selected photo&quot;, this.selectedPhoto );
+        // console.log(&quot;PhotoPicker.handlePhotoClick: Selected photo&quot;, this.selectedPhoto );
+    };
+
+    PhotoPicker.prototype.handlePhotoDoubleClick = function( event )
+    {
+        var photo    = $(event.currentTarget),
+            photo_id = photo.data(&quot;photo-id&quot;);
+
+        if ( photo_id === this.selectedPhoto ) {
+            this.handleSubmit( event );
+        }
     };
 
     PhotoPicker.prototype.handleLoadMoreButtonClick = function( event )
@@ -597,14 +597,14 @@
 
     PhotoPicker.prototype.setupTemplate = function()
     {
-        this.template       = $(this.template).html();
-        this.content        = $(this.template);
+        this.template     = $(this.template).html();
+        this.content      = $(this.template);
 
-        this.photosPanel    = $(&quot;.photos-panel&quot;, this.content );
-        this.albumsPanel   = $(&quot;.albums-panel&quot;, this.content );
+        this.photosPanel  = $(&quot;.photos-panel&quot;, this.content );
+        this.albumsPanel  = $(&quot;.albums-panel&quot;, this.content );
 
-        this.photosButton   = $(&quot;.button-photos&quot;, this.content );
-        this.albumsButton   = $(&quot;.button-albums&quot;, this.content );
+        this.photosButton = $(&quot;.button-photos&quot;, this.content );
+        this.albumsButton = $(&quot;.button-albums&quot;, this.content );
 
         if ( !this.photoProvider.supportsAlbums() ) {
 

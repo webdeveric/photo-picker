@@ -44,11 +44,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
-      <p class="stat">66.34</p>
+      <p class="stat">62.96</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
-      <p class="stat">56</p>
+      <p class="stat">66</p>
     </div>
   </div>
   <div class="row historical">
@@ -62,11 +62,11 @@
   <div class="row">
     <div class="col-md-6">
       <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
-      <p class="stat">8.45</p>
+      <p class="stat">9.21</p>
     </div>
     <div class="col-md-6">
       <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
-      <p class="stat">0.42</p>
+      <p class="stat">0.55</p>
     </div>
   </div>
 </div>
@@ -99,8 +99,23 @@
 ], function( $, FB, Lightbox, PhotoPicker, FacebookPhotoProvider, InstagramPhotoProvider ) {
     &quot;use strict&quot;;
 
+    var facebookAppIDs = {
+            &quot;photopicker.dev&quot;: &quot;741643222570603&quot;,
+            &quot;photopicker.webdeveric.com&quot;: &quot;744567285611530&quot;
+        },
+        instagramClient = {
+            &quot;photopicker.dev&quot;: {
+                id: &quot;e63a8cb495e94cdebf6c7c16b1b55e20&quot;,
+                url: &quot;http://photopicker.dev/callback.html&quot;
+            },
+            &quot;photopicker.webdeveric.com&quot;: {
+                id: &quot;8f9ed714eaff481995467237175e5dfa&quot;,
+                url: &quot;https://photopicker.webdeveric.com/callback.html&quot;
+            }
+        };
+
     FB.init({
-        appId: &quot;741643222570603&quot;,
+        appId: facebookAppIDs[ window.location.host ],
         status: true,
         xfbml: false,
         version: &quot;v2.2&quot;
@@ -118,7 +133,7 @@
                 $(&quot;#preview&quot;).empty().append( img );
             }
         }).on(&quot;error.photopicker&quot;, function( e, error /* , photopicker */ ) {
-            console.log( error.message );
+            console.warn( error.message );
         });
 
         // Lightbox demo
@@ -126,15 +141,10 @@
             descendantSelector: &quot;.item&quot;
         });
 
-        // var instagramPhotoProvider = new InstagramPhotoProvider(
-        //     &quot;8f9ed714eaff481995467237175e5dfa&quot;,
-        //     &quot;https://photopicker.webdeveric.com/callback.html&quot;
-        // );
-
         var facebookPhotoProvider = new FacebookPhotoProvider(),
             instagramPhotoProvider = new InstagramPhotoProvider(
-                &quot;e63a8cb495e94cdebf6c7c16b1b55e20&quot;,
-                &quot;http://photopicker.dev/callback.html&quot;
+                instagramClient[ window.location.host ].id,
+                instagramClient[ window.location.host ].url
             ),
             facebookPicker = new PhotoPicker( &quot;#photo-picker&quot;, facebookPhotoProvider, { lightbox: { title: &quot;Facebook Photos&quot;, extraClass: &quot;facebook-picker-lightbox&quot;, titleSelector: &quot;.lightbox-title-text&quot; } } ),
             instagramPicker = new PhotoPicker( &quot;#photo-picker&quot;, instagramPhotoProvider, { lightbox: { title: &quot;Instagram Photos&quot;, extraClass: &quot;instagram-picker-lightbox&quot;, titleSelector: &quot;.lightbox-title-text&quot; } } );
