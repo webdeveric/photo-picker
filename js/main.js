@@ -9,20 +9,19 @@ define( [
     "use strict";
 
     var facebookAppIDs = {
-        "photopicker.dev": "741643222570603",
-        "photopicker.webdeveric.com": "744567285611530"
-    };
-
-    var instagramClient = {
-        "photopicker.dev": {
-            id: "e63a8cb495e94cdebf6c7c16b1b55e20",
-            url: "http://photopicker.dev/callback.html"
+            "photopicker.dev": "741643222570603",
+            "photopicker.webdeveric.com": "744567285611530"
         },
-        "photopicker.webdeveric.com": {
-            id: "8f9ed714eaff481995467237175e5dfa",
-            url: "https://photopicker.webdeveric.com/callback.html"
-        }
-    };
+        instagramClient = {
+            "photopicker.dev": {
+                id: "e63a8cb495e94cdebf6c7c16b1b55e20",
+                url: "http://photopicker.dev/callback.html"
+            },
+            "photopicker.webdeveric.com": {
+                id: "8f9ed714eaff481995467237175e5dfa",
+                url: "https://photopicker.webdeveric.com/callback.html"
+            }
+        };
 
     FB.init({
         appId: facebookAppIDs[ window.location.host ],
