@@ -83,39 +83,6 @@ define( [
 
     };
 
-    FacebookPhotoProvider.prototype.apiScrape = function( url, parameters, data )
-    {
-        if ( data === void 0 ) {
-            data = [];
-        }
-        var self = this;
-        return this.api( url, parameters ).then( function( results ) {
-            var nextURL = results.paging && results.paging.next ? results.paging.next : false;
-            data = data.concat( results.data );
-            if ( nextURL ) {
-                return self.apiScrape( nextURL, parameters, data );
-            }
-            return data;
-        } );
-    };
-
-    // FacebookPhotoProvider.prototype.processAlbumData = function( data )
-    // {
-    //     console.log("FacebookPhotoProvider.processAlbumData: Called with data", data );
-
-    //     var i = 0,
-    //         l = data.length,
-    //         albums = {};
-
-    //     for ( ; i < l ; ++i ) {
-    //         var album = new Album( data[i].id, data[i].name, "/" + data[i].id + "/photos", data[i].cover_photo );
-    //         this.albums[ album.id ] = album;
-    //         albums[ album.id ] = album;
-    //     }
-
-    //     return albums;
-    // };
-
     FacebookPhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
         return "/" + photo_id;

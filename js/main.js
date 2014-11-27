@@ -43,7 +43,7 @@ define( [
                 $("#preview").empty().append( img );
             }
         }).on("error.photopicker", function( e, error /* , photopicker */ ) {
-            console.log( error.message );
+            console.warn( error.message );
         });
 
         // Lightbox demo

@@ -25,12 +25,12 @@ define( [
 
             if ( self.accessToken !== null ) {
 
-                console.log("Instagram access token already set");
+                console.info("Instagram access token already set");
                 resolve( self );
 
             } else {
 
-                console.log("Trying to get access token from Instagram");
+                console.info("Trying to get access token from Instagram");
 
                 if ( !self.clientID || !self.redirectURI ) {
 
@@ -45,7 +45,7 @@ define( [
 
                         window.receiveInstagramToken = function( token )
                         {
-                            console.log("Instagram access token received");
+                            console.info("Instagram access token received");
                             self.setAccessToken( token );
                             resolve( self );
                             window.receiveInstagramToken = null;
@@ -81,7 +81,7 @@ define( [
     InstagramPhotoProvider.prototype.setAccessToken = function( token )
     {
         this.accessToken = token;
-        console.log("Instagram access token set");
+        console.info("Instagram access token set");
         return this;
     };
 

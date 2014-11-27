@@ -15,7 +15,7 @@ define( [
         this.albums    = {}; // Album.id => Album object
 
         this.currentAlbumID = "default";
-        this.albumsLoaded = false;
+        this.albumsLoaded   = false;
 
         this.addAlbum(
             new Album( "default", "All Photos", this.url )
@@ -34,12 +34,6 @@ define( [
         return album !== false ? album.getURL() : false;
         // return this.url;
     };
-
-    // PhotoProvider.prototype.setURL = function( url )
-    // {
-    //     this.url = url;
-    //     return this;
-    // };
 
     PhotoProvider.prototype.getParameters = function()
     {
@@ -99,10 +93,6 @@ define( [
             i         = 0,
             l         = photo_ids.length;
 
-        // if ( photo_ids.length === 0 ) {
-        //     this.loadPhotos();
-        // }
-
         for ( ; i < l ; ++i ) {
             var photo = this.photos[ photo_ids[ i ] ] || false;
             if ( photo !== false ) {
@@ -117,7 +107,7 @@ define( [
 
     PhotoProvider.prototype.getPhotos = function()
     {
-        console.log("PhotoProvider.getPhotos: Called");
+        console.info("PhotoProvider.getPhotos: Called");
         var self = this,
             promise = new Promise( function( resolve, reject ) {
                 if ( self.getCurrentAlbum().getPhotoIDs().length === 0 ) {
@@ -126,13 +116,13 @@ define( [
                         console.log("PhotoProvider.getPhotos < Promise: Photos loaded", photos );
                         resolve( photos );
                     }, function( error ) {
-                        console.error("PhotoProvider.getPhotos < Promise: Error", error );
+                        console.warn("PhotoProvider.getPhotos < Promise: Error", error );
                         reject( error );
                     });
 
                 } else {
 
-                    console.info("PhotoProvider.getPhotos < Promise: Photos already loaded", self.photos );
+                    console.info("PhotoProvider.getPhotos < Promise: Photos already loaded");
                     resolve( self.getCurrentAlbumPhotos() );
 
                 }
@@ -144,7 +134,7 @@ define( [
 
     PhotoProvider.prototype.loadPhotos = function( url )
     {
-        console.log("PhotoProvider.loadPhotos: loading photos");
+        console.info("PhotoProvider.loadPhotos: loading photos");
 
         var self = this,
             apiURL = url || this.getURL();
@@ -163,7 +153,7 @@ define( [
 
         }
 
-        console.error("PhotoProvider.loadPhotos: URL is false");
+        console.warn("PhotoProvider.loadPhotos: URL is false");
 
         return Promise.reject( new Error("No more photos to load") );
     };
@@ -278,7 +268,7 @@ define( [
 
         if ( this.albumsLoaded ) {
 
-            console.log("The albums have already been loaded.");
+            console.info("The albums have already been loaded.");
 
         } else {
 
@@ -304,28 +294,38 @@ define( [
 
     PhotoProvider.prototype.api = function( /* url, parameters */ )
     {
-        console.log("PhotoProvider.api: Please override this method in your subclasses");
+        console.info("PhotoProvider.api: Please override this method in your subclasses");
         return Promise.resolve( {
             data: [],
             paging: {}
         } );
     };
 
-    PhotoProvider.prototype.apiScrape = function( /* url, parameters */ )
+    PhotoProvider.prototype.apiScrape = function( url, parameters, data )
     {
-        console.log("PhotoProvider.apiScrape: Please override this method in your subclasses");
-        return Promise.reject( new Error("PhotoProvider.apiScrape not implemented.") );
+        if ( data === void 0 ) {
+            data = [];
+        }
+        var self = this;
+        return this.api( url, parameters ).then( function( results ) {
+            var nextURL = self.getNextUrl( results );
+            data = data.concat( results.data );
+            if ( nextURL ) {
+                return self.apiScrape( nextURL, parameters, data );
+            }
+            return data;
+        } );
     };
 
     PhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
     {
-        console.log("PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses");
+        console.info("PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses");
         return "/" + photo_id;
     };
 
     PhotoProvider.prototype.apiGetAlbumURL = function( album_id )
     {
-        console.log("PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses");
+        console.info("PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses");
         return "/" + album_id;
     };
 
