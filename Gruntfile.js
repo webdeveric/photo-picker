@@ -1,95 +1,72 @@
-module.exports = function( grunt ) {
-    "use strict";
+module.exports = function(grunt) {
+  'use strict';
 
-    var openCommand = "open";
+  var jsFiles = [ 'src/**/*.js' ];
 
-    /* jshint ignore:start */
-    if (process.platform === "linux" ) {
-        openCommand = "xdg-open";
+  var config = {
+
+    eslint: {
+      options: {
+        configFile: './.eslintrc'
+      },
+      js: jsFiles
+    },
+
+    jscs: {
+      options: {
+        config: './.jscsrc'
+      },
+      js: jsFiles
+    },
+
+    babel: {
+      options: {
+        sourceMap: true,
+        modules: 'umd',
+        env: {
+          production: {
+            compact: true
+          }
+        }
+      },
+      js: {
+        files: [ {
+          expand: true,
+          cwd: './src/',
+          src: ['*.js'],
+          dest: './lib/'
+        } ]
+      }
+    },
+
+    watch: {
+      js: {
+        files: jsFiles,
+        tasks: [ 'js' ]
+      }
     }
-    /* jshint ignore:end */
+  };
 
-    var jsFiles = [ "Gruntfile.js", "./js/**/*.js", "!./js/**/*.min.js" ],
-        config = {
+  grunt.config.init( config );
 
-            // https://github.com/gruntjs/grunt-contrib-jshint
-            jshint: {
-                src: jsFiles,
-                options: {
-                    jshintrc: "./.jshintrc"
-                }
-            },
+  require('time-grunt')(grunt);
 
-            // https://github.com/jscs-dev/grunt-jscs
-            jscs: {
-                src: jsFiles,
-                options: {
-                    config: "./.jscs.json"
-                }
-            },
+  require('load-grunt-tasks')(grunt);
 
-            // https://github.com/jsoverson/grunt-plato
-            plato: {
-                app: {
-                    options: {
-                        jshint: grunt.file.readJSON(".jshintrc")
-                    },
-                    files: {
-                        "reports/plato": [ "js/**/*.js", "!js/polyfills.js" ]
-                    }
-                }
-            },
+  grunt.task.registerTask(
+    'lint',
+    'Run linting and coding style tasks',
+    [ 'eslint', 'jscs' ]
+  );
 
-            // https://github.com/sindresorhus/grunt-shell
-            shell: {
-                platoreports: {
-                    command: openCommand + " http://photopicker.dev/reports/plato/"
-                }
-            },
+  grunt.task.registerTask(
+    'js',
+    'Validate JS then transpile ES6 to ES5',
+    [ 'lint', 'babel' ]
+  );
 
-            // https://github.com/gruntjs/grunt-contrib-watch
-            watch: {
-                options: {
-                    livereload: true,
-                    spawn: false
-                },
-                js: {
-                    files: jsFiles,
-                    tasks: "js"
-                }
-            }
-
-        };
-
-    grunt.config.init( config );
-
-    // https://github.com/sindresorhus/load-grunt-tasks
-    require("load-grunt-tasks")(grunt);
-
-    grunt.registerTask(
-        "default",
-        [ "watch" ]
-    );
-
-    grunt.registerTask(
-        "js",
-        [ "jshint", "jscs" ]
-    );
-
-    grunt.registerTask(
-        "test",
-        [ "js", "plato", "shell:platoreports" ]
-    );
-
-    var changedFiles = Object.create(null),
-        onChange = grunt.util._.debounce(function() {
-            grunt.config( "jshint.src", Object.keys(changedFiles) );
-            grunt.config( "jscs.src", Object.keys(changedFiles) );
-            changedFiles = Object.create(null);
-        }, 200);
-
-    grunt.event.on("watch", function(action, filepath) {
-        changedFiles[filepath] = action;
-        onChange();
-    });
+  grunt.task.registerTask(
+    'default',
+    [ 'watch' ]
+  );
 };
