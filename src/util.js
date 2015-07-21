@@ -1,41 +1,43 @@
-define( [ "polyfills" ], function() {
-    "use strict";
+export function createObject( proto )
+{
+  if ( Object.create !== void 0 ) {
+    return Object.create( proto );
+  }
 
-    function createObject(proto)
-    {
-        if ( Object.create !== void 0 ) {
-            return Object.create( proto );
-        }
+  function Obj() {}
+  Obj.prototype = proto;
+  return new Obj();
+}
 
-        function Obj() {}
-        Obj.prototype = proto;
-        return new Obj();
+// export function extendClass( Class, ParentClass )
+// {
+//   Class.prototype = createObject( ParentClass.prototype );
+//   Class.prototype.constructor = Class;
+//   return Class;
+// }
+
+export function objectToArray( obj, callback )
+{
+  const data = [];
+
+  for ( let i in obj ) {
+    if ( obj.hasOwnProperty( i ) ) {
+      data[ data.length ] = typeof callback === 'function' ? callback( obj[ i ] ) : obj[ i ];
     }
+  }
 
-    function extendClass( Class, ParentClass )
-    {
-        Class.prototype = createObject( ParentClass.prototype );
-        Class.prototype.constructor = Class;
-        return Class;
-    }
+  return data;
+}
 
-    function objectToArray( obj, callback )
-    {
-        var data = [];
+export function throwIt( error )
+{
+  throw error;
+}
 
-        for ( var i in obj ) {
-            if ( obj.hasOwnProperty(i) ) {
-                data.push( typeof callback === "function" ? callback( obj[ i ] ) : obj[ i ] );
-            }
-        }
+export const log = window.console.log.bind( window.console );
 
-        return data;
-    }
+export const info = window.console.info.bind( window.console );
 
-    return {
-        createObject: createObject,
-        extendClass: extendClass,
-        objectToArray: objectToArray
-    };
+export const warn = window.console.warn.bind( window.console );
 
-});
+export const error = window.console.error.bind( window.console );

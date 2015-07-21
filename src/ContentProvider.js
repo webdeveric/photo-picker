@@ -1,37 +1,31 @@
-define( [ "jquery" ], function( $ ) {
-    "use strict";
+class ContentProvider
+{
+  constructor( content = '', options = {} )
+  {
+    this.content = content;
+    this.options = options;
+  }
 
-    function ContentProvider( content, options )
-    {
-        this.content = content || "";
-        this.options = $.extend({}, options );
-    }
+  bindEvents()
+  {
+    return this;
+  }
 
-    ContentProvider.prototype.bindEvents = function()
-    {
-        return this;
-    };
+  unbindEvents()
+  {
+    return this;
+  }
 
-    ContentProvider.prototype.unbindEvents = function()
-    {
-        return this;
-    };
+  getContent()
+  {
+    return Promise.resolve( this.content );
+  }
 
-    ContentProvider.prototype.getContent = function( callback )
-    {
-        if ( callback ) {
-            return callback.call(callback, this.content, this );
-        } else {
-            return this.content;
-        }
-    };
+  setContent( content )
+  {
+    this.content = content;
+    return this;
+  }
+}
 
-    ContentProvider.prototype.setContent = function( content )
-    {
-        this.content = content;
-        return this;
-    };
-
-    return ContentProvider;
-
-});
+export default ContentProvider;

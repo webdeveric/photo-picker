@@ -1,137 +1,206 @@
-define( [
-    "jquery",
-    "util",
-    "Photo",
-    "Album",
-    "PhotoProvider",
-    "facebook"
-], function( $, util, Photo, Album, PhotoProvider, FB ) {
-    "use strict";
+import $ from 'jquery';
+import Photo from './Photo';
+import Album from './Album';
+import PhotoProvider from './PhotoProvider';
+import FB from 'facebook';
 
-    function FacebookPhotoProvider()
-    {
-        PhotoProvider.call( this, "/me/photos/uploaded", "/me/albums" );
+class FacebookPhotoProvider extends PhotoProvider
+{
+  constructor()
+  {
+    super('/me/photos/uploaded', '/me/albums');
+    this.name = 'facebook';
+    this.scopes = [ 'public_profile', 'user_photos' ];
+    this.rejected = false;
+  }
+
+  login()
+  {
+    const parameters = {
+      scope: this.scopes.join(','),
+      return_scopes: true,
+      display: 'popup'
+    };
+
+    if ( this.rejected ) {
+      parameters.auth_type = 'rerequest';
     }
 
-    util.extendClass( FacebookPhotoProvider, PhotoProvider );
+    return new Promise( ( resolve, reject ) => {
 
-    FacebookPhotoProvider.prototype.init = function()
-    {
-        var self = this;
-        return new Promise( function( resolve, reject ) {
+      FB.login( ( response ) => {
 
-            FB.getLoginStatus( function(response) {
+        if ( response.authResponse ) {
 
-                if ( response.status === "connected" ) {
+          if ( response.authResponse.grantedScopes ) {
 
-                    resolve( self );
+            const ok = this.scopes.every( ( scope ) => {
+              if ( ! response.authResponse.grantedScopes.includes( scope ) ) {
+                reject( new Error( `User did not provide ${scope} access.` ) );
+                return false; // this breaks the loop.
+              }
 
-                } else {
-
-                    FB.login( function(response) {
-
-                        if ( response.authResponse ) {
-                            resolve( self );
-                        } else {
-                            reject( new Error("User cancelled login or did not fully authorize.") );
-                        }
-
-                    }, {
-                        scope: "public_profile,email,user_photos"
-                    });
-
-                }
+              return true;
             });
 
-        });
-    };
+            if ( ok ) {
+              resolve( response );
+            }
 
-    FacebookPhotoProvider.prototype.api = function( url, parameters )
-    {
-        // console.log("FacebookPhotoProvider.api", url, parameters );
+          } else {
 
-        parameters = $.extend( this.getParameters(), parameters );
+            reject( new Error( 'User did not provide correct access.' ) );
 
-        if ( url === void 0 ) {
-            return Promise.reject( new Error("FacebookPhotoProvider.api: URL is undefined") );
-        }
-
-        return new Promise( function( resolve, reject ) {
-
-            FB.api(
-                url,
-                parameters,
-                function(response) {
-                    if ( response && !response.error ) {
-
-                        resolve( response );
-
-                    } else {
-
-                        if ( response.error.message ) {
-                            reject( new Error( response.error.message ) );
-                        } else {
-                            reject( new Error("FB.api failed") );
-                        }
-
-                    }
-                }
-            );
-
-        });
-
-    };
-
-    FacebookPhotoProvider.prototype.apiGetPhotoURL = function( photo_id )
-    {
-        return "/" + photo_id;
-    };
-
-    FacebookPhotoProvider.prototype.apiGetAlbumURL = function( album_id )
-    {
-        return "/" + album_id;
-    };
-
-    FacebookPhotoProvider.prototype.apiGetAlbumPhotosURL = function( album_id )
-    {
-        return "/" + album_id + "/photos";
-    };
-
-    FacebookPhotoProvider.prototype.getNextUrl = function( results )
-    {
-        return results.paging && results.paging.next ? results.paging.next : false;
-    };
-
-    FacebookPhotoProvider.prototype.buildPhoto = function( data )
-    {
-        var source,
-            thumbnail;
-
-        if ( data.images.length > 1 ) {
-
-            source = data.images.shift().source;
-            thumbnail = data.images.pop().source;
+          }
 
         } else {
 
-            source = data.source;
-            thumbnail = data.picture;
+          reject( new Error( 'User cancelled login or did not fully authorize.' ) );
+
+        }
+      }, parameters );
+
+    });
+  }
+
+  init()
+  {
+    return new Promise( ( resolve, reject ) => {
+
+      FB.getLoginStatus( ( response ) => {
+
+        if ( response.status === 'connected' ) {
+
+          this.api( '/me/permissions', {} ).then( ( res ) => {
+
+            res.data.every( ( d ) => {
+              if ( d.status !== 'granted' ) {
+                this.rejected = true;
+                return false;
+              }
+
+              return true;
+            });
+
+            return this.rejected;
+
+          }).then( ( rejected ) => {
+
+            if ( rejected ) {
+              this.login().then( () => {
+                resolve( this );
+              }, function( error ) {
+                reject( error );
+              });
+            } else {
+              resolve( this );
+            }
+
+          });
+
+        } else {
+
+          this.login().then(
+            () => {
+              resolve( this );
+            },
+            reject
+          );
 
         }
 
-        return new Photo( data.id, source, thumbnail );
-    };
+      });
 
-    FacebookPhotoProvider.prototype.buildAlbum = function( data )
-    {
-        return new Album(
-            data.id,
-            data.name,
-            this.apiGetAlbumPhotosURL( data.id ),
-            data.cover_photo
-        );
-    };
+    });
 
-    return FacebookPhotoProvider;
+  }
 
-});
+  api( url, parameters = {} )
+  {
+    parameters = $.extend( this.getParameters(), parameters );
+
+    if ( url === void 0 ) {
+      return Promise.reject( new Error('FacebookPhotoProvider.api: URL is undefined') );
+    }
+
+    return new Promise( ( resolve, reject ) => {
+
+      FB.api(
+        url,
+        parameters,
+        ( response ) => {
+
+          if ( response && ! response.error ) {
+
+            resolve( response );
+
+          } else {
+
+            if ( response.error.message ) {
+              reject( new Error( response.error.message ) );
+            } else {
+              reject( new Error( 'FB.api failed' ) );
+            }
+
+          }
+
+        }
+      );
+
+    });
+
+  }
+
+  apiGetPhotoURL( photoId )
+  {
+    return '/' + photoId;
+  }
+
+  apiGetAlbumURL( albumId )
+  {
+    return '/' + albumId;
+  }
+
+  apiGetAlbumPhotosURL( albumId )
+  {
+    return '/' + albumId + '/photos';
+  }
+
+  getNextUrl( results )
+  {
+    return results.paging && results.paging.next ? results.paging.next : false;
+  }
+
+  buildPhoto( data )
+  {
+    let source,
+        thumbnail;
+
+    if ( data.images.length > 1 ) {
+
+      source    = data.images.shift().source;
+      thumbnail = data.images.pop().source;
+
+    } else {
+
+      source    = data.source;
+      thumbnail = data.picture;
+
+    }
+
+    return new Photo( data.id, source, thumbnail );
+  }
+
+  buildAlbum( data )
+  {
+    return new Album(
+      data.id,
+      data.name,
+      this.apiGetAlbumPhotosURL( data.id ),
+      data.cover_photo
+    );
+  }
+
+}
+
+export default FacebookPhotoProvider;

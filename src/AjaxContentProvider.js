@@ -1,55 +1,56 @@
-define( [
-    "jquery",
-    "util",
-    "ContentProvider"
-], function( $, util, ContentProvider ) {
-    "use strict";
+import $ from 'jquery';
+import ContentProvider from './ContentProvider';
 
-    function AjaxContentProvider( url, options )
-    {
-        ContentProvider.call(this, null, null, options);
-        this.url = url;
-        this.options = $.extend(
-            this.options,
-            {
-                ajaxOptions: {},
-                processData: function( data /* , textStatus, jqXHR */ ) {
-                    return data;
-                }
-            },
-            options
-        );
+class AjaxContentProvider extends ContentProvider
+{
+  constructor( url = '', {
+    alwaysFetch = false,
+    ajaxOptions = {},
+    processData = function( data ) {
+      return data;
+    }
+  } = {} )
+  {
+    super( '', { alwaysFetch, ajaxOptions, processData } );
+
+    this.url = url;
+  }
+
+  fetchContent()
+  {
+    return new Promise( ( resolve, reject ) => {
+
+      $.ajax( this.url, this.options.ajaxOptions ).done( (data, textStatus, jqXHR) => {
+
+        if ( this.options.processData ) {
+
+          this.setContent( this.options.processData( data, textStatus, jqXHR ) );
+
+        } else {
+
+          this.setContent( data );
+
+        }
+
+        resolve( this.content );
+
+      }).fail( ( jqXHR, textStatus, errorThrown ) => {
+
+        reject( new Error( errorThrown ) );
+
+      });
+
+    });
+  }
+
+  getContent()
+  {
+    if ( this.options.alwaysFetch || ! this.content ) {
+      return this.fetchContent();
     }
 
-    util.extendClass( AjaxContentProvider, ContentProvider );
+    return super.getContent();
+  }
+}
 
-    AjaxContentProvider.prototype.fetchContent = function( callback )
-    {
-        var self = this;
-        return $.ajax( this.url, this.options.ajaxOptions ).done( function(data, textStatus, jqXHR) {
-            if ( self.options.processData ) {
-                self.setContent( self.options.processData.call( self, data, textStatus, jqXHR ) );
-            }
-            if ( callback ) {
-                callback.call(callback, self.content, self);
-            }
-        });
-    };
-
-    AjaxContentProvider.prototype.getContent = function( callback )
-    {
-        if ( !this.content ) {
-            this.fetchContent( callback ).done( $.proxy( this.render, this ) );
-            return;
-        }
-
-        if ( callback ) {
-            return callback.call(callback, this.content, this);
-        } else {
-            return this.content;
-        }
-    };
-
-    return AjaxContentProvider;
-
-});
+export default AjaxContentProvider;

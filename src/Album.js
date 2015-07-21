@@ -1,65 +1,73 @@
-define( [ "Photo" ], function( Photo ) {
-    "use strict";
+import Photo from './Photo';
 
-    function Album( id, name, photosURL, cover_photo )
-    {
-        this.id          = id;
-        this.name        = name;
-        this.photosURL   = photosURL;
-        this.photoIDs    = [];
-        this.cover_photo = cover_photo;
-        this.photo       = null; // This should hold a Photo object for the cover photo;
+class Album
+{
+  constructor( id, name, photosURL = '', coverPhoto = '' )
+  {
+    this.id         = id;
+    this.name       = name;
+    this.photosURL  = photosURL;
+    this.coverPhoto = coverPhoto;
+    this.photoIDs   = [];
+    this.photo      = null; // This should hold a Photo object for the cover photo;
+  }
+
+  addPhotoID( id )
+  {
+    this.photoIDs.push( id );
+    return this;
+  }
+
+  getPhotoIDs()
+  {
+    return this.photoIDs || [];
+  }
+
+  getURL()
+  {
+    return this.photosURL || false;
+  }
+
+  setURL( url )
+  {
+    this.photosURL = url;
+    return this;
+  }
+
+  getHTML()
+  {
+    const item      = document.createElement('div'),
+          imgWraper = document.createElement('div'),
+          caption   = document.createElement('div');
+
+    let img = null;
+
+    if ( this.photo instanceof Photo ) {
+      img = this.photo.getThumbnailImg();
+    } else {
+      img = document.createElement('div');
+      img.className = 'image-placeholder';
     }
 
-    Album.prototype.addPhotoID = function( photo_id ) {
-        this.photoIDs.push( photo_id );
-        return this;
-    };
+    item.className      = 'photo-box album';
+    imgWraper.className = 'image-wrapper';
+    caption.className   = 'caption';
 
-    Album.prototype.getPhotoIDs = function()
-    {
-        return this.photoIDs || [];
-    };
+    caption.appendChild( document.createTextNode( this.name ) );
 
-    Album.prototype.getURL = function()
-    {
-        return this.photosURL || false;
-    };
+    imgWraper.appendChild( img );
+    item.appendChild( imgWraper );
+    item.appendChild( caption );
 
-    Album.prototype.setURL = function( url )
-    {
-        this.photosURL = url;
-        return this;
-    };
+    item.setAttribute('data-album-id', this.id );
 
-    Album.prototype.getHTML = function()
-    {
-        var item      = document.createElement("div"),
-            imgWraper = document.createElement("div"),
-            caption   = document.createElement("div"),
-            img       = null;
+    return item;
+  }
 
-        if ( this.photo instanceof Photo ) {
-            img = this.photo.getThumbnailImg();
-        } else {
-            img = document.createElement("div");
-            img.className = "image-placeholder";
-        }
+  hasPhotos()
+  {
+    return this.photoIDs.length > 0;
+  }
+}
 
-        item.className      = "photo-box album";
-        imgWraper.className = "image-wrapper";
-        caption.className   = "caption";
-
-        caption.appendChild( document.createTextNode( this.name ) );
-
-        imgWraper.appendChild( img );
-        item.appendChild( imgWraper );
-        item.appendChild( caption );
-
-        item.setAttribute("data-album-id", this.id );
-
-        return item;
-    };
-
-    return Album;
-});
+export default Album;

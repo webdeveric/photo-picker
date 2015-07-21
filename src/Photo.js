@@ -1,143 +1,106 @@
-define( function() {
-    "use strict";
+class Photo
+{
+  constructor( id, src, thumbnail, likes = 0, tags = [], description = '' )
+  {
+    this.id          = id;
+    this.src         = src;
+    this.thumbnail   = thumbnail;
+    this.likes       = likes;
+    this.tags        = tags;
+    this.description = description;
+  }
 
-    function Photo( id, src, thumbnail, likes, tags, description )
-    {
-        this.id          = id;
-        this.src         = src;
-        this.thumbnail   = thumbnail;
-        this.likes       = likes || 0;
-        this.tags        = tags || [];
-        this.description = description || "";
+  addTag( tag )
+  {
+    if ( Array.isArray( this.tags ) ) {
+      this.tags.push( tag );
     }
 
-    Photo.prototype.addTag = function( tag ) {
-        this.tags.push( tag );
-        return this;
-    };
+    return this;
+  }
 
-    Photo.prototype.setDescription = function( description ) {
-        if ( description ) {
-            this.description = description;
-        }
-        return this;
-    };
+  setDescription( description )
+  {
+    if ( description ) {
+      this.description = description;
+    }
 
-    Photo.prototype.setTags = function( tags ) {
-        if ( tags ) {
-            this.tags = [];
+    return this;
+  }
 
-            var i = 0,
-                l = tags.length;
+  setTags( tags )
+  {
+    if ( tags ) {
+      this.tags = [];
+      Array.prototype.push.apply( this.tags, tags );
+    }
 
-            for ( ; i < l ; ) {
-                this.tags.push( tags[ i ] );
-            }
-        }
-        return this;
-    };
+    return this;
+  }
 
-    Photo.prototype.incrementLikes = function() {
-        ++this.likes;
-        return this;
-    };
+  incrementLikes()
+  {
+    ++this.likes;
+    return this;
+  }
 
-    Photo.prototype.getSrc = function() {
-        return this.src;
-    };
+  getSrc()
+  {
+    return this.src;
+  }
 
-    Photo.prototype.getThumbnail = function() {
-        return this.thumbnail;
-    };
+  getThumbnail()
+  {
+    return this.thumbnail;
+  }
 
-    // Photo.prototype.getThumbnailImg = function()
-    // {
-    //     var self = this;
-    //     return new Promise( function( resolve, reject ) {
+  getThumbnailImg()
+  {
+    if ( ! this.thumbnail ) {
 
-    //         if ( !self.thumbnail ) {
+      return false;
 
-    //             reject( new Error("No thumbnail found") );
+    } else {
 
-    //         } else {
-
-    //             var img = new Image(),
-    //                 resetImg = function( img ) {
-    //                     img.className = "";
-    //                     img.onload = img.onerror = img.onabort = null;
-    //                 };
-
-    //             img.id = self.id;
-    //             img.className = "image-loading";
-
-    //             img.onload = function() {
-    //                 resetImg( this );
-    //             };
-
-    //             img.onerror = img.onabort = function() {
-    //                 resetImg( this );
-    //                 this.parentNode.removeChild( this );
-    //             };
-
-    //             img.src = self.thumbnail;
-
-    //             resolve( img );
-
-    //         }
-
-    //     });
-    // };
-
-    Photo.prototype.getThumbnailImg = function()
-    {
-        if ( !this.thumbnail ) {
-
-            return false;
-
-        } else {
-
-            var img = new Image(),
-                resetImg = function( img ) {
-                    img.className = "";
-                    img.onload = img.onerror = img.onabort = null;
-                };
-
-            img.id = this.id;
-            img.className = "image-loading";
-
-            img.onload = function() {
-                resetImg( this );
+      const img = new Image(),
+            resetImg = function( i ) {
+              i.className = '';
+              i.onload = i.onerror = i.onabort = null;
             };
 
-            img.onerror = img.onabort = function() {
-                resetImg( this );
-                this.parentNode.removeChild( this );
-            };
+      img.id = this.id;
+      img.className = 'image-loading';
 
-            img.src = this.thumbnail;
+      img.onload = function() {
+        resetImg( this );
+      };
 
-            return img;
+      img.onerror = img.onabort = function() {
+        resetImg( this );
+        this.parentNode.removeChild( this );
+      };
 
-        }
+      img.src = this.thumbnail;
 
-    };
+      return img;
+    }
+  }
 
-    Photo.prototype.getHTML = function()
-    {
-        var item      = document.createElement("div"),
-            imgWraper = document.createElement("div"),
-            img       = this.getThumbnailImg();
+  getHTML()
+  {
+    const item      = document.createElement('div'),
+          imgWraper = document.createElement('div'),
+          img       = this.getThumbnailImg();
 
-        item.className = "photo-box photo";
-        imgWraper.className = "image-wrapper";
-        imgWraper.appendChild( img );
-        item.appendChild( imgWraper );
+    item.className = 'photo-box photo';
+    imgWraper.className = 'image-wrapper';
+    imgWraper.appendChild( img );
+    item.appendChild( imgWraper );
 
-        item.setAttribute("data-photo-id", this.id );
+    item.setAttribute('data-photo-id', this.id );
 
-        return item;
-    };
+    return item;
+  }
+}
 
-    return Photo;
-
-});
+export default Photo;
