@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
   'use strict';
 
-  var jsFiles = [ 'src/**/*.js' ];
+  var jsFiles = [ 'src/**/*.js', 'example/main.js' ];
 
   var config = {
 
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
     babel: {
       options: {
         sourceMap: true,
-        modules: 'umd',
+        // modules: 'umd',
         env: {
           production: {
             compact: true
@@ -39,11 +39,22 @@ module.exports = function(grunt) {
       }
     },
 
+    browserify: {
+      js: {
+        options: {
+          transform: [ 'babelify' ]
+        },
+        files: {
+          'example/main.min.js': 'example/main.js'
+        }
+      }
+    },
+
     watch: {
       js: {
         files: jsFiles,
         tasks: [ 'js' ]
-      }
+      },
     }
   };
 
@@ -62,7 +73,7 @@ module.exports = function(grunt) {
   grunt.task.registerTask(
     'js',
     'Validate JS then transpile ES6 to ES5',
-    [ 'lint', 'babel' ]
+    [ 'lint', 'babel', 'browserify' ]
   );
 
   grunt.task.registerTask(
