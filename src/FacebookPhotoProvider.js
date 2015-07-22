@@ -2,14 +2,15 @@ import $ from 'jquery';
 import Photo from './Photo';
 import Album from './Album';
 import PhotoProvider from './PhotoProvider';
-import FB from 'facebook';
+import getFB from './facebook-sdk';
 
 class FacebookPhotoProvider extends PhotoProvider
 {
-  constructor()
+  constructor( sdkSettings = {} )
   {
     super('/me/photos/uploaded', '/me/albums');
     this.name = 'facebook';
+    this.sdkSettings = sdkSettings;
     this.scopes = [ 'public_profile', 'user_photos' ];
     this.rejected = false;
   }
@@ -28,37 +29,46 @@ class FacebookPhotoProvider extends PhotoProvider
 
     return new Promise( ( resolve, reject ) => {
 
-      FB.login( ( response ) => {
+      getFB( this.sdkSettings ).then(
+        ( FB ) => {
 
-        if ( response.authResponse ) {
+          FB.login( ( response ) => {
 
-          if ( response.authResponse.grantedScopes ) {
+            if ( response.authResponse ) {
 
-            const ok = this.scopes.every( ( scope ) => {
-              if ( ! response.authResponse.grantedScopes.includes( scope ) ) {
-                reject( new Error( `User did not provide ${scope} access.` ) );
-                return false; // this breaks the loop.
+              if ( response.authResponse.grantedScopes ) {
+
+                const ok = this.scopes.every( ( scope ) => {
+                  if ( ! response.authResponse.grantedScopes.includes( scope ) ) {
+                    reject( new Error( `User did not provide ${scope} access.` ) );
+                    return false; // this breaks the loop.
+                  }
+
+                  return true;
+                });
+
+                if ( ok ) {
+                  resolve( response );
+                }
+
+              } else {
+
+                reject( new Error( 'User did not provide correct access.' ) );
+
               }
 
-              return true;
-            });
+            } else {
 
-            if ( ok ) {
-              resolve( response );
+              reject( new Error( 'User cancelled login or did not fully authorize.' ) );
+
             }
+          }, parameters );
 
-          } else {
+        },
 
-            reject( new Error( 'User did not provide correct access.' ) );
-
-          }
-
-        } else {
-
-          reject( new Error( 'User cancelled login or did not fully authorize.' ) );
-
-        }
-      }, parameters );
+        // getFB failed
+        reject
+      );
 
     });
   }
@@ -67,49 +77,49 @@ class FacebookPhotoProvider extends PhotoProvider
   {
     return new Promise( ( resolve, reject ) => {
 
-      FB.getLoginStatus( ( response ) => {
+      getFB( this.sdkSettings ).then(
 
-        if ( response.status === 'connected' ) {
+        ( FB ) => {
 
-          this.api( '/me/permissions', {} ).then( ( res ) => {
+          FB.getLoginStatus( ( response ) => {
 
-            res.data.every( ( d ) => {
-              if ( d.status !== 'granted' ) {
-                this.rejected = true;
-                return false;
-              }
+            if ( response.status === 'connected' ) {
 
-              return true;
-            });
+              this.api( '/me/permissions', {} ).then( ( res ) => {
 
-            return this.rejected;
+                res.data.every( ( d ) => {
+                  if ( d.status !== 'granted' ) {
+                    this.rejected = true;
+                    return false;
+                  }
 
-          }).then( ( rejected ) => {
+                  return true;
+                });
 
-            if ( rejected ) {
-              this.login().then( () => {
-                resolve( this );
-              }, function( error ) {
-                reject( error );
+                return this.rejected;
+
+              }).then( ( rejected ) => {
+
+                if ( rejected ) {
+                  this.login().then( () => { resolve( this ); }, reject );
+                } else {
+                  resolve( this );
+                }
+
               });
+
             } else {
-              resolve( this );
+
+              this.login().then( () => { resolve( this ); }, reject );
+
             }
 
           });
+        },
 
-        } else {
-
-          this.login().then(
-            () => {
-              resolve( this );
-            },
-            reject
-          );
-
-        }
-
-      });
+        // getFB failed
+        reject
+      );
 
     });
 
@@ -125,26 +135,36 @@ class FacebookPhotoProvider extends PhotoProvider
 
     return new Promise( ( resolve, reject ) => {
 
-      FB.api(
-        url,
-        parameters,
-        ( response ) => {
+      getFB( this.sdkSettings ).then(
 
-          if ( response && ! response.error ) {
+        ( FB ) => {
 
-            resolve( response );
+          FB.api(
+            url,
+            parameters,
+            ( response ) => {
 
-          } else {
+              if ( response && ! response.error ) {
 
-            if ( response.error.message ) {
-              reject( new Error( response.error.message ) );
-            } else {
-              reject( new Error( 'FB.api failed' ) );
+                resolve( response );
+
+              } else {
+
+                if ( response.error.message ) {
+                  reject( new Error( response.error.message ) );
+                } else {
+                  reject( new Error( 'FB.api failed' ) );
+                }
+
+              }
+
             }
+          );
 
-          }
+        },
 
-        }
+        // getFB failed
+        reject
       );
 
     });
