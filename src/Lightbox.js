@@ -1,6 +1,6 @@
 import $ from 'jquery';
-import ContentProvider from 'ContentProvider';
-import AjaxContentProvider from 'AjaxContentProvider';
+import ContentProvider from './ContentProvider';
+import AjaxContentProvider from './AjaxContentProvider';
 
 class Lightbox
 {
@@ -193,7 +193,7 @@ $.fn.lightbox = function( options )
     event.stopPropagation();
 
     let provider   = null,
-        $target    = $(event.currentTarget),
+        $target    = $(event.target),
         href       = $target.data('lightbox-href') || $target.attr('href') || false,
         content    = $target.data('lightbox-content') || false,
         template   = $target.data('lightbox-template') || false,
