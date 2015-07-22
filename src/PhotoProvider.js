@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import Photo from './Photo';
 import Album from './Album';
 
@@ -195,7 +194,7 @@ class PhotoProvider
       return Promise.resolve( this.albums );
     }
 
-    return this.apiScrape( this.albumsurl, this.getParameters() ).then( $.proxy( this.processAlbumData, this ) );
+    return this.apiScrape( this.albumsurl, this.getParameters() ).then( this.processAlbumData.bind( this ) );
   }
 
   apiGetPhoto( photoId )
@@ -272,9 +271,9 @@ class PhotoProvider
   {
     return this.api( url, parameters ).then(
       ( results ) => {
-        const nextURL = self.getNextUrl( results );
+        const nextURL = this.getNextUrl( results );
 
-        Array.prototype.push.call( data, results.data );
+        Array.prototype.push.apply( data, results.data );
 
         if ( nextURL ) {
           return this.apiScrape( nextURL, parameters, data );
