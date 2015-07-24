@@ -3,15 +3,23 @@ import Photo from './Photo';
 import Album from './Album';
 import PhotoProvider from './PhotoProvider';
 import getFB from './facebook-sdk';
+import { debug } from './util';
 
 class FacebookPhotoProvider extends PhotoProvider
 {
   constructor( sdkSettings = {} )
   {
-    super('/me/photos/uploaded', '/me/albums');
+    super(
+      '/me/photos?type=uploaded&fields=id,images,from',
+      '/me/albums?fields=id,name,count,cover_photo{id,images,picture,source},description,type,privacy'
+    );
+
     this.name = 'facebook';
     this.sdkSettings = sdkSettings;
-    this.scopes = [ 'public_profile', 'user_photos' ];
+
+    this.sdkSettings.version = 'v2.4';
+
+    this.scopes = [ 'public_profile', 'user_photos', 'user_videos' ];
     this.rejected = false;
   }
 
@@ -129,6 +137,8 @@ class FacebookPhotoProvider extends PhotoProvider
   {
     parameters = $.extend( this.getParameters(), parameters );
 
+    debug.log( url );
+
     if ( url === void 0 ) {
       return Promise.reject( new Error('FacebookPhotoProvider.api: URL is undefined') );
     }
@@ -146,15 +156,15 @@ class FacebookPhotoProvider extends PhotoProvider
 
               if ( response && ! response.error ) {
 
+                debug.log( 'FB api response', response );
                 resolve( response );
 
               } else {
 
-                if ( response.error.message ) {
-                  reject( new Error( response.error.message ) );
-                } else {
-                  reject( new Error( 'FB.api failed' ) );
-                }
+                const error = new Error( response.error.message ? response.error.message : 'FB.api failed' );
+
+                debug.error( 'FB api error', error );
+                reject( error );
 
               }
 
@@ -173,17 +183,18 @@ class FacebookPhotoProvider extends PhotoProvider
 
   apiGetPhotoURL( photoId )
   {
-    return '/' + photoId;
+    return `/${photoId}?fields=id,images,picture,source,from`;
   }
 
   apiGetAlbumURL( albumId )
   {
-    return '/' + albumId;
+    return `/${albumId}?fields=id,name,count,cover_photo{id,images,picture,source},description,type,privacy`;
+    // ?fields=id,name,description,type,from,privacy,photos{id,images,from},count
   }
 
   apiGetAlbumPhotosURL( albumId )
   {
-    return '/' + albumId + '/photos';
+    return `/${albumId}/photos?fields=id,images,from`;
   }
 
   getNextUrl( results )
@@ -213,12 +224,22 @@ class FacebookPhotoProvider extends PhotoProvider
 
   buildAlbum( data )
   {
-    return new Album(
+    debug.log( data );
+
+    const album = new Album(
       data.id,
       data.name,
-      this.apiGetAlbumPhotosURL( data.id ),
-      data.cover_photo
+      this.apiGetAlbumPhotosURL( data.id )
     );
+
+    if ( typeof data.cover_photo === 'object' && data.cover_photo.id ) {
+      let photo = this.buildPhoto( data.cover_photo );
+      this.addPhoto( photo );
+      album.photo = photo;
+      album.coverPhoto = data.cover_photo.id;
+    }
+
+    return album;
   }
 
 }

@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { objectToArray, warn } from './util';
+import { objectToArray, debug } from './util';
 import ContentProvider from './ContentProvider';
 import Lightbox from './Lightbox';
 import PhotoProvider from './PhotoProvider';
@@ -181,7 +181,7 @@ class PhotoPicker extends ContentProvider
           }
 
         } else {
-          console.error('PhotoPicker and PhotoProvider not initialized properly');
+          debug.error('PhotoPicker and PhotoProvider not initialized properly');
         }
 
       },
@@ -224,26 +224,13 @@ class PhotoPicker extends ContentProvider
   {
     if ( ! this.albumsRendered ) {
 
-      const albumPromises = objectToArray( albums, ( album ) => {
-        if ( album.cover_photo ) {
-          return this.photoProvider.apiGetPhoto( album.cover_photo ).then( ( photo ) => {
-            album.photo = photo;
-            return album;
-          });
-        }
+      debug.log( albums );
 
-        return Promise.resolve( album );
+      objectToArray( albums ).forEach( ( album ) => {
+        this.albumsPanel.append( album.getHTML() );
       });
 
-      return Promise.all( albumPromises ).then( ( a ) => {
-
-        a.forEach( ( album ) => {
-          this.albumsPanel.append( album.getHTML() );
-        });
-
-        this.albumsRendered = true;
-      });
-
+      this.albumsRendered = true;
     }
 
     return albums;
@@ -269,15 +256,14 @@ class PhotoPicker extends ContentProvider
   {
     this.toggleLoadingClass( true );
 
-    const removeLoadingClass = () => {
+    const cleanUp = () => {
       this.toggleLoadingClass( false );
+      this.toggleLoadMoreDisabled();
     };
 
     return this.photoProvider.loadPhotos().then(
-      $.proxy( this.renderPhotos, this )
-    ).then(
-      $.proxy( this.toggleLoadMoreDisabled, this )
-    ).then( removeLoadingClass, removeLoadingClass );
+      this.renderPhotos.bind( this )
+    ).then( cleanUp, cleanUp );
   }
 
   toggleLoadMoreDisabled( disabled )
@@ -295,9 +281,11 @@ class PhotoPicker extends ContentProvider
   {
     this.toggleLoadMoreDisabled( true );
 
-    this.loadPhotos().catch( warn ).then( () => {
-      this.toggleLoadMoreDisabled( false );
-    });
+    const toggleButton = () => {
+      this.toggleLoadMoreDisabled();
+    };
+
+    this.loadPhotos().catch( debug.warn ).then( toggleButton, toggleButton );
   }
 
   clearSelected( selector )
@@ -457,8 +445,10 @@ class PhotoPicker extends ContentProvider
 
     const photo = this.getSelectedPhoto();
 
+    // debug.info( this.selectedPhoto, photo );
+
     if ( photo !== false ) {
-      this.trigger('selected.photopicker', [ photo.getSrc(), this.photoProvider.getName() ] );
+      this.trigger('selected.photopicker', [ photo, this.photoProvider ] );
       this.close();
     }
   }

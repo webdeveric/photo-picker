@@ -1,5 +1,6 @@
 import Photo from './Photo';
 import Album from './Album';
+import { throwIt, debug } from './util';
 
 class PhotoProvider
 {
@@ -9,7 +10,7 @@ class PhotoProvider
 
     this.url       = url;
     this.albumsurl = albumsurl;
-    this.limit     = 32;
+    this.limit     = 64;
 
     this.photos    = {}; // Photo.id => Photo object
     this.albums    = {}; // Album.id => Album object
@@ -134,9 +135,7 @@ class PhotoProvider
         ( results ) => {
           return this.processResults( results );
         },
-        ( error ) => {
-          throw error;
-        }
+        throwIt
       );
 
     }
@@ -205,11 +204,14 @@ class PhotoProvider
       return Promise.resolve( photo );
     }
 
-    return this.api( this.apiGetPhotoURL( photoId ), this.getParameters() ).then( ( data ) => {
-      photo = this.buildPhoto( data );
-      this.addPhoto( photo );
-      return photo;
-    });
+    return this.api( this.apiGetPhotoURL( photoId ), this.getParameters() ).then(
+      ( data ) => {
+        photo = this.buildPhoto( data );
+        this.addPhoto( photo );
+        return photo;
+      },
+      throwIt
+    );
   }
 
   apiGetAlbum( albumId )
@@ -260,7 +262,7 @@ class PhotoProvider
 
   api( /* url, parameters */ )
   {
-    // console.info('PhotoProvider.api: Please override this method in your subclasses');
+    debug.info('PhotoProvider.api: Please override this method in your subclasses');
     return Promise.resolve( {
       data: [],
       paging: {}
@@ -273,7 +275,7 @@ class PhotoProvider
       ( results ) => {
         const nextURL = this.getNextUrl( results );
 
-        Array.prototype.push.apply( data, results.data );
+        data.push( ...results.data );
 
         if ( nextURL ) {
           return this.apiScrape( nextURL, parameters, data );
@@ -281,21 +283,19 @@ class PhotoProvider
 
         return data;
       },
-      ( error ) => {
-        throw error;
-      }
+      throwIt
     );
   }
 
   apiGetPhotoURL( photoId )
   {
-    // console.info('PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses');
+    debug.info('PhotoProvider.apiGetPhotoURL: Please override this method in your subclasses');
     return '/' + photoId;
   }
 
   apiGetAlbumURL( albumId )
   {
-    // console.info('PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses');
+    debug.info('PhotoProvider.apiGetAlbumURL: Please override this method in your subclasses');
     return '/' + albumId;
   }
 
