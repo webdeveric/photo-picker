@@ -34,10 +34,48 @@ export function throwIt( error )
   throw error;
 }
 
-export const log = window.console.log.bind( window.console );
+export const debug = {
 
-export const info = window.console.info.bind( window.console );
+  enabled: true,
+  useGroup: false,
 
-export const warn = window.console.warn.bind( window.console );
+  console: ( type = 'log', ...args ) => {
 
-export const error = window.console.error.bind( window.console );
+    const console = window.console;
+
+    if ( ! console ) {
+      return;
+    }
+
+    if ( debug.enabled && console[ type ] ) {
+
+      if ( debug.useGroup && console.group ) {
+        console.group();
+      }
+
+      args.forEach( ( arg ) => console[ type ]( arg ) );
+
+      if ( debug.useGroup && console.groupEnd ) {
+        console.groupEnd();
+      }
+
+    }
+  },
+
+  log: ( ...args ) => {
+    debug.console( 'log', ...args );
+
+  },
+
+  info: ( ...args ) => {
+    debug.console( 'info', ...args );
+  },
+
+  warn: ( ...args ) => {
+    debug.console( 'warn', ...args );
+  },
+
+  error: ( ...args ) => {
+    debug.console( 'error', ...args );
+  }
+};

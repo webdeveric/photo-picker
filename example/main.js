@@ -45,8 +45,7 @@ $(function() {
   var facebookPhotoProvider = new FacebookPhotoProvider({
         appId: facebookAppIDs[ window.location.host ],
         status: true,
-        xfbml: false,
-        version: 'v2.2'
+        xfbml: false
       }),
       instagramPhotoProvider = new InstagramPhotoProvider(
         instagramClient[ window.location.host ].id,
