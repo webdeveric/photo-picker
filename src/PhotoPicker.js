@@ -83,35 +83,35 @@ class PhotoPicker extends ContentProvider
 
   bindEvents()
   {
-    $(document.documentElement).on('keyup.photopicker', $.proxy( this.handleKeyup, this ) );
+    $(document.documentElement).on('keyup.photopicker', this.handleKeyup.bind( this ) );
 
     if ( this.photosPanel ) {
-      this.photosPanel.on('click.photopicker', '.photo', $.proxy( this.handlePhotoClick, this ) );
-      this.photosPanel.on('dblclick.photopicker', '.photo', $.proxy( this.handlePhotoDoubleClick, this ) );
+      this.photosPanel.on('click.photopicker', '.photo', this.handlePhotoClick.bind( this ) );
+      this.photosPanel.on('dblclick.photopicker', '.photo', this.handlePhotoDoubleClick.bind( this ) );
     }
 
     if ( this.albumsPanel ) {
-      this.albumsPanel.on('click.photopicker', '.album', $.proxy( this.handleAlbumClick, this ) );
+      this.albumsPanel.on('click.photopicker', '.album', this.handleAlbumClick.bind( this ) );
     }
 
     if ( this.photosButton ) {
-      this.photosButton.on('click.photopicker', $.proxy( this.handlePhotosButtonClick, this ) );
+      this.photosButton.on('click.photopicker', this.handlePhotosButtonClick.bind( this ) );
     }
 
     if ( this.albumsButton ) {
-      this.albumsButton.on('click.photopicker', $.proxy( this.handleAlbumsButtonClick, this ) );
+      this.albumsButton.on('click.photopicker', this.handleAlbumsButtonClick.bind( this ) );
     }
 
     if ( this.loadMoreButton ) {
-      this.loadMoreButton.on('click.photopicker', $.proxy( this.handleLoadMoreButtonClick, this ) );
+      this.loadMoreButton.on('click.photopicker', this.handleLoadMoreButtonClick.bind( this ) );
     }
 
     if ( this.cancelButton ) {
-      this.cancelButton.on('click.photopicker', $.proxy( this.handleCancelButtonClick, this ) );
+      this.cancelButton.on('click.photopicker', this.handleCancelButtonClick.bind( this ) );
     }
 
     if ( this.submitButton ) {
-      this.submitButton.on('click.photopicker', $.proxy( this.handleSubmitButtonClick, this ) );
+      this.submitButton.on('click.photopicker', this.handleSubmitButtonClick.bind( this ) );
     }
 
     return this;
