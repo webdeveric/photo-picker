@@ -1,7 +1,7 @@
 import 'babelify/polyfill';
 import $ from 'jquery';
 import '../src/Lightbox';
-
+import { debug } from '../src/util';
 import PhotoPicker from '../src/PhotoPicker';
 import FacebookPhotoProvider from '../src/FacebookPhotoProvider';
 import InstagramPhotoProvider from '../src/InstagramPhotoProvider';
@@ -26,11 +26,15 @@ $(function() {
   $('.no-js').removeClass('no-js').addClass('js');
 
   // Handle selected photo
-  $(document.documentElement).on('selected.photopicker', function( e, url ) {
-    if ( url ) {
-      var img = new Image();
+  $(document.documentElement).on('selected.photopicker', function( e, photo, provider ) {
+    if ( photo ) {
 
-      img.src = url;
+      debug.log( photo, provider );
+
+      const img = new Image();
+
+      img.src = photo.getSrc();
+
       $('#preview').empty().append( img );
     }
   }).on('error.photopicker', function( e, error /* , photopicker */ ) {
