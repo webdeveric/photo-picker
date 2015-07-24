@@ -32,7 +32,7 @@ class Photo
   {
     if ( tags ) {
       this.tags = [];
-      Array.prototype.push.apply( this.tags, tags );
+      this.tags.push( ...tags );
     }
 
     return this;
