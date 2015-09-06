@@ -22,7 +22,6 @@ module.exports = function(grunt) {
     babel: {
       options: {
         sourceMap: true,
-        // modules: 'umd',
         env: {
           production: {
             compact: true
