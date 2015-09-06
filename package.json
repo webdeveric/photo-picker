@@ -5,8 +5,8 @@
   "description": "Select a photo from your facebook or instagram accounts",
   "main": "lib/PhotoPicker.js",
   "files": [
-    "lib/",
-    "example/"
+    "src/",
+    "lib/"
   ],
   "scripts": {
     "babel": "babel src --out-dir lib --modules common --compact",
