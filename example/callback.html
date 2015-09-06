@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <title>Instagram callback handler</title>
 <meta name="author" content="Eric King" />
 <script>
 var win = window.opener || window;
-if (window.opener && window.opener.receiveInstagramToken ) {
+if ( win.receiveInstagramToken && typeof win.receiveInstagramToken === 'function' ) {
     var hash = document.location.hash.match(/#access_token=(.+)/);
     if ( hash[1] ) {
         win.console.log( "Sending access_token" );

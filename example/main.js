@@ -37,7 +37,7 @@ $(function() {
 
       $('#preview').empty().append( img );
     }
-  }).on('error.photopicker', function( e, error /* , photopicker */ ) {
+  }).on('error.photopicker', function( e, photopicker, error ) {
     console.warn( error.message );
   });
 
