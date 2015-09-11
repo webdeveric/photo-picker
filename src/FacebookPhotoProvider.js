@@ -7,7 +7,7 @@ import { debug } from './util';
 
 class FacebookPhotoProvider extends PhotoProvider
 {
-  constructor( sdkSettings = {} )
+  constructor( sdkSettings = {}, scopes = [ 'public_profile', 'user_photos' ] )
   {
     super(
       '/me/photos?type=uploaded&fields=id,images,from',
@@ -19,7 +19,7 @@ class FacebookPhotoProvider extends PhotoProvider
 
     this.sdkSettings.version = 'v2.4';
 
-    this.scopes = [ 'public_profile', 'user_photos', 'user_videos' ];
+    this.scopes = scopes;
     this.rejected = false;
   }
 
