@@ -4,7 +4,7 @@ import ContentProvider from './ContentProvider';
 import Lightbox from './Lightbox';
 import PhotoProvider from './PhotoProvider';
 
-class PhotoPicker extends ContentProvider
+export default class PhotoPicker extends ContentProvider
 {
   constructor( templateSelector, photoProvider, options = {} )
   {
@@ -187,7 +187,7 @@ class PhotoPicker extends ContentProvider
       },
       ( error ) => {
         this.initialized = null; // clear out the Promise so that you don't get stuck in a rejected state.
-        this.trigger('error.photopicker', [ this, error ] );
+        this.trigger('error.photopicker', { error } );
       }
     );
 
@@ -448,7 +448,7 @@ class PhotoPicker extends ContentProvider
     // debug.info( this.selectedPhoto, photo );
 
     if ( photo !== false ) {
-      this.trigger('selected.photopicker', [ photo, this.photoProvider ] );
+      this.trigger('selected.photopicker', { photo, photoProvider: this.photoProvider } );
       this.close();
     }
   }
@@ -480,12 +480,4 @@ class PhotoPicker extends ContentProvider
 
     return this;
   }
-
-  trigger( name, parameters = {} )
-  {
-    $(document.documentElement).trigger( name, parameters );
-  }
-
 }
-
-export default PhotoPicker;

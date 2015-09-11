@@ -1,8 +1,9 @@
 import $ from 'jquery';
 import ContentProvider from './ContentProvider';
 import AjaxContentProvider from './AjaxContentProvider';
+import EventDispatcher from './EventDispatcher';
 
-class Lightbox
+export default class Lightbox extends EventDispatcher
 {
   constructor( template, contentProvider, {
     closeOnESC    = true,
@@ -10,9 +11,12 @@ class Lightbox
     openClass     = 'open',
     closeSelector = '.lightbox-close-action',
     titleSelector = '.lightbox-title',
-    extraClass    = ''
+    extraClass    = '',
+    title         = '',
   } = {} )
   {
+    super();
+
     this.$template = $(template);
     this.setContentProvider( contentProvider );
 
@@ -23,6 +27,7 @@ class Lightbox
     this.options.closeSelector = closeSelector;
     this.options.titleSelector = titleSelector;
     this.options.extraClass = extraClass;
+    this.options.title = title;
   }
 
   static checkQueue()
@@ -43,11 +48,6 @@ class Lightbox
     return Lightbox;
   }
 
-  trigger( name, parameters )
-  {
-    $(document.documentElement).trigger( name, parameters );
-  }
-
   setContentProvider( contentProvider = null )
   {
     this.contentProvider = contentProvider instanceof ContentProvider ? contentProvider : new ContentProvider();
@@ -66,7 +66,7 @@ class Lightbox
         $contentFrame.append( content );
         this.contentProvider.bindEvents();
         this.$template.removeClass('loading');
-        this.trigger('render.lightbox', [ this ] );
+        this.trigger('render.lightbox');
       },
       ( error ) => {
         console.error( error );
@@ -97,7 +97,7 @@ class Lightbox
       this.setTitle();
       this.renderContent();
 
-      this.trigger('open.lightbox', [ this ] );
+      this.trigger('open.lightbox');
 
     }
 
@@ -127,6 +127,7 @@ class Lightbox
   setTitle( title )
   {
     title = title || this.option('title', '');
+
     this.$template.find( this.option('titleSelector') ).text( title );
     return this;
   }
@@ -150,7 +151,7 @@ class Lightbox
 
     this.removeClasses();
 
-    this.trigger('close.lightbox', [ this ] );
+    this.trigger('close.lightbox');
 
     Lightbox.checkQueue();
 
@@ -183,68 +184,3 @@ Lightbox.open       = false;
 Lightbox.current    = null;
 Lightbox.queue      = [];
 Lightbox.queueDelay = 250;
-
-$.fn.lightbox = function( options )
-{
-  const settings = $.extend({}, $.fn.lightbox.defaults, options);
-
-  function handleClick( event ) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    let provider   = null,
-        $target    = $(event.target),
-        href       = $target.data('lightbox-href') || $target.attr('href') || false,
-        content    = $target.data('lightbox-content') || false,
-        template   = $target.data('lightbox-template') || false,
-        title      = $target.data('lightbox-title') || '',
-        extraClass = $target.data('lightbox-class') || '';
-
-    switch ( true ) {
-      case href !== false:
-        provider = new AjaxContentProvider( href, settings.provider );
-        break;
-      case content !== false:
-        provider = new ContentProvider( content );
-        break;
-      case template !== false:
-        // TODO: Make this class.
-        // provider = new TemplateProvider( template );
-        break;
-    }
-
-    const lightbox = new Lightbox(
-      settings.template,
-      provider,
-      {
-        title: title,
-        extraClass: extraClass
-      }
-    );
-
-    lightbox.open();
-  }
-
-  this.on('click', settings.descendantSelector, handleClick).addClass('js-lightbox');
-
-  return this;
-};
-
-$.fn.lightbox.defaults = {
-  template: '.default-lightbox',
-  descendantSelector: null,
-  provider: {
-    ajaxOptions: {},
-    processData: function( data, textStatus, jqXHR ) {
-      const ct = jqXHR.getResponseHeader('content-type') || '';
-
-      if (ct.indexOf('json') > -1) {
-        return data.content;
-      }
-
-      return data;
-    }
-  }
-};
-
-export default Lightbox;

@@ -1,7 +1,11 @@
-class ContentProvider
+import EventDispatcher from './EventDispatcher';
+
+class ContentProvider extends EventDispatcher
 {
   constructor( content = '', options = {} )
   {
+    super();
+
     this.content = content;
     this.options = options;
   }
