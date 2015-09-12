@@ -1,4 +1,4 @@
-class Photo
+export default class Photo
 {
   constructor( id, src, thumbnail, likes = 0, tags = [], description = '' )
   {
@@ -102,5 +102,3 @@ class Photo
     return item;
   }
 }
-
-export default Photo;

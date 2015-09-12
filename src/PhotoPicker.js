@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { objectToArray, debug } from './util';
+import { debug } from './util';
 import ContentProvider from './ContentProvider';
 import Lightbox from './Lightbox';
 import PhotoProvider from './PhotoProvider';
@@ -212,21 +212,18 @@ export default class PhotoPicker extends ContentProvider
     return this;
   }
 
-  renderPhotos( photos = {} )
+  renderPhotos( photos = new Map )
   {
-    // Photos is an object, not array.
-    for ( let i in photos ) {
-      this.photosPanel.append( photos[ i ].getHTML() );
-    }
+    photos.forEach( function( photo, id ) {
+      this.photosPanel.append( photo.getHTML() );
+    }, this );
   }
 
   renderAlbums( albums )
   {
     if ( ! this.albumsRendered ) {
 
-      debug.log( albums );
-
-      objectToArray( albums ).forEach( ( album ) => {
+      albums.forEach( ( album ) => {
         this.albumsPanel.append( album.getHTML() );
       });
 
@@ -328,8 +325,11 @@ export default class PhotoPicker extends ContentProvider
   switchToAlbum( albumId )
   {
     if ( albumId !== this.photoProvider.currentAlbumID ) {
+
       this.toggleLoadingClass( true );
+
       this.photoProvider.switchToAlbum( albumId );
+
       this.clearPhotosPanel().getPhotos().then( () => {
         this.renderPhotos( this.photoProvider.getCurrentAlbumPhotos() );
         this.loadMoreButton.prop('disabled', this.photoProvider.getCurrentAlbum().getURL() === false );
@@ -444,8 +444,6 @@ export default class PhotoPicker extends ContentProvider
     e.preventDefault();
 
     const photo = this.getSelectedPhoto();
-
-    // debug.info( this.selectedPhoto, photo );
 
     if ( photo !== false ) {
       this.trigger('selected.photopicker', { photo, photoProvider: this.photoProvider } );

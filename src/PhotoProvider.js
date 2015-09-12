@@ -2,18 +2,21 @@ import Photo from './Photo';
 import Album from './Album';
 import { throwIt, debug } from './util';
 
-class PhotoProvider
+export default class PhotoProvider
 {
-  constructor( url, albumsurl )
+  constructor( { name = 'default', url, albumsurl = null, limit = 64 } )
   {
-    this.name      = 'default';
-
+    this.name      = name;
     this.url       = url;
     this.albumsurl = albumsurl;
-    this.limit     = 64;
+    this.limit     = limit;
 
-    this.photos    = {}; // Photo.id => Photo object
-    this.albums    = {}; // Album.id => Album object
+    if ( typeof Map === 'undefined' ) {
+      debug.error('Map is undefined. Please provide a polyfill.');
+    } else {
+      this.photos = new Map();
+      this.albums = new Map();
+    }
 
     this.currentAlbumID = 'default';
     this.albumsLoaded   = false;
@@ -48,12 +51,12 @@ class PhotoProvider
 
   numAlbums()
   {
-    return Object.keys( this.albums ).length;
+    return this.albums.size;
   }
 
   numPhotos()
   {
-    return Object.keys( this.photos ).length;
+    return this.photos.size;
   }
 
   numAlbumPhotos()
@@ -64,7 +67,7 @@ class PhotoProvider
   addPhoto( photoInstance )
   {
     if ( photoInstance instanceof Photo ) {
-      this.photos[ photoInstance.id ] = photoInstance;
+      this.photos.set( String( photoInstance.id ), photoInstance );
     }
 
     return this;
@@ -73,7 +76,7 @@ class PhotoProvider
   addAlbum( albumInstance )
   {
     if ( albumInstance instanceof Album ) {
-      this.albums[ albumInstance.id ] = albumInstance;
+      this.albums.set( String( albumInstance.id ), albumInstance );
     }
 
     return this;
@@ -81,29 +84,27 @@ class PhotoProvider
 
   hasPhoto( photoId )
   {
-    return this.photos[ photoId ] && this.photos[ photoId ] instanceof Photo;
+    return this.photos.has( String( photoId ) );
   }
 
   // Updated this to return a Promise.
   // If the Photo exists, resolve it, otherwise, call the api to get it.
   getPhoto( photoId )
   {
-    return this.hasPhoto( photoId ) ? this.photos[ photoId ] : false;
+    return this.hasPhoto( photoId ) ? this.photos.get( String( photoId ) ) : false;
   }
 
   getCurrentAlbumPhotos()
   {
-    const photoIds = this.getCurrentAlbum().getPhotoIDs(),
-          photos    = {},
-          l         = photoIds.length;
+    const photoIds = this.getCurrentAlbum().getPhotoIDs();
+    const photos   = new Map();
 
-    for ( let i = 0 ; i < l ; ++i ) {
-      const photo = this.photos[ photoIds[ i ] ] || false;
-
-      if ( photo !== false ) {
-        photos[ photo.id ] = photo;
+    photoIds.forEach( ( id ) => {
+      if ( this.photos.has( String( id ) ) ) {
+        let photo = this.photos.get( id );
+        photos.set( String( photo.id ), photo );
       }
-    }
+    });
 
     return photos;
   }
@@ -155,7 +156,7 @@ class PhotoProvider
 
   getAlbum( albumId )
   {
-    return this.albums[ albumId ] || false;
+    return this.albums.get( String( albumId ) ) || false;
   }
 
   getCurrentAlbum()
@@ -176,7 +177,7 @@ class PhotoProvider
 
   hasAlbum( albumId )
   {
-    return this.albums[ albumId ] && this.albums[ albumId ] instanceof Album;
+    return this.albums.has( String( albumId ) );
   }
 
   /*
@@ -225,13 +226,13 @@ class PhotoProvider
 
     album.setURL( this.getNextUrl( results ) );
 
-    const photos = {}; // This current batch of photos will be returned.
+    const photos = new Map();
 
     results.data.forEach( ( d ) => {
       let photo = this.buildPhoto( d );
       this.addPhoto( photo );
       album.addPhotoID( photo.id );
-      photos[ photo.id ] = photo;
+      photos.set( String( photo.id ), photo );
     });
 
     return photos;
@@ -315,5 +316,3 @@ class PhotoProvider
   }
 
 }
-
-export default PhotoProvider;
