@@ -1,63 +1,62 @@
-.debug-console{
-    display: block;
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    padding:0;
-    list-style: none;
-    border: 1px solid #F3F3F3;
-    background: #F9F9F9;
-    color: #333;
-    font-size: 14px;
-    min-height: 600px;
-    overflow: scroll;
+.debug-console {
+  display: block;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #F3F3F3;
+  background: #F9F9F9;
+  color: #333;
+  font-size: 14px;
+  min-height: 600px;
+  overflow: scroll;
 }
 
-.debug-console li{
-    margin: 0;
-    padding: 10px;
-    list-style: none;
-    border-top: 1px solid #F3F3F3;
+.debug-console li {
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  border-top: 1px solid #F3F3F3;
 }
 
-.debug-console li:first-child{
-    border-top: none;
+.debug-console li:first-child {
+  border-top: none;
 }
 
-.debug-console .warn{
-    background-color: #C66;
-    color: #FFF;
+.debug-console .warn {
+  background-color: #C66;
+  color: #FFF;
 }
 
-.debug-console .error{
-    background-color: #C33;
+.debug-console .error {
+  background-color: #C33;
 }
 
-.object-details{
-    background-color: #F9F9F9;
-    margin: 0;
-    padding: 0;
+.object-details {
+  background-color: #F9F9F9;
+  margin: 0;
+  padding: 0;
 }
 
-.object-details.depth-0 > dd{
-    max-height: 100px;
-    overflow: scroll;
+.object-details.depth-0 > dd {
+  max-height: 100px;
+  overflow: scroll;
 }
 
-.object-details.depth-even{
-    background: #FFF;
+.object-details.depth-even {
+  background: #FFF;
 }
 
-.object-details dt{
-    font-weight: bold;
+.object-details dt {
+  font-weight: bold;
 }
 
-.object-details dd{
-
+.object-details dd {
 }
 
 .object-details dt,
-.object-details dd{
-    display: block;
-    padding: 5px;
+.object-details dd {
+  display: block;
+  padding: 5px;
 }

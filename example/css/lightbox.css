@@ -1,34 +1,33 @@
 @keyframes loading {
-    from {
-        transform: rotate(0deg) scale(1);
-        opacity: 1;
-        border-radius: 0;
-    }
+  from {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+    border-radius: 0;
+  }
 
-    to {
-        transform: rotate(360deg) scale(2);
-        opacity: .25;
-        border-radius: 25%;
-    }
+  to {
+    transform: rotate(360deg) scale(2);
+    opacity: .25;
+    border-radius: 25%;
+  }
 }
 
 @keyframes throbber {
-    0% {
-       box-shadow: inset 0 0 1px rgba(0,0,0,.4), 0 0 3px #FFF;
-    }
+  0% {
+    box-shadow: inset 0 0 1px rgba(0,0,0,.4), 0 0 3px #FFF;
+  }
 
-    50% {
+  50% {
+  }
 
-    }
-
-    100% {
-        box-shadow: inset 0 0 12px rgba(0,0,0,.4), 0 0 3px #000;
-    }
+  100% {
+    box-shadow: inset 0 0 12px rgba(0,0,0,.4), 0 0 3px #000;
+  }
 }
 
 .lightbox-open,
 .lightbox-open body {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .lightbox {
@@ -47,13 +46,13 @@
   transition: all ease-in-out 200ms;
 }
 
-.lightbox.open{
+.lightbox.open {
   opacity: 1;
   visibility: visible;
   z-index: 1000;
 }
 
-.lightbox-frame{
+.lightbox-frame {
   position: relative;
   z-index: 10;
   padding: 40px;
@@ -89,11 +88,11 @@
   align-items: flex-start;
 }
 
-.ie8 .lightbox-frame{
+.ie8 .lightbox-frame {
   min-height: 0;
 }
 
-.lightbox-overlay{
+.lightbox-overlay {
   position: fixed;
   z-index: 1;
   top: 0;
@@ -107,15 +106,15 @@
   display: block;
 }
 
-.ie8 .lightbox-overlay{
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)"
+.ie8 .lightbox-overlay {
+  -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';
 }
 
-.lte7 .lightbox-overlay{
+.lte7 .lightbox-overlay {
   filter: alpha(opacity = 80);
 }
 
-.lightbox-wrapper{
+.lightbox-wrapper {
   position: relative;
   z-index: 2;
   margin: 0 auto;
@@ -140,26 +139,26 @@
   align-self: center;
 }
 
-.lightbox.loading .lightbox-wrapper:before{
-    display: block;
-    position: absolute;
-    z-index: 100;
-    top: 50%;
-    left: 50%;
-    width: 50px;
-    height: 50px;
-    margin: -25px 0 0 -25px;
-    /*border-radius: 50px;*/
-    content: "";
-    background: #333;
-    color: #FFF;
-    animation-duration: 1s;
-    animation-name: loading;
-    animation-direction: alternate;
-    animation-iteration-count: infinite;
+.lightbox.loading .lightbox-wrapper:before {
+  display: block;
+  position: absolute;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
+  /*border-radius: 50px;*/
+  content: '';
+  background: #333;
+  color: #FFF;
+  animation-duration: 1s;
+  animation-name: loading;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
 }
 
-.lightbox-titlebar{
+.lightbox-titlebar {
   display: block;
   position: relative;
   height: 40px;
@@ -169,7 +168,7 @@
   color: #FFF;
 }
 
-.lightbox-title{
+.lightbox-title {
   position: relative;
   height: 100%;
   line-height: 45px;
@@ -184,11 +183,11 @@
   box-sizing: border-box;
 }
 
-.lightbox-title:empty{
+.lightbox-title:empty {
   display: none;
 }
 
-.lightbox-title-icon{
+.lightbox-title-icon {
   display: inline-block;
   vertical-align: middle;
   width: 24px;
@@ -200,20 +199,20 @@
   margin: 0 6px 0 0;
 }
 
-.facebook-picker-lightbox .lightbox-title-icon{
+.facebook-picker-lightbox .lightbox-title-icon {
   background-color: #EEE;
 }
 
-.instagram-picker-lightbox .lightbox-title-icon{
+.instagram-picker-lightbox .lightbox-title-icon {
   background-color: #AAA;
 }
 
-.lightbox-title-text{
+.lightbox-title-text {
   display: inline-block;
-  vertical-align: middle; 
+  vertical-align: middle;
 }
 
-.lightbox-close{
+.lightbox-close {
   cursor: pointer;
   position: absolute;
   z-index: 10;
@@ -227,7 +226,7 @@
   text-align: center;
 }
 
-.lightbox-close-inner{
+.lightbox-close-inner {
   border: 2px solid #FFF;
   display: inline-block;
   line-height: 16px;
@@ -236,11 +235,11 @@
   transition: all ease-in-out 200ms;
 }
 
-.lightbox-close:hover .lightbox-close-inner{
+.lightbox-close:hover .lightbox-close-inner {
   background: orangered;
 }
 
-.lightbox-content{
+.lightbox-content {
   text-align: left;
   font-size: 16px;
   line-height: 1.2;
@@ -250,70 +249,70 @@
 }
 
 
-.lightbox.notice .lightbox-wrapper{
-    max-width: 500px;
-    background: #EEE;
-    color: #345;
-    border-radius: 4px;
-    box-shadow: 0 0 10px 10px rgba(0,0,0,.075), inset 0 0 3px rgba(0,0,0,.5);
+.lightbox.notice .lightbox-wrapper {
+  max-width: 500px;
+  background: #EEE;
+  color: #345;
+  border-radius: 4px;
+  box-shadow: 0 0 10px 10px rgba(0,0,0,.075), inset 0 0 3px rgba(0,0,0,.5);
 }
 
-.lightbox.notice .lightbox-titlebar{
-    position: relative;
-    background: orangered linear-gradient( to top, red, orangered);
-    color: #FFF;
+.lightbox.notice .lightbox-titlebar {
+  position: relative;
+  background: orangered linear-gradient( to top, red, orangered);
+  color: #FFF;
 }
 
-.lightbox.notice .lightbox-title{
-    background: transparent;
+.lightbox.notice .lightbox-title {
+  background: transparent;
 }
 
-.lightbox.notice .lightbox-close{
-    background: transparent;
-    color: #FFF;
-    box-shadow: none;
-    line-height: 30px;
+.lightbox.notice .lightbox-close {
+  background: transparent;
+  color: #FFF;
+  box-shadow: none;
+  line-height: 30px;
 }
 
-.lightbox.notice .lightbox-content{
-    padding: 20px;
-    min-height: 0;
+.lightbox.notice .lightbox-content {
+  padding: 20px;
+  min-height: 0;
 }
 
-.lightbox.notice .lightbox-content p{
-    margin: 0 0 10px 0;
+.lightbox.notice .lightbox-content p {
+  margin: 0 0 10px 0;
 }
 
-.photo-picker-lightbox .lightbox-wrapper{
+.photo-picker-lightbox .lightbox-wrapper {
   width: 800px;
   border-radius: 3px;
   box-shadow: 0 0 10px 10px rgba(0,0,0,.15);
   color: #333;
 }
 
-.photo-picker-lightbox .lightbox-content{
-    padding: 0;
+.photo-picker-lightbox .lightbox-content {
+  padding: 0;
 }
 
-.photo-picker .throbber{
-    display: inline-block;
-    vertical-align: middle;
-    visibility: hidden;
-    width: 18px;
-    height: 18px;
-    margin: 0 6px 0 0;
-    content: "";
-    border-radius: 18px;
-    box-shadow: inset 0 0 1px rgba(0,0,0,.4), 0 0 3px #FFF;
-    animation-name: throbber;
-    animation-play-state: paused;
-    animation-duration: 250ms;
-    animation-direction: alternate;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+.photo-picker .throbber {
+  display: inline-block;
+  vertical-align: middle;
+  visibility: hidden;
+  width: 18px;
+  height: 18px;
+  margin: 0 6px 0 0;
+  content: '';
+  border-radius: 18px;
+  box-shadow: inset 0 0 1px rgba(0,0,0,.4), 0 0 3px #FFF;
+  animation-name: throbber;
+  animation-play-state: paused;
+  animation-duration: 250ms;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 
-.loading-picker .photo-picker .throbber{
-    visibility: visible;
-    animation-play-state: running;
+.loading-picker .photo-picker .throbber {
+  visibility: visible;
+  animation-play-state: running;
 }
