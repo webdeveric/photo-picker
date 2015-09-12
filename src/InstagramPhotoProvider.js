@@ -3,13 +3,16 @@ import Photo from './Photo';
 import PhotoProvider from './PhotoProvider';
 import Popup from 'popup-window';
 
-class InstagramPhotoProvider extends PhotoProvider
+export default class InstagramPhotoProvider extends PhotoProvider
 {
   constructor( clientID, redirectURI )
   {
-    super( 'https://api.instagram.com/v1/users/self/media/recent', null );
+    super( {
+      name: 'instagram',
+      url: 'https://api.instagram.com/v1/users/self/media/recent',
+      limit: 32 // It looks like Instagram has an undocumented limit of 33 entries per response.
+    } );
 
-    this.name        = 'instagram';
     this.clientID    = clientID;
     this.redirectURI = redirectURI;
     this.accessToken = null;
@@ -94,7 +97,9 @@ class InstagramPhotoProvider extends PhotoProvider
       }).then( ( response ) => {
 
         if ( response.meta.code && (response.meta.code | 0) === 200 ) {
+
           resolve( response );
+
         } else {
 
           if ( response.meta.error_message ) {
@@ -146,5 +151,3 @@ class InstagramPhotoProvider extends PhotoProvider
   }
 
 }
-
-export default InstagramPhotoProvider;

@@ -5,21 +5,21 @@ import PhotoProvider from './PhotoProvider';
 import getFB from './facebook-sdk';
 import { debug } from './util';
 
-class FacebookPhotoProvider extends PhotoProvider
+export default class FacebookPhotoProvider extends PhotoProvider
 {
   constructor( sdkSettings = {}, scopes = [ 'public_profile', 'user_photos' ] )
   {
-    super(
-      '/me/photos?type=uploaded&fields=id,images,from',
-      '/me/albums?fields=id,name,count,cover_photo{id,images,picture,source},description,type,privacy'
-    );
+    super( {
+      name: 'facebook',
+      url: '/me/photos?type=uploaded&fields=id,images,from',
+      albumsurl: '/me/albums?fields=id,name,count,cover_photo{id,images,picture,source},description,type,privacy',
+      limit: 100
+    } );
 
-    this.name = 'facebook';
     this.sdkSettings = sdkSettings;
-
     this.sdkSettings.version = 'v2.4';
 
-    this.scopes = scopes;
+    this.scopes   = scopes;
     this.rejected = false;
   }
 
@@ -137,8 +137,6 @@ class FacebookPhotoProvider extends PhotoProvider
   {
     parameters = $.extend( this.getParameters(), parameters );
 
-    debug.log( url );
-
     if ( url === void 0 ) {
       return Promise.reject( new Error('FacebookPhotoProvider.api: URL is undefined') );
     }
@@ -156,14 +154,12 @@ class FacebookPhotoProvider extends PhotoProvider
 
               if ( response && ! response.error ) {
 
-                debug.log( 'FB api response', response );
                 resolve( response );
 
               } else {
 
                 const error = new Error( response.error.message ? response.error.message : 'FB.api failed' );
 
-                debug.error( 'FB api error', error );
                 reject( error );
 
               }
@@ -224,8 +220,6 @@ class FacebookPhotoProvider extends PhotoProvider
 
   buildAlbum( data )
   {
-    debug.log( data );
-
     const album = new Album(
       data.id,
       data.name,
@@ -243,5 +237,3 @@ class FacebookPhotoProvider extends PhotoProvider
   }
 
 }
-
-export default FacebookPhotoProvider;
