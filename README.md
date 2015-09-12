@@ -4,7 +4,7 @@ Pick a photo from the picker and save the image src to a form input.
 
 ## Things to know
 
-- You need a polyfill for `Map`
+- You need an ES2015 polyfill for `Map` and `Promise`
 
 ## Example script
 
