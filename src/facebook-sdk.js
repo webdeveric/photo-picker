@@ -57,7 +57,7 @@ function loadSDK( options = {} )
 
 }
 
-export default function getFB( { appId = '', version = 'v2.3' } = {} )
+export default function getFB( { appId = '', version = 'v2.4' } = {} )
 {
   return new Promise( ( resolve, reject ) => {
     resolvers.push( resolve );
