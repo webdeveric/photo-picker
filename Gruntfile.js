@@ -1,7 +1,8 @@
 module.exports = function(grunt) {
   'use strict';
 
-  var jsFiles = [ 'src/**/*.js', 'example/main.js' ];
+  var jsFiles = [ 'src/**/*.js' ];
+  var exampleFile = [ 'example/main.js' ];
 
   var config = {
 
@@ -9,14 +10,16 @@ module.exports = function(grunt) {
       options: {
         configFile: './.eslintrc'
       },
-      js: jsFiles
+      js: jsFiles,
+      example: exampleFile
     },
 
     jscs: {
       options: {
         config: './.jscsrc'
       },
-      js: jsFiles
+      js: jsFiles,
+      example: exampleFile
     },
 
     babel: {
@@ -39,7 +42,7 @@ module.exports = function(grunt) {
     },
 
     browserify: {
-      js: {
+      example: {
         options: {
           transform: [ 'babelify' ]
         },
@@ -64,15 +67,15 @@ module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.task.registerTask(
-    'lint',
-    'Run linting and coding style tasks',
-    [ 'eslint', 'jscs' ]
+    'js',
+    'Validate JS then transpile ES6 to ES5',
+    [ 'eslint:js', 'jscs:js', 'babel' ]
   );
 
   grunt.task.registerTask(
-    'js',
-    'Validate JS then transpile ES6 to ES5',
-    [ 'lint', 'babel', 'browserify' ]
+    'example',
+    'Build the example js',
+    [ 'eslint:example', 'jscs:example', 'browserify' ]
   );
 
   grunt.task.registerTask(
