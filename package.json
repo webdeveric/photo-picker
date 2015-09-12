@@ -1,12 +1,11 @@
 {
   "name": "photo-picker",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Select a photo from your facebook or instagram accounts",
   "main": "lib/PhotoPicker.js",
   "files": [
-    "lib/",
-    "example/"
+    "lib/"
   ],
   "scripts": {
     "babel": "babel src --out-dir lib --compact",
