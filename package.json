@@ -5,6 +5,7 @@
   "description": "Select a photo from your facebook or instagram accounts",
   "main": "lib/PhotoPicker.js",
   "files": [
+    "src/",
     "lib/"
   ],
   "scripts": {
