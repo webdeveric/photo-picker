@@ -2,7 +2,7 @@ import Photo from './Photo';
 
 export default class Album
 {
-  constructor( id, name, photosURL = '', coverPhoto = '' )
+  constructor( { id = 'default', name = '', photosURL = '', coverPhoto = '' } = {} )
   {
     this.id         = id;
     this.name       = name;

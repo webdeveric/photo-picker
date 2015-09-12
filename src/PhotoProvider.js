@@ -22,7 +22,11 @@ export default class PhotoProvider
     this.albumsLoaded   = false;
 
     this.addAlbum(
-      new Album( 'default', 'All Photos', this.url )
+      new Album({
+        id: 'default',
+        name: 'All Photos',
+        photosURL: this.url
+      })
     );
   }
 

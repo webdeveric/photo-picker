@@ -3,7 +3,7 @@ import AjaxContentProvider from './AjaxContentProvider';
 import ContentProvider from './ContentProvider';
 import Lightbox from './Lightbox';
 
-$.fn.lightbox = function( options )
+$.fn.lightbox = function( options = {} )
 {
   const settings = $.extend({}, $.fn.lightbox.defaults, options);
 

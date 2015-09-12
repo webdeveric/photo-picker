@@ -1,6 +1,6 @@
 export default class Photo
 {
-  constructor( id, src, thumbnail, likes = 0, tags = [], description = '' )
+  constructor( { id, src, thumbnail, likes = 0, tags = [], description = '' } )
   {
     this.id          = id;
     this.src         = src;

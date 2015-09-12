@@ -200,31 +200,32 @@ export default class FacebookPhotoProvider extends PhotoProvider
 
   buildPhoto( data )
   {
-    let source,
+    let id = data.id,
+        src,
         thumbnail;
 
     if ( data.images.length > 1 ) {
 
-      source    = data.images.shift().source;
+      src       = data.images.shift().source;
       thumbnail = data.images.pop().source;
 
     } else {
 
-      source    = data.source;
+      src       = data.source;
       thumbnail = data.picture;
 
     }
 
-    return new Photo( data.id, source, thumbnail );
+    return new Photo({ id, src, thumbnail });
   }
 
   buildAlbum( data )
   {
-    const album = new Album(
-      data.id,
-      data.name,
-      this.apiGetAlbumPhotosURL( data.id )
-    );
+    const album = new Album({
+      id: data.id,
+      name: data.name,
+      photosURL: this.apiGetAlbumPhotosURL( data.id )
+    });
 
     if ( typeof data.cover_photo === 'object' && data.cover_photo.id ) {
       let photo = this.buildPhoto( data.cover_photo );

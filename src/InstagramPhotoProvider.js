@@ -135,13 +135,13 @@ export default class InstagramPhotoProvider extends PhotoProvider
 
   buildPhoto( data )
   {
-    const photo = new Photo(
-      data.id,
-      data.images.standard_resolution.url.replace('http://', '//'),
-      data.images.thumbnail.url.replace('http://', '//'),
-      data.likes.count,
-      data.tags
-    );
+    const photo = new Photo({
+      id: data.id,
+      src: data.images.standard_resolution.url.replace('http://', '//'),
+      thumbnail: data.images.thumbnail.url.replace('http://', '//'),
+      likes: data.likes.count,
+      tags: data.tags
+    });
 
     if ( data.caption && data.caption.text ) {
       photo.setDescription( data.caption.text );
