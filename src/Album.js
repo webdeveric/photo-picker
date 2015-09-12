@@ -1,6 +1,6 @@
 import Photo from './Photo';
 
-class Album
+export default class Album
 {
   constructor( id, name, photosURL = '', coverPhoto = '' )
   {
@@ -69,5 +69,3 @@ class Album
     return this.photoIDs.length > 0;
   }
 }
-
-export default Album;

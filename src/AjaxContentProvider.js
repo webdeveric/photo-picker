@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import ContentProvider from './ContentProvider';
 
-class AjaxContentProvider extends ContentProvider
+export default class AjaxContentProvider extends ContentProvider
 {
   constructor( url = '', {
     alwaysFetch = false,
@@ -52,5 +52,3 @@ class AjaxContentProvider extends ContentProvider
     return super.getContent();
   }
 }
-
-export default AjaxContentProvider;

@@ -1,6 +1,6 @@
 import EventDispatcher from './EventDispatcher';
 
-class ContentProvider extends EventDispatcher
+export default class ContentProvider extends EventDispatcher
 {
   constructor( content = '', options = {} )
   {
@@ -31,5 +31,3 @@ class ContentProvider extends EventDispatcher
     return this;
   }
 }
-
-export default ContentProvider;
