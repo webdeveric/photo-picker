@@ -138,7 +138,7 @@ export default class InstagramPhotoProvider extends PhotoProvider
     const photo = new Photo({
       id: data.id,
       src: data.images.standard_resolution.url.replace('http://', '//'),
-      thumbnail: data.images.thumbnail.url.replace('http://', '//'),
+      thumbnail: data.images.low_resolution.url.replace('http://', '//'),
       likes: data.likes.count,
       tags: data.tags
     });
