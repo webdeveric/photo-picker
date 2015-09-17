@@ -51,7 +51,7 @@ export default class EventDispatcher
     return this;
   }
 
-  off( eventName, handler = null )
+  off( events, handler = null )
   {
     this.parseEvents( events ).forEach( ( eventName ) => {
       this.offEvent( eventName, handler );
