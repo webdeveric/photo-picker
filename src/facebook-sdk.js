@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-var loadingSDK = false,
+let loadingSDK = false,
     resolvers = [],
     rejecters = [];
 
