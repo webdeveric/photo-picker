@@ -46,7 +46,7 @@ export default class FacebookPhotoProvider extends PhotoProvider
 
               if ( response.authResponse.grantedScopes ) {
 
-                const ok = this.scopes.every( ( scope ) => {
+                const ok = this.scopes.every( scope => {
                   if ( ! response.authResponse.grantedScopes.includes( scope ) ) {
                     reject( new Error( `User did not provide ${scope} access.` ) );
                     return false; // this breaks the loop.
@@ -93,9 +93,9 @@ export default class FacebookPhotoProvider extends PhotoProvider
 
             if ( response.status === 'connected' ) {
 
-              this.api( '/me/permissions', {} ).then( ( res ) => {
+              this.api( '/me/permissions', {} ).then( res => {
 
-                res.data.every( ( d ) => {
+                res.data.every( d => {
                   if ( d.status !== 'granted' ) {
                     this.rejected = true;
                     return false;
@@ -106,7 +106,7 @@ export default class FacebookPhotoProvider extends PhotoProvider
 
                 return this.rejected;
 
-              }).then( ( rejected ) => {
+              }).then( rejected => {
 
                 if ( rejected ) {
                   this.login().then( () => { resolve( this ); }, reject );
