@@ -6,9 +6,7 @@ export default class AjaxContentProvider extends ContentProvider
   constructor( url = '', {
     alwaysFetch = false,
     ajaxOptions = {},
-    processData = function( data ) {
-      return data;
-    }
+    processData = data => data
   } = {} )
   {
     super( '', { alwaysFetch, ajaxOptions, processData } );

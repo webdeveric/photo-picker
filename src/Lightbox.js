@@ -62,13 +62,13 @@ export default class Lightbox extends EventDispatcher
     const $contentFrame = this.$template.find('.lightbox-content').empty();
 
     this.contentProvider.getContent().then(
-      ( content ) => {
+      content => {
         $contentFrame.append( content );
         this.contentProvider.bindEvents();
         this.$template.removeClass('loading');
         this.trigger('render.lightbox');
       },
-      ( error ) => {
+      error => {
         console.error( error );
       }
     );

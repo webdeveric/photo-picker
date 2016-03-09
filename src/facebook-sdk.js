@@ -13,13 +13,13 @@ function resetVars()
 
 function resolveSDK( sdk )
 {
-  resolvers.forEach( ( resolve ) => { resolve( sdk ); } );
+  resolvers.forEach( resolve => { resolve( sdk ); } );
   resetVars();
 }
 
 function rejectSDK( error )
 {
-  rejecters.forEach( ( reject ) => { reject( error ); } );
+  rejecters.forEach( reject => { reject( error ); } );
   resetVars();
 }
 

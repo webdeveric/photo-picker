@@ -103,7 +103,7 @@ export default class PhotoProvider
     const photoIds = this.getCurrentAlbum().getPhotoIDs();
     const photos   = new Map();
 
-    photoIds.forEach( ( id ) => {
+    photoIds.forEach( id => {
       if ( this.photos.has( String( id ) ) ) {
         let photo = this.photos.get( id );
         photos.set( String( photo.id ), photo );
@@ -137,7 +137,7 @@ export default class PhotoProvider
     if ( apiURL !== false ) {
 
       return this.api( apiURL, this.getParameters() ).then(
-        ( results ) => {
+        results => {
           return this.processResults( results );
         },
         throwIt
@@ -210,7 +210,7 @@ export default class PhotoProvider
     }
 
     return this.api( this.apiGetPhotoURL( photoId ), this.getParameters() ).then(
-      ( data ) => {
+      data => {
         photo = this.buildPhoto( data );
         this.addPhoto( photo );
         return photo;
@@ -232,7 +232,7 @@ export default class PhotoProvider
 
     const photos = new Map();
 
-    results.data.forEach( ( d ) => {
+    results.data.forEach( d => {
       let photo = this.buildPhoto( d );
       this.addPhoto( photo );
       album.addPhotoID( photo.id );
@@ -251,7 +251,7 @@ export default class PhotoProvider
   {
     if ( ! this.albumsLoaded ) {
 
-      data.forEach( ( d ) => {
+      data.forEach( d => {
         this.addAlbum( this.buildAlbum( d ) );
       });
 
@@ -277,7 +277,7 @@ export default class PhotoProvider
   apiScrape( url, parameters, data = [] )
   {
     return this.api( url, parameters ).then(
-      ( results ) => {
+      results => {
         const nextURL = this.getNextUrl( results );
 
         data.push( ...results.data );

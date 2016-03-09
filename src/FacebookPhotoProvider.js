@@ -38,9 +38,9 @@ export default class FacebookPhotoProvider extends PhotoProvider
     return new Promise( ( resolve, reject ) => {
 
       getFB( this.sdkSettings ).then(
-        ( FB ) => {
+        FB => {
 
-          FB.login( ( response ) => {
+          FB.login( response => {
 
             if ( response.authResponse ) {
 
@@ -87,9 +87,9 @@ export default class FacebookPhotoProvider extends PhotoProvider
 
       getFB( this.sdkSettings ).then(
 
-        ( FB ) => {
+        FB => {
 
-          FB.getLoginStatus( ( response ) => {
+          FB.getLoginStatus( response => {
 
             if ( response.status === 'connected' ) {
 
@@ -145,12 +145,12 @@ export default class FacebookPhotoProvider extends PhotoProvider
 
       getFB( this.sdkSettings ).then(
 
-        ( FB ) => {
+        FB => {
 
           FB.api(
             url,
             parameters,
-            ( response ) => {
+            response => {
 
               if ( response && ! response.error ) {
 

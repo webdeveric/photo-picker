@@ -51,7 +51,7 @@ export default class PhotoPicker extends ContentProvider
   init()
   {
     if ( ! this.setupLightbox ) {
-      this.setupLightbox = new Promise( ( resolve ) => {
+      this.setupLightbox = new Promise( resolve => {
         this.setupTemplate().initLightbox();
         resolve( this );
       });
@@ -169,7 +169,7 @@ export default class PhotoPicker extends ContentProvider
   open()
   {
     this.init().then(
-      ( initResults ) => {
+      initResults => {
         const [ picker, provider ] = initResults;
 
         if ( picker instanceof PhotoPicker && provider instanceof PhotoProvider ) {
@@ -185,7 +185,7 @@ export default class PhotoPicker extends ContentProvider
         }
 
       },
-      ( error ) => {
+      error => {
         this.initialized = null; // clear out the Promise so that you don't get stuck in a rejected state.
         this.trigger('error.photopicker', { error } );
       }
@@ -223,7 +223,7 @@ export default class PhotoPicker extends ContentProvider
   {
     if ( ! this.albumsRendered ) {
 
-      albums.forEach( ( album ) => {
+      albums.forEach( album => {
         this.albumsPanel.append( album.getHTML() );
       });
 
@@ -351,7 +351,7 @@ export default class PhotoPicker extends ContentProvider
     this.toggleLoadingClass( true );
     this.loadMoreButton.prop('disabled', true );
 
-    this.photoProvider.getAlbums().then( ( albums ) => {
+    this.photoProvider.getAlbums().then( albums => {
       this.renderAlbums( albums );
     }).then( () => {
       this.toggleLoadingClass( false );

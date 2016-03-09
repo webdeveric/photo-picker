@@ -57,7 +57,7 @@ export default class InstagramPhotoProvider extends PhotoProvider
             }
           ).opened( () => {
 
-            window.receiveInstagramToken = ( token ) => {
+            window.receiveInstagramToken = token => {
               this.setAccessToken( token );
               window.receiveInstagramToken = null;
               resolve( this );
@@ -94,7 +94,7 @@ export default class InstagramPhotoProvider extends PhotoProvider
         url,
         data: parameters,
         dataType: 'jsonp'
-      }).then( ( response ) => {
+      }).then( response => {
 
         if ( response.meta.code && (response.meta.code | 0) === 200 ) {
 

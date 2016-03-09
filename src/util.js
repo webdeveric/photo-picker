@@ -22,7 +22,7 @@ export const debug = {
         console.group();
       }
 
-      args.forEach( ( arg ) => console[ type ]( arg ) );
+      args.forEach( arg => console[ type ]( arg ) );
 
       if ( debug.useGroup && console.groupEnd ) {
         console.groupEnd();

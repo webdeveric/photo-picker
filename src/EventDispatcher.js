@@ -35,7 +35,12 @@ export default class EventDispatcher
       if ( handler === null ) {
         delete this.listeners[ eventName ];
       } else {
-        this.listeners[ eventName ].splice( index, 1 );
+
+        let index = this.listeners[ eventName ].indexOf( handler );
+
+        if ( index > -1 ) {
+          this.listeners[ eventName ].splice( index, 1 );
+        }
       }
     }
 
@@ -44,7 +49,7 @@ export default class EventDispatcher
 
   on( events, handler )
   {
-    this.parseEvents( events ).forEach( ( eventName ) => {
+    this.parseEvents( events ).forEach( eventName => {
       this.onEvent( eventName, handler );
     });
 
@@ -53,7 +58,7 @@ export default class EventDispatcher
 
   off( events, handler = null )
   {
-    this.parseEvents( events ).forEach( ( eventName ) => {
+    this.parseEvents( events ).forEach( eventName => {
       this.offEvent( eventName, handler );
     });
 
@@ -73,7 +78,7 @@ export default class EventDispatcher
         }
       });
 
-      queue.forEach( ( handler ) => {
+      queue.forEach( handler => {
         if ( typeof handler === 'function' ) {
           handler( customEvent );
         } else if ( typeof handler === 'object' && handler.handleEvent && typeof handler.handleEvent === 'function' ) {
