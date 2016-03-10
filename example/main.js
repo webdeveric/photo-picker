@@ -1,4 +1,4 @@
-import 'babelify/polyfill';
+import 'babel-polyfill';
 import $ from 'jquery';
 import '../src/lightbox-jquery';
 import { debug } from '../src/util';
